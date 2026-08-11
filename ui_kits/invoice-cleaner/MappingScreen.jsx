@@ -1,6 +1,6 @@
 const { Icon, Button, SearchPill } = window.SubtleGradientDesignSystem_21f929;
 
-function MappingScreen() {
+function MappingScreen({ onSaved }) {
   const d = window.INVOICE;
   const live = window.API.live;
 
@@ -9,6 +9,13 @@ function MappingScreen() {
   const [query, setQuery] = React.useState("");
   const [names, setNames] = React.useState(() => d.nameMap.map((m) => ({ ...m })));
   const [codes, setCodes] = React.useState(() => d.codeMap.map((m) => ({ ...m })));
+  const [queue, setQueue] = React.useState(() =>
+    (d.unresolved || []).map((u) => ({
+      ...u,
+      keyword: window.suggestKeyword(u.raw),
+      branch: window.suggestKeyword(u.raw),
+    }))
+  );
   const [dirty, setDirty] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [saved, setSaved] = React.useState(null);
@@ -49,8 +56,15 @@ function MappingScreen() {
         names: names.map((m) => ({ raw: m.raw, group: m.removed ? "" : m.group })),
         codes: codes.map((m) => ({ pattern: m.pattern, group: m.group, exact: m.match === "Exact" })),
       });
-      setSaved(`${res.names} name rules, ${res.codes} code rules saved`);
+      // Apply the edit to the data already cleaned, so the reports move now.
+      const applied = await window.API.remap();
+      await window.API.boot();
+      setSaved(
+        `${res.names} name rules, ${res.codes} keyword rules saved · ` +
+        `${applied.stats.unmappedRows.toLocaleString()} rows still unmapped`
+      );
       setDirty(false);
+      onSaved && onSaved();
     } catch (err) {
       setSaved(`Save failed: ${err.message}`);
     } finally {
@@ -58,9 +72,35 @@ function MappingScreen() {
     }
   }
 
+  const editQueue = (raw, field, value) => {
+    setQueue(queue.map((q) => (q.raw === raw ? { ...q, [field]: value } : q)));
+  };
+
+  /** Promote one unresolved name into a keyword rule. */
+  const accept = (row) => {
+    if (!row.keyword.trim() || !row.branch.trim()) return;
+    setCodes([{ pattern: row.keyword.trim(), group: row.branch.trim(), match: "Fragment" }, ...codes]);
+    setQueue(queue.filter((q) => q.raw !== row.raw));
+    setDirty(true);
+    setSaved(null);
+  };
+
+  const acceptAll = () => {
+    const ready = queue.filter((q) => q.keyword.trim() && q.branch.trim());
+    if (!ready.length) return;
+    setCodes([
+      ...ready.map((q) => ({ pattern: q.keyword.trim(), group: q.branch.trim(), match: "Fragment" })),
+      ...codes,
+    ]);
+    setQueue(queue.filter((q) => !ready.includes(q)));
+    setDirty(true);
+    setSaved(null);
+  };
+
   const match = (s) => !query || String(s).toLowerCase().includes(query.toLowerCase());
   const shownNames = names.filter((m) => match(m.raw) || match(m.group));
   const shownCodes = codes.filter((m) => match(m.pattern) || match(m.group));
+  const shownQueue = queue.filter((q) => match(q.raw) || match(q.keyword) || match(q.branch));
 
   const th = { textAlign: "left", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--mute)", padding: "10px 16px", borderBottom: "1px solid var(--ink)" };
   const td = { padding: "12px 16px", fontSize: 14, borderBottom: "1px solid var(--hairline-soft)" };
@@ -82,18 +122,30 @@ function MappingScreen() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 8 }}>
         <Panel pad={0} title={null} actions={null}>
           <div style={{ display: "flex", borderBottom: "1px solid var(--hairline)" }}>
-            {[["name", "Name → Group", names.length], ["code", "Code → Group", codes.length]].map(([id, label, n]) => (
+            {[
+              ["name", "Name → Group", names.length, false],
+              ["code", "Keyword → Branch", codes.length, false],
+              ["queue", "Unresolved", queue.length, queue.length > 0],
+            ].map(([id, label, n, alert]) => (
               <button key={id} onClick={() => { setTab(id); setSelected(null); }} style={{ flex: 1, padding: "14px 20px", background: tab === id ? "var(--canvas)" : "var(--soft-cloud)", border: "none", borderBottom: tab === id ? "2px solid var(--ink)" : "2px solid transparent", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 15, fontWeight: 600, color: tab === id ? "var(--ink)" : "var(--mute)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                {label}<span style={{ fontSize: 12, color: "var(--mute)", fontWeight: 500 }}>({n})</span>
+                {label}
+                <span style={{ fontSize: 12, fontWeight: 600, color: alert ? "var(--canvas)" : "var(--mute)", background: alert ? "var(--sale)" : "transparent", padding: alert ? "1px 8px" : 0, borderRadius: "var(--radius-pill)" }}>{alert ? n : `(${n})`}</span>
               </button>
             ))}
           </div>
 
           <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--hairline-soft)", display: "flex", gap: 12, alignItems: "center" }}>
-            <SearchPill placeholder={tab === "name" ? "Search raw names" : "Search codes"} width={260}
+            <SearchPill placeholder={tab === "name" ? "Search raw names" : tab === "code" ? "Search keywords" : "Search unresolved"} width={260}
               value={query} onChange={(e) => setQuery(e.target.value)} />
+            {tab === "queue" && queue.length > 0 && (
+              <Button size="sm" variant="secondary" onClick={acceptAll}>Accept all {shownQueue.length === queue.length ? queue.length : ""}</Button>
+            )}
             <span style={{ fontSize: 13, color: "var(--mute)", marginLeft: "auto" }}>
-              {tab === "name" ? "Suggestions are drafted from chain prefixes — confirm or correct them." : "Fragment rules match anywhere inside a code."}
+              {tab === "name"
+                ? "Suggestions are drafted from chain prefixes — confirm or correct them."
+                : tab === "code"
+                ? "A keyword matches anywhere inside the code or the name. Longest keyword wins."
+                : "Names no rule resolves. The keyword is prefilled from the name — correct it, or accept."}
             </span>
           </div>
 
@@ -118,9 +170,35 @@ function MappingScreen() {
                 ))}
               </tbody>
             </table>
+          ) : tab === "queue" ? (
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead><tr>
+                <th style={th}>Raw name in your data</th><th style={{ ...th, width: 110 }}>Code</th>
+                <th style={th}>Keyword</th><th style={th}>Branch name</th><th style={{ ...th, width: 90 }} />
+              </tr></thead>
+              <tbody>
+                {shownQueue.map((q) => (
+                  <tr key={q.raw}>
+                    <td style={{ ...td, color: "var(--charcoal)" }}>{q.raw}</td>
+                    <td style={{ ...td, fontFamily: "ui-monospace, monospace", fontSize: 13, color: "var(--mute)" }}>{q.code || "—"}</td>
+                    <td style={td}>
+                      <input style={input} value={q.keyword} placeholder="keyword"
+                        onChange={(e) => editQueue(q.raw, "keyword", e.target.value)} />
+                    </td>
+                    <td style={td}>
+                      <input style={input} value={q.branch} placeholder="branch name"
+                        onChange={(e) => editQueue(q.raw, "branch", e.target.value)} />
+                    </td>
+                    <td style={td}>
+                      <GhostButton icon="check" onClick={() => accept(q)}>Add</GhostButton>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           ) : (
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead><tr><th style={th}>Invoice code / fragment</th><th style={th}>Canonical outlet</th><th style={{ ...th, width: 120 }}>Match</th></tr></thead>
+              <thead><tr><th style={th}>Keyword (matches code or name)</th><th style={th}>Branch name</th><th style={{ ...th, width: 120 }}>Match</th></tr></thead>
               <tbody>
                 {shownCodes.map((m) => (
                   <tr key={m.pattern} onClick={() => setSelected(m.pattern)} style={{ cursor: "pointer", background: selected === m.pattern ? "var(--soft-cloud)" : "transparent" }}>
@@ -151,6 +229,11 @@ function MappingScreen() {
 
           {!shownNames.length && tab === "name" && (
             <div style={{ padding: "40px 24px", textAlign: "center", color: "var(--mute)", fontSize: 14 }}>No raw names match “{query}”.</div>
+          )}
+          {tab === "queue" && !shownQueue.length && (
+            <div style={{ padding: "40px 24px", textAlign: "center", color: "var(--mute)", fontSize: 14 }}>
+              {queue.length ? `Nothing matches “${query}”.` : "Every name resolves. Nothing left to map."}
+            </div>
           )}
         </Panel>
 

@@ -139,7 +139,20 @@
         group: s(r.group),
         match: r.exact ? "Exact" : "Fragment",
       })),
+      // Names still unresolved after both layers — the queue of work.
+      unresolved: observed
+        .filter((o) => o.status === "unmapped")
+        .map((o) => ({ raw: s(o.raw), code: s(o.code) })),
     };
+  }
+
+  /**
+   * "10094 KUBANG KERIAN" -> "KUBANG KERIAN". Branch names arrive prefixed with
+   * an internal number, so the branch itself is the rest of the string. Used to
+   * prefill the keyword box, never applied on its own.
+   */
+  function suggestKeyword(rawName) {
+    return s(rawName).replace(/^\s*\d{3,}\s*/, "").trim();
   }
 
   // --- public surface ---------------------------------------------------
@@ -204,6 +217,14 @@
       });
       if (!res.ok) throw new Error(`save mappings → ${res.status}`);
       return res.json();
+    },
+
+    /** Re-resolve outlets on the stored clean table, without re-uploading. */
+    async remap() {
+      const res = await fetch("/api/remap", { method: "POST" });
+      if (!res.ok) throw await failure(res);
+      const d = await res.json();
+      return { rows: n(d.rows), stats: mapStats(d.stats) };
     },
 
     async upload(file) {
@@ -280,6 +301,7 @@
           total: table.total,
           nameMap: mappings.nameMap,
           codeMap: mappings.codeMap,
+          unresolved: mappings.unresolved,
           parse: {
             invoices: reports.stats.invoices,
             lineItems: reports.stats.lineItems,
@@ -304,6 +326,7 @@
 
   window.API = API;
   window.monthLabel = monthLabel;
+  window.suggestKeyword = suggestKeyword;
 
   /**
    * Best month for the stat cards. The API computes it; offline we derive it

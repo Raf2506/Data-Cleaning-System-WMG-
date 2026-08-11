@@ -142,6 +142,27 @@ def put_mappings():
     return jsonify({"ok": True, "names": len(m.name_to_group), "codes": len(m.code_rules)})
 
 
+@app.post("/api/remap")
+def remap():
+    """Re-resolve outlets on the stored clean table after a mapping edit.
+
+    The clean table keeps Code and Raw Name, so corrected mappings can be applied
+    without re-uploading the source file.
+    """
+    frame = _clean_frame()
+    if frame.empty:
+        return jsonify({"rows": 0, "stats": {}})
+    mappings = MappingLibrary.load(MAPPING_PATH)
+    resolved = [
+        mappings.resolve(row.get("Raw Name", ""), row.get("Code", ""))
+        for row in frame.to_dict("records")
+    ]
+    frame["Outlet"] = [outlet for outlet, _ in resolved]
+    frame["Mapping Status"] = [status for _, status in resolved]
+    _store(frame)
+    return jsonify({"rows": len(frame), "stats": reports.summary_stats(frame)})
+
+
 @app.get("/api/table")
 def table():
     full = _clean_frame()

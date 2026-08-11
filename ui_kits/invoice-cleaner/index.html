@@ -36,7 +36,8 @@ function App(){
       {view==="dashboard" && <DashboardScreen key={rev} onNavigate={go}/>}
       {/* Not keyed on rev — remounting would wipe the upload it just finished. */}
       {view==="upload" && <UploadScreen onNavigate={go} onCleaned={refresh}/>}
-      {view==="mapping" && <MappingScreen key={rev}/>}
+      {/* Also unkeyed: it holds the edits and the save confirmation. */}
+      {view==="mapping" && <MappingScreen onSaved={refresh}/>}
       {view==="table" && <TableScreen key={rev}/>}
       {view==="reports" && <ReportsScreen key={rev}/>}
     </main>

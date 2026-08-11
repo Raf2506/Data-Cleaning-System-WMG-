@@ -17,18 +17,27 @@ from .parser import looks_like_code_name
 
 @dataclass
 class CodeRule:
-    """A Code->Group rule. exact=True matches the whole code; otherwise substring."""
+    """A keyword rule: a fragment of the invoice code *or* the raw name.
+
+    Branch keywords come in both kinds — `C0084` and `SNWG` identify the branch
+    through its code, while `KLUANG PERDANA` and `BANGI` appear in the name — so
+    a fragment rule tries both. exact=True still means the whole code, which is
+    the only way to pin a rule to one specific account.
+    """
 
     pattern: str
     group: str
     exact: bool = False
 
-    def matches(self, code: str) -> bool:
-        code = (code or "").strip().upper()
+    def matches(self, code: str, name: str = "") -> bool:
         pattern = self.pattern.strip().upper()
-        if not code or not pattern:
+        if not pattern:
             return False
-        return code == pattern if self.exact else pattern in code
+        code = (code or "").strip().upper()
+        if self.exact:
+            return bool(code) and code == pattern
+        name = (name or "").strip().upper()
+        return (bool(code) and pattern in code) or (bool(name) and pattern in name)
 
 
 @dataclass
@@ -106,8 +115,10 @@ class MappingLibrary:
         if name and not looks_like_code_name(name) and key in self.name_to_group:
             return self.name_to_group[key], "mapped-name"
 
-        for rule in self.code_rules:
-            if rule.matches(code):
+        # Longest keyword first, so a specific rule beats a shorter one that is a
+        # prefix of it — KLUANG PERDANA must win over KLUANG.
+        for rule in sorted(self.code_rules, key=lambda r: -len(r.pattern.strip())):
+            if rule.matches(code, name):
                 return rule.group, "mapped-code"
 
         if name and not looks_like_code_name(name) and key not in self.name_to_group:
