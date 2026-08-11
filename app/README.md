@@ -4,9 +4,13 @@ Turns a paginated accounting "Invoice Listing" Excel export into a clean, analys
 
 ```
 pip install -r requirements.txt
-python server.py            # http://localhost:5000
-python tests/test_pipeline.py
+python server.py                        # serves the API and the UI kit
+PYTHONPATH=. python tests/test_pipeline.py
 ```
+
+`server.py` serves the repo root as its static root and redirects `/` to
+`/ui_kits/invoice-cleaner/index.html`, so the UI kit's relative asset paths
+(`../../styles.css`, `../../_ds_bundle.js`) resolve without a build step.
 
 ## Modules
 

@@ -11,6 +11,7 @@
 <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.js"></script>
 <script src="../../_ds_bundle.js"></script>
 <script src="data.js"></script>
+<script src="api.js"></script>
 <script type="text/babel" src="AppChrome.jsx"></script>
 <script type="text/babel" src="Charts.jsx"></script>
 <script type="text/babel" src="DashboardScreen.jsx"></script>
@@ -23,18 +24,28 @@
 <script type="text/babel" data-presets="react">
 function App(){
   const [view,setView]=React.useState("dashboard");
+  // Bumped whenever live data replaces what the screens are holding.
+  const [rev,setRev]=React.useState(0);
+  const refresh=()=>setRev(r=>r+1);
   const go=(v)=>{setView(v);window.scrollTo(0,0);};
   const unmapped=window.INVOICE.nameMap.filter(m=>m.status!=="mapped").length;
   return (<div style={{display:"flex",minHeight:"100vh",alignItems:"stretch"}}>
     <Sidebar view={view} onNavigate={go} unmapped={unmapped}/>
     <main style={{flex:1,minWidth:0,padding:"32px 40px 64px"}}>
-      {view==="dashboard" && <DashboardScreen onNavigate={go}/>}
-      {view==="upload" && <UploadScreen onNavigate={go}/>}
-      {view==="mapping" && <MappingScreen/>}
-      {view==="table" && <TableScreen/>}
-      {view==="reports" && <ReportsScreen/>}
+      <SourceBanner onNavigate={go}/>
+      {view==="dashboard" && <DashboardScreen key={rev} onNavigate={go}/>}
+      {/* Not keyed on rev — remounting would wipe the upload it just finished. */}
+      {view==="upload" && <UploadScreen onNavigate={go} onCleaned={refresh}/>}
+      {view==="mapping" && <MappingScreen key={rev}/>}
+      {view==="table" && <TableScreen key={rev}/>}
+      {view==="reports" && <ReportsScreen key={rev}/>}
     </main>
   </div>);
 }
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+
+// Hydrate from the API before first paint so no screen flashes sample data as
+// though it were real. Falls back to data.js when the API is unreachable.
+window.API.boot().then(()=>{
+  ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+});
 </script></body></html>

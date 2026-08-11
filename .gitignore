@@ -6,9 +6,11 @@ venv/
 *.egg-info/
 .pytest_cache/
 
-# Runtime data — mapping library, cached clean frame, uploaded exports
+# Runtime data — mapping library, cached clean frame
 app/data/
-app/static/
+
+# Local tooling
+.claude/
 
 # Generated exports
 clean_data.csv

@@ -1,5 +1,9 @@
-// Sample cleaned dataset standing in for the Python API's responses.
-// Shapes match app/server.py exactly, so swapping fetch() calls in is a one-line change.
+// Sample cleaned dataset — the offline fallback when the Flask API is not
+// reachable, and what the screens render before api.js hydrates them.
+//
+// These are the SCREEN shapes (camelCase), not the API's. The API returns pandas
+// column names; api.js translates between the two. Keep any key added here in
+// sync with the corresponding mapper in api.js.
 window.INVOICE = {
   file: { name: "IKA_IV_LISTING_JAN-JULY.xlsx", uploaded: "11 Aug 2026, 09:14", size: "4.2 MB", rows: 19812 },
   parse: { invoices: 1681, lineItems: 8934, dateFrom: "2026-01-01", dateTo: "2026-07-31", rawNames: 214, continuationRows: 138, discardedRows: 10740 },
@@ -60,6 +64,15 @@ window.INVOICE = {
       { product: "RASTO OYSTER SAUCE 510G X 12", amount: 85298.5 },
     ],
   },
+  bestOutletByMonth: [
+    { month: "2026-01", outlet: "ECONSAVE", amount: 182400.5 },
+    { month: "2026-02", outlet: "ECONSAVE", amount: 174220.0 },
+    { month: "2026-03", outlet: "BORONG DIN AS CASH & CARRY", amount: 168840.75 },
+    { month: "2026-04", outlet: "ECONSAVE", amount: 191240.3 },
+    { month: "2026-05", outlet: "MYDIN", amount: 158920.4 },
+    { month: "2026-06", outlet: "ECONSAVE", amount: 204110.9 },
+    { month: "2026-07", outlet: "ECONSAVE", amount: 186880.25 },
+  ],
   nameMap: [
     { raw: "ECONSAVE - AMPANG BARU", group: "ECONSAVE", status: "mapped" },
     { raw: "ECONSAVE - BAGAN SERAI", group: "ECONSAVE", status: "mapped" },

@@ -1,43 +1,91 @@
 const { Icon, Button } = window.SubtleGradientDesignSystem_21f929;
 
+const PER_PAGE = 24; // matches reports.BARS_PER_PAGE
+
 function ReportsScreen() {
   const d = window.INVOICE;
-  const [outlet, setOutlet] = React.useState("ECONSAVE");
+  const live = window.API.live;
+
+  const outletNames = live
+    ? d.byOutlet.map((o) => o.outlet)
+    : Object.keys(d.productsByOutlet || {});
+
+  const [outlet, setOutlet] = React.useState(outletNames[0] || "");
   const [page, setPage] = React.useState(0);
-  const products = d.productsByOutlet[outlet] || d.productsByOutlet.ECONSAVE;
-  const perPage = 24;
-  const pages = Math.max(1, Math.ceil(products.length / perPage));
-  const outletTotal = products.reduce((a, p) => a + p.amount, 0);
+  const [pages, setPages] = React.useState([]);
+  const [outletTotal, setOutletTotal] = React.useState(0);
+  const [loading, setLoading] = React.useState(false);
+
+  // The API paginates per outlet server-side, so the products for one outlet
+  // are fetched on selection rather than shipped with the first payload.
+  React.useEffect(() => {
+    let cancelled = false;
+    if (!outlet) return;
+    if (!live) {
+      const rows = (d.productsByOutlet || {})[outlet] || [];
+      const chunks = [];
+      for (let i = 0; i < rows.length; i += PER_PAGE) chunks.push(rows.slice(i, i + PER_PAGE));
+      setPages(chunks.length ? chunks : [[]]);
+      setOutletTotal(rows.reduce((a, p) => a + p.amount, 0));
+      return;
+    }
+    setLoading(true);
+    window.API.outletProducts(outlet)
+      .then((res) => {
+        if (cancelled) return;
+        setPages(res.pages.length ? res.pages : [[]]);
+        setOutletTotal(res.total);
+      })
+      .catch(() => !cancelled && setPages([[]]))
+      .finally(() => !cancelled && setLoading(false));
+    return () => { cancelled = true; };
+  }, [outlet, live]);
+
+  const pageCount = Math.max(1, pages.length);
+  const rows = pages[Math.min(page, pageCount - 1)] || [];
+
+  const topOutlet = d.byOutlet[0] || { outlet: "—", amount: 0 };
+  const bestProduct = (d.stats.bestProduct && d.stats.bestProduct.name)
+    ? d.stats.bestProduct
+    : (d.contribution[0] ? { name: d.contribution[0].product, amount: d.contribution[0].amount } : { name: "—", amount: 0 });
+  const bestMonth = window.bestMonth(d);
+  const share = d.stats.totalSales ? (bestProduct.amount / d.stats.totalSales) * 100 : 0;
+  const perMonth = window.bestOutletByMonth(d);
 
   return (
     <div>
-      <PageHead kicker={`Yearly overview · ${d.stats.period}`} title="Reports"
-        actions={<><GhostButton icon="download">CSV</GhostButton><GhostButton icon="download">XLSX</GhostButton><Button size="sm" iconLeft={<Icon name="file-down" size={16} />}>Download PDF</Button></>} />
+      <PageHead kicker={`Yearly overview · ${d.stats.period || "—"}`} title="Reports"
+        actions={<>
+          <GhostButton icon="download" href={live ? window.API.exportUrl("csv") : null} disabled={!live}>CSV</GhostButton>
+          <GhostButton icon="download" href={live ? window.API.exportUrl("xlsx") : null} disabled={!live}>XLSX</GhostButton>
+          <Button size="sm" iconLeft={<Icon name="file-down" size={16} />} onClick={() => window.print()}>Download PDF</Button>
+        </>} />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 8 }}>
         <StatCard tone="ink" label="Total sales, period" value={window.RMk(d.stats.totalSales)} sub={d.stats.period} />
-        <StatCard label="Best-selling outlet" value={d.byOutlet[0].outlet} sub={window.RM(d.byOutlet[0].amount)} />
-        <StatCard label="Best-selling product" value="Carbonara Mushroom" sub={window.RM(d.contribution[0].amount) + " · 14.2% of total"} />
-        <StatCard label="Best month" value="Jun 2026" sub={window.RM(781240.9)} />
+        <StatCard label="Best-selling outlet" value={topOutlet.outlet} sub={window.RM(topOutlet.amount)} />
+        <StatCard label="Best-selling product" value={bestProduct.name}
+          sub={`${window.RM(bestProduct.amount)} · ${share.toFixed(1)}% of total`} />
+        <StatCard label="Best month" value={bestMonth.label} sub={window.RM(bestMonth.amount)} />
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <Panel title="1 — Yearly overview: sales by outlet"
-          note={`${d.stats.outlets} outlets · ${window.RM(d.stats.totalSales)} company-wide · ${d.stats.period}`}>
+          note={`${d.stats.outlets || d.byOutlet.length} outlets · ${window.RM(d.stats.totalSales)} company-wide · ${d.stats.period || "—"}`}>
           <BarList rows={d.byOutlet} />
         </Panel>
 
         <Panel title="2 — Product sales per outlet"
-          note={`${outlet} · ${window.RM(outletTotal)}`}
+          note={loading ? "Loading…" : `${outlet} · ${window.RM(outletTotal)}`}
           actions={<div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <Select value={outlet} onChange={(v) => { setOutlet(v); setPage(0); }} options={Object.keys(d.productsByOutlet)} />
-            <span style={{ fontSize: 13, color: "var(--mute)", whiteSpace: "nowrap" }}>Page {page + 1} of {pages}</span>
+            <Select value={outlet} onChange={(v) => { setOutlet(v); setPage(0); }} options={outletNames} />
+            <span style={{ fontSize: 13, color: "var(--mute)", whiteSpace: "nowrap" }}>Page {Math.min(page, pageCount - 1) + 1} of {pageCount}</span>
           </div>}>
-          <BarList rows={products.slice(page * perPage, (page + 1) * perPage)} labelKey="product" />
-          {pages > 1 && (
+          <BarList rows={rows} labelKey="product" />
+          {pageCount > 1 && (
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
               <GhostButton icon="chevron-left" onClick={() => setPage(Math.max(0, page - 1))}>Previous</GhostButton>
-              <GhostButton icon="chevron-right" onClick={() => setPage(Math.min(pages - 1, page + 1))}>Next</GhostButton>
+              <GhostButton icon="chevron-right" onClick={() => setPage(Math.min(pageCount - 1, page + 1))}>Next</GhostButton>
             </div>
           )}
         </Panel>
@@ -46,21 +94,26 @@ function ReportsScreen() {
           <Donut rows={d.contribution} />
         </Panel>
 
-        <Panel title={'“Others” — detailed breakdown'} note="What sits inside the Others slice, as a share of company-wide sales">
-          <Donut rows={d.others} />
-        </Panel>
+        {/* Empty whenever every product is already a named slice. */}
+        {d.others.length > 0 && (
+          <Panel title={'“Others” — detailed breakdown'} note="What sits inside the Others slice, as a share of company-wide sales">
+            <Donut rows={d.others} />
+          </Panel>
+        )}
 
-        <Panel title="Best-selling outlet per month">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-            {[["Jan 2026", "ECONSAVE", 182400.5], ["Feb 2026", "ECONSAVE", 174220.0], ["Mar 2026", "BORONG DIN AS CASH & CARRY", 168840.75], ["Apr 2026", "ECONSAVE", 191240.3], ["May 2026", "MYDIN", 158920.4], ["Jun 2026", "ECONSAVE", 204110.9], ["Jul 2026", "ECONSAVE", 186880.25]].map(([m, o, v]) => (
-              <div key={m} style={{ background: "var(--soft-cloud)", padding: "14px 16px" }}>
-                <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--mute)" }}>{m}</div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginTop: 6 }}>{o}</div>
-                <div style={{ fontSize: 13, color: "var(--mute)", marginTop: 2, fontVariantNumeric: "tabular-nums" }}>{window.RM(v)}</div>
-              </div>
-            ))}
-          </div>
-        </Panel>
+        {perMonth.length > 0 && (
+          <Panel title="Best-selling outlet per month">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+              {perMonth.map((r) => (
+                <div key={r.label} style={{ background: "var(--soft-cloud)", padding: "14px 16px" }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--mute)" }}>{r.label}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, marginTop: 6 }}>{r.outlet}</div>
+                  <div style={{ fontSize: 13, color: "var(--mute)", marginTop: 2, fontVariantNumeric: "tabular-nums" }}>{window.RM(r.amount)}</div>
+                </div>
+              ))}
+            </div>
+          </Panel>
+        )}
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ from io import BytesIO
 from pathlib import Path
 
 import pandas as pd
-from flask import Flask, jsonify, request, send_file, send_from_directory
+from flask import Flask, jsonify, redirect, request, send_file
 
 from invoice_cleaner import (
     MappingLibrary,
@@ -18,11 +18,15 @@ from invoice_cleaner import (
 )
 
 BASE = Path(__file__).parent
+ROOT = BASE.parent  # repo root — the UI kit and design system assets live here
 DATA = BASE / "data"
 MAPPING_PATH = DATA / "mappings.json"
 CLEAN_PATH = DATA / "clean.parquet"
+UI = "/ui_kits/invoice-cleaner/index.html"
 
-app = Flask(__name__, static_folder=str(BASE / "static"), static_url_path="")
+# The UI kit loads ../../styles.css and ../../_ds_bundle.js, so the repo root is
+# the static root and the UI is served from its own path rather than at "/".
+app = Flask(__name__, static_folder=str(ROOT), static_url_path="")
 
 
 def _clean_frame() -> pd.DataFrame:
@@ -38,7 +42,8 @@ def _store(frame: pd.DataFrame) -> None:
 
 @app.get("/")
 def index():
-    return send_from_directory(app.static_folder, "index.html")
+    """Redirect rather than serve, so the UI kit's relative asset paths resolve."""
+    return redirect(UI)
 
 
 @app.post("/api/upload")
@@ -84,7 +89,28 @@ def clean():
 @app.get("/api/mappings")
 def get_mappings():
     m = MappingLibrary.load(MAPPING_PATH)
-    return jsonify({"name_to_group": m.name_to_group, "code_rules": [r.__dict__ for r in m.code_rules]})
+    frame = _clean_frame()
+    # Raw names actually present in the cleaned data, with how they resolved. The
+    # library alone can't tell the Mapping Manager which names are still unmapped.
+    observed = []
+    if not frame.empty:
+        seen = frame[["Raw Name", "Code", "Outlet", "Mapping Status"]].drop_duplicates("Raw Name")
+        observed = [
+            {
+                "raw": r["Raw Name"] or r["Code"] or "",
+                "code": r["Code"] or "",
+                "group": r["Outlet"] if r["Mapping Status"] != "unmapped" else "",
+                "status": r["Mapping Status"],
+            }
+            for r in seen.astype(object).where(pd.notna(seen), None).to_dict("records")
+        ]
+    return jsonify(
+        {
+            "name_to_group": m.name_to_group,
+            "code_rules": [r.__dict__ for r in m.code_rules],
+            "observed": observed,
+        }
+    )
 
 
 @app.post("/api/mappings")
@@ -104,19 +130,24 @@ def put_mappings():
 
 @app.get("/api/table")
 def table():
-    frame = _clean_frame()
+    full = _clean_frame()
+    frame = full
     outlet, month = request.args.get("outlet"), request.args.get("month")
     if outlet:
         frame = frame[frame["Outlet"] == outlet]
     if month:
         frame = frame[frame["Month"] == month]
     limit = int(request.args.get("limit", 500))
+    page = frame.head(limit).copy()
+    if not page.empty:
+        # Timestamps would serialise as RFC-822; the table wants the source format.
+        page["Date"] = pd.to_datetime(page["Date"], errors="coerce").dt.strftime("%d/%m/%Y")
     return jsonify(
         {
             "total": len(frame),
-            "outlets": sorted(_clean_frame()["Outlet"].dropna().unique().tolist()) if not _clean_frame().empty else [],
-            "months": sorted(_clean_frame()["Month"].dropna().unique().tolist()) if not _clean_frame().empty else [],
-            "rows": frame.head(limit).astype(object).where(pd.notna(frame.head(limit)), None).to_dict("records"),
+            "outlets": sorted(full["Outlet"].dropna().unique().tolist()) if not full.empty else [],
+            "months": sorted(full["Month"].dropna().unique().tolist()) if not full.empty else [],
+            "rows": page.astype(object).where(pd.notna(page), None).to_dict("records"),
         }
     )
 

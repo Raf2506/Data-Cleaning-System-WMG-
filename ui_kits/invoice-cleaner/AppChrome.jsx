@@ -31,8 +31,10 @@ function Sidebar({ view, onNavigate, unmapped }) {
       </nav>
       <div style={{ marginTop: "auto", padding: "16px 24px 0", borderTop: "1px solid var(--ash)", fontSize: 12, lineHeight: 1.6, color: "var(--stone)" }}>
         <div style={{ fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 6 }}>Active dataset</div>
-        <div style={{ color: "var(--hairline)" }}>{window.INVOICE.file.name}</div>
-        <div>{window.INVOICE.stats.period}</div>
+        <div style={{ color: "var(--hairline)" }}>
+          {window.INVOICE.file ? window.INVOICE.file.name : `${(window.INVOICE.total || 0).toLocaleString()} cleaned rows`}
+        </div>
+        <div>{window.INVOICE.stats.period || "No period detected"}</div>
       </div>
     </aside>
   );
@@ -95,12 +97,32 @@ function StatusTag({ status }) {
   );
 }
 
-function GhostButton({ children, icon, onClick }) {
+function GhostButton({ children, icon, onClick, href, disabled }) {
+  const style = { display: "inline-flex", alignItems: "center", gap: 8, height: 36, padding: "0 16px", background: "var(--canvas)", color: disabled ? "var(--stone)" : "var(--ink)", border: "1px solid var(--hairline)", borderRadius: "var(--radius-pill)", cursor: disabled ? "not-allowed" : "pointer", fontFamily: "Archivo, sans-serif", fontSize: 14, fontWeight: 500, textDecoration: "none" };
+  const inner = <>{icon && <Icon name={icon} size={15} />}{children}</>;
+  // Downloads have to be real navigations, so exports render as anchors.
+  if (href && !disabled) return <a href={href} style={style}>{inner}</a>;
+  return <button onClick={onClick} disabled={disabled} style={style}>{inner}</button>;
+}
+
+/**
+ * Says where the numbers on screen came from. Silent when the API is live —
+ * the interesting cases are "this is demo data" and "the backend has nothing yet".
+ */
+function SourceBanner({ onNavigate }) {
+  if (window.API && window.API.live) return null;
+  const empty = window.API && window.API.empty;
   return (
-    <button onClick={onClick} style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 36, padding: "0 16px", background: "var(--canvas)", color: "var(--ink)", border: "1px solid var(--hairline)", borderRadius: "var(--radius-pill)", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 14, fontWeight: 500 }}>
-      {icon && <Icon name={icon} size={15} />}
-      {children}
-    </button>
+    <div style={{ display: "flex", gap: 14, alignItems: "flex-start", background: "var(--soft-cloud)", border: "1px solid var(--hairline)", borderLeft: "3px solid var(--ink)", padding: "14px 20px", marginBottom: 24 }}>
+      <Icon name="info" size={18} color="var(--mute)" />
+      <div style={{ flex: 1, fontSize: 13, lineHeight: 1.6, color: "var(--charcoal)" }}>
+        <strong>Sample data.</strong>{" "}
+        {empty
+          ? "The backend is running but no file has been cleaned yet — upload an Invoice Listing export to replace these figures."
+          : "The API isn't reachable, so these figures come from the bundled demo dataset. Start the server with python app/server.py and open localhost:5000."}
+      </div>
+      {empty && onNavigate && <Button size="sm" variant="secondary" onClick={() => onNavigate("upload")}>Upload</Button>}
+    </div>
   );
 }
 
@@ -115,4 +137,4 @@ function Select({ value, onChange, options, label }) {
   );
 }
 
-Object.assign(window, { Sidebar, PageHead, StatCard, Panel, StatusTag, GhostButton, Select, NAV });
+Object.assign(window, { Sidebar, PageHead, StatCard, Panel, StatusTag, GhostButton, SourceBanner, Select, NAV });

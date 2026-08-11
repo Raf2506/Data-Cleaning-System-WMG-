@@ -17,11 +17,19 @@ The repository holds three layers:
 ```bash
 pip install -r app/requirements.txt
 python app/server.py            # http://localhost:5000
-python app/tests/test_pipeline.py
 ```
 
-The UI kit runs standalone without the backend — open
-`ui_kits/invoice-cleaner/index.html` in a browser for the click-through version.
+`localhost:5000` serves the UI kit and the API together — upload an Invoice
+Listing export on **Upload & Clean** and every screen switches to your data.
+
+Tests need `app/` on the import path:
+
+```bash
+PYTHONPATH=app python app/tests/test_pipeline.py
+```
+
+The UI kit also opens standalone (`ui_kits/invoice-cleaner/index.html`): the API
+calls fail, it falls back to the sample dataset in `data.js`, and it says so.
 
 ## How the cleaning works
 
@@ -62,6 +70,10 @@ one month's upload carry forward to the next.
 
 Module-level detail is in [`app/README.md`](app/README.md); the screen-to-endpoint
 map is in [`ui_kits/invoice-cleaner/README.md`](ui_kits/invoice-cleaner/README.md).
+
+The API speaks pandas column names and the screens speak camelCase;
+[`ui_kits/invoice-cleaner/api.js`](ui_kits/invoice-cleaner/api.js) is the only
+place that knows both.
 
 ## A note on the design system
 

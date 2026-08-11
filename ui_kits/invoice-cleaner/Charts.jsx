@@ -26,7 +26,7 @@ function ColumnChart({ rows, labelKey = "month", valueKey = "amount", height = 1
         <div key={r[labelKey]} style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", gap: 8, height: "100%" }}>
           <div style={{ fontSize: 11, fontWeight: 600, textAlign: "center", color: "var(--mute)", fontVariantNumeric: "tabular-nums" }}>{window.RMk(r[valueKey])}</div>
           <div style={{ height: (r[valueKey] / top) * 100 + "%", background: "var(--ink)" }} title={window.RM(r[valueKey])} />
-          <div style={{ fontSize: 11, textAlign: "center", color: "var(--mute)" }}>{r[labelKey]}</div>
+          <div style={{ fontSize: 11, textAlign: "center", color: "var(--mute)" }}>{window.monthLabel(r[labelKey])}</div>
         </div>
       ))}
     </div>
