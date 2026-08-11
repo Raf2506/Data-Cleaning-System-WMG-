@@ -1,0 +1,6 @@
+:root{--space-xxs:2px;--space-xs:4px;--space-sm:8px;--space-md:12px;--space-lg:18px;--space-xl:24px;--space-xxl:30px;--space-section:48px;
+/* semantic */
+--gap-grid:var(--space-sm);--gap-grid-mobile:var(--space-xs);--gap-card-meta:var(--space-sm);--pad-row:var(--space-xl);--pad-pill-y:16px;--pad-pill-x:32px;--pad-pill-compact-y:12px;--pad-pill-compact-x:24px;--pad-chip-y:8px;--pad-chip-x:16px;
+--rhythm-section:var(--space-section);--rhythm-section-tablet:32px;--rhythm-section-mobile:var(--space-xl);
+--container-max:1440px;--container-gutter:24px;--container-gutter-wide:80px;--sidebar-filter:220px;
+--h-utility-bar:36px;--h-nav:56px;--h-pill:48px;--h-chip:40px;--h-search:40px;--size-icon-button:40px}

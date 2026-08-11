@@ -1,0 +1,36 @@
+window.STOREFRONT = {
+  nav: ["New & Featured", "Men", "Women", "Kids", "Performance", "Collections", "Sport"],
+  products: [
+    { name: "Trail Runner GTX", category: "Men's Trail Running Shoes", price: "$97.97", wasPrice: "$140", discount: "30% off", badge: "Just In", colors: ["#111111", "#0a7281", "#f5f5f5"], colorCount: "3 Colours" },
+    { name: "Ridge Pace 4", category: "Men's Trail Running Shoes", price: "$140", colors: ["#39393b", "#d6d1ff"], colorCount: "2 Colours" },
+    { name: "Summit Flyknit", category: "Men's Trail Running Shoes", price: "$180", badge: "Recycled Materials", colors: ["#f5f5f5", "#111111", "#ed1aa0"], colorCount: "3 Colours" },
+    { name: "Fell Runner Low", category: "Men's Trail Running Shoes", price: "$104.97", wasPrice: "$130", discount: "19% off", colors: ["#0a7281"], colorCount: "1 Colour" },
+    { name: "Scree GTX 2", category: "Men's Trail Running Shoes", price: "$160", colors: ["#111111", "#4b4b4d"], colorCount: "2 Colours" },
+    { name: "Ridge Pace Trail Vest", category: "Men's Running Vest", price: "$85", badge: "Coming Soon", colors: ["#111111"], colorCount: "1 Colour" },
+    { name: "Contour Long Sleeve", category: "Men's Dri-Weave Top", price: "$45", colors: ["#f5f5f5", "#39393b", "#beaffd"], colorCount: "3 Colours" },
+    { name: "Gradient Half-Zip", category: "Men's Running Midlayer", price: "$78.97", wasPrice: "$95", discount: "17% off", colors: ["#111111", "#ffb0dd"], colorCount: "2 Colours" },
+    { name: "Pace Short 5\"", category: "Men's Lined Running Shorts", price: "$40", colors: ["#111111", "#4b4b4d"], colorCount: "2 Colours" },
+  ],
+  filters: [
+    { title: "Gender", options: [{ label: "Men" }, { label: "Women" }, { label: "Unisex" }] },
+    { title: "Surface", options: [{ label: "Trail", count: 42 }, { label: "Road", count: 88 }, { label: "Track", count: 12 }] },
+    { title: "Shop by Price", options: [{ label: "Under $100", count: 24 }, { label: "$100 - $150", count: 31 }, { label: "Over $150", count: 18 }] },
+    { title: "Colour", options: [{ label: "Black", count: 36 }, { label: "White", count: 21 }, { label: "Multi", count: 9 }] },
+    { title: "Technology", options: [{ label: "Gore-Tex", count: 8 }, { label: "Recycled Materials", count: 27 }] },
+  ],
+  categories: ["Tops & T-Shirts", "Shorts", "Hoodies & Pullovers", "Trousers & Tights", "Jackets", "Socks", "Accessories", "Sale"],
+  sports: [
+    { label: "Trail Running", note: "Runner on switchback trail" },
+    { label: "Training", note: "Athlete in gym, low key light" },
+    { label: "Football", note: "Boots on floodlit pitch" },
+    { label: "Basketball", note: "Court at dusk" },
+    { label: "Tennis", note: "Clay court, low sun" },
+  ],
+  footer: [
+    { title: "Resources", links: ["Find a Store", "Become a Member", "Running Shoe Finder", "Send Us Feedback"] },
+    { title: "Help", links: ["Get Help", "Order Status", "Delivery", "Returns", "Payment Options"] },
+    { title: "Company", links: ["About Us", "News", "Careers", "Investors", "Sustainability"] },
+    { title: "Promotions & Discounts", links: ["Student", "Military", "Teacher", "First Responders", "Birthday"] },
+  ],
+  fineprint: ["© 2026 Subtle Gradient. All rights reserved.", "Guides", "Terms of Sale", "Terms of Use", "Privacy Policy", "Supply Chain Transparency"],
+};

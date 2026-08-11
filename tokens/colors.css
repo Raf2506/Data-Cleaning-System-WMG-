@@ -1,0 +1,15 @@
+:root{
+/* base — neutrals */
+--ink:#111111;--canvas:#ffffff;--soft-cloud:#f5f5f5;--charcoal:#39393b;--ash:#4b4b4d;--mute:#707072;--stone:#9e9ea0;--hairline:#cacacb;--hairline-soft:#e5e5e5;
+/* base — semantic */
+--sale:#d30005;--sale-deep:#780700;--success:#007d48;--success-bright:#1eaa52;--info:#1151ff;--info-deep:#0034e3;
+/* base — category accents (editorial only) */
+--accent-pink:#ed1aa0;--accent-pink-soft:#ffb0dd;--accent-purple-soft:#beaffd;--accent-purple-pale:#d6d1ff;--accent-teal:#0a7281;--accent-pink-deep:#4c012d;
+/* semantic aliases — surfaces */
+--surface-page:var(--canvas);--surface-soft:var(--soft-cloud);--surface-inverse:var(--ink);--surface-photo-stage:var(--soft-cloud);--surface-utility-bar:var(--soft-cloud);--surface-card:var(--canvas);
+/* semantic aliases — text */
+--text-primary:var(--ink);--text-body:var(--charcoal);--text-secondary:var(--mute);--text-low:var(--ash);--text-inverse:var(--canvas);--text-inverse-secondary:var(--stone);--text-price-sale:var(--sale);--text-price-was:var(--mute);--text-link:var(--ink);
+/* semantic aliases — lines */
+--line-divider:var(--hairline);--line-inset:var(--hairline-soft);--line-focus:var(--ink);
+/* semantic aliases — actions */
+--action-primary-bg:var(--ink);--action-primary-fg:var(--canvas);--action-secondary-bg:var(--soft-cloud);--action-secondary-fg:var(--ink);--action-on-image-bg:var(--canvas);--action-on-image-fg:var(--ink);--action-chip-bg:var(--canvas);--action-chip-fg:var(--ink);--action-chip-active-bg:var(--ink);--action-chip-active-fg:var(--canvas)}

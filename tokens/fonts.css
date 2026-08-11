@@ -1,0 +1,6 @@
+/* Webfonts. No binaries were supplied with the source kit, so the two faces are
+   loaded from Google Fonts. "Inter Display" is NOT on Google Fonts — Inter with
+   optical-size 32 (`font-variation-settings:'opsz' 32`) is the substitute.
+   See readme.md → Font substitutions. */
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&family=Noto+Sans+Arabic:wght@400;500&display=swap");
+:root{--font-display:"Anton","Inter Display",Arial Black,Arial,sans-serif;--font-display-tuned:"Inter","Inter Display",Helvetica,Arial,sans-serif;--font-ui:"Inter",Helvetica,Arial,sans-serif;--font-arabic:"Noto Sans Arabic","Inter",sans-serif;--font-opsz-display:'opsz' 32;--font-opsz-ui:'opsz' 14}

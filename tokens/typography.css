@@ -1,0 +1,13 @@
+:root{
+/* display campaign — Anton, uppercase, set into photography only */
+--display-campaign-family:var(--font-display);--display-campaign-size:96px;--display-campaign-weight:400;/* @kind other */--display-campaign-lh:0.9;/* @kind other */--display-campaign-tracking:0;/* @kind other */--display-campaign-transform:uppercase;/* @kind other */
+--display-campaign-size-tablet:64px;--display-campaign-size-mobile:48px;
+/* headings — Inter Display */
+--heading-xl-size:32px;--heading-xl-lh:1.2;/* @kind other */--heading-lg-size:24px;--heading-lg-lh:1.2;/* @kind other */--heading-md-size:16px;--heading-md-lh:1.75;/* @kind other */--heading-weight:500;/* @kind other */--heading-family:var(--font-display-tuned);
+/* body + ui — Inter */
+--body-md-size:16px;--body-md-lh:1.5;/* @kind other */--body-md-weight:400;/* @kind other */--body-strong-weight:500;/* @kind other */
+--button-lg-size:24px;--button-lg-lh:1.2;/* @kind other */--button-md-size:16px;--button-md-lh:1.5;/* @kind other */--button-sm-size:14px;--button-sm-lh:1.5;/* @kind other */--button-weight:500;/* @kind other */
+--link-md-size:16px;--link-md-lh:1.75;/* @kind other */--link-md-weight:500;/* @kind other */
+--caption-md-size:14px;--caption-md-lh:1.5;/* @kind other */--caption-sm-size:12px;--caption-sm-lh:1.5;/* @kind other */--caption-weight:500;/* @kind other */
+--utility-xs-size:9px;--utility-xs-lh:1.75;/* @kind other */--utility-xs-weight:500;/* @kind other */
+--tracking-flat:0/* @kind other */}

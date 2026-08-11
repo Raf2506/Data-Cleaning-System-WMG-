@@ -1,0 +1,5 @@
+:root{--radius-none:0px;--radius-sm:18px;--radius-md:24px;--radius-lg:30px;--radius-full:9999px;
+/* semantic */
+--radius-card:var(--radius-none);--radius-tile:var(--radius-none);--radius-pill:var(--radius-lg);--radius-search:var(--radius-md);--radius-dot:var(--radius-full);--radius-icon-button:var(--radius-full);--radius-avatar:var(--radius-sm);
+--ratio-product:1/1;/* @kind other */--ratio-product-tall:4/5;/* @kind other */--ratio-hero:16/9;/* @kind other */--ratio-rail-tile:4/5;/* @kind other */
+--size-swatch-dot:12px}
