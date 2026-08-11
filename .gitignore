@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Runtime data — mapping library, cached clean frame, uploaded exports
+app/data/
+app/static/
+
+# Generated exports
+clean_data.csv
+clean_data.xlsx
+*.parquet
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
