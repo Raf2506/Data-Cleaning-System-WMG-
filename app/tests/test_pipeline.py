@@ -1,4 +1,5 @@
 import io
+import zipfile
 
 import pandas as pd
 
@@ -62,7 +63,43 @@ def test_unmapped_is_flagged_not_dropped():
     assert "unmapped" in set(frame["Mapping Status"])
 
 
+def _pascal_case_book_views(source: io.BytesIO) -> io.BytesIO:
+    """Rewrite workbookView attributes the way non-Microsoft exporters do."""
+    out = io.BytesIO()
+    with zipfile.ZipFile(source) as zin, zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zout:
+        for item in zin.infolist():
+            data = zin.read(item.filename)
+            if item.filename == "xl/workbook.xml":
+                data = data.replace(
+                    b"<workbookView ",
+                    b'<workbookView WindowWidth="28800" WindowHeight="12435" ',
+                )
+            zout.writestr(item, data)
+    out.seek(0)
+    return out
+
+
+def test_pascalcase_workbook_attributes_are_repaired():
+    """AutoCount-style exports use WindowWidth, not windowWidth; openpyxl refuses them."""
+    broken = _pascal_case_book_views(_fixture())
+
+    # Confirm the fixture really does break the underlying reader.
+    broken.seek(0)
+    try:
+        pd.read_excel(broken, header=None, dtype=object)
+        raise AssertionError("expected openpyxl to reject PascalCase attributes")
+    except TypeError:
+        pass
+
+    broken.seek(0)
+    parsed = parse_invoice_listing(broken)
+    assert parsed.invoice_count == 2
+    assert parsed.line_item_count == 3
+    assert parsed.reported_range == ("1/1/2026", "31/7/2026")
+
+
 if __name__ == "__main__":
     test_pipeline()
     test_unmapped_is_flagged_not_dropped()
+    test_pascalcase_workbook_attributes_are_repaired()
     print("ok")

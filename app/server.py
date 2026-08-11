@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 from flask import Flask, jsonify, redirect, request, send_file
+from werkzeug.exceptions import HTTPException
 
 from invoice_cleaner import (
     MappingLibrary,
@@ -38,6 +39,19 @@ def _clean_frame() -> pd.DataFrame:
 def _store(frame: pd.DataFrame) -> None:
     DATA.mkdir(parents=True, exist_ok=True)
     frame.to_parquet(CLEAN_PATH, index=False)
+
+
+@app.errorhandler(Exception)
+def on_error(err):
+    """Fail as JSON.
+
+    Without this the debug server answers with its HTML traceback page, which
+    the UI then renders as a wall of markup instead of a readable message.
+    """
+    if isinstance(err, HTTPException):
+        return err
+    app.logger.exception("request failed")
+    return jsonify({"error": type(err).__name__, "message": str(err)}), 400
 
 
 @app.get("/")

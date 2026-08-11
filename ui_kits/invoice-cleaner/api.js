@@ -35,6 +35,27 @@
     return res.json();
   }
 
+  /**
+   * Pull a readable message out of a failed response. The API sends
+   * {error, message}; anything else (a proxy page, a debug traceback) would
+   * otherwise be rendered verbatim as markup.
+   */
+  async function failure(res) {
+    const body = await res.text();
+    try {
+      const parsed = JSON.parse(body);
+      if (parsed && parsed.message) {
+        return new Error(parsed.error ? `${parsed.error}: ${parsed.message}` : parsed.message);
+      }
+    } catch (_) {
+      /* not JSON — fall through */
+    }
+    if (/^\s*</.test(body)) {
+      return new Error(`The server returned an error page (HTTP ${res.status}). Check the server log.`);
+    }
+    return new Error(body.slice(0, 300) || `HTTP ${res.status}`);
+  }
+
   // --- server record -> screen record ----------------------------------
 
   const mapOutlet = (r) => ({ outlet: s(r.Outlet), amount: n(r.Amount), share: n(r.Share) });
@@ -189,7 +210,7 @@
       const body = new FormData();
       body.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) throw await failure(res);
       const d = await res.json();
       return {
         invoices: n(d.invoices),
@@ -210,7 +231,7 @@
       body.append("file", file);
       body.append("seed", String(seed));
       const res = await fetch("/api/clean", { method: "POST", body });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) throw await failure(res);
       const d = await res.json();
       return { rows: n(d.rows), stats: mapStats(d.stats) };
     },

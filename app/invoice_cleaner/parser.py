@@ -6,12 +6,16 @@ with the actual invoice headers and line items. See spec section 2.
 """
 from __future__ import annotations
 
+import io
 import re
+import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Iterable
 
 import pandas as pd
+
+BOOK_VIEWS_RE = re.compile(rb"<bookViews>.*?</bookViews>", re.DOTALL)
 
 INVOICE_NO_RE = re.compile(r"^IV-\d+", re.IGNORECASE)
 DATE_RANGE_RE = re.compile(
@@ -97,9 +101,63 @@ def _detect_reported_range(frame: pd.DataFrame, scan_rows: int = 13) -> tuple[st
     return None
 
 
+def _as_bytes(source: Any) -> bytes | None:
+    if isinstance(source, bytes):
+        return source
+    if hasattr(source, "read"):
+        source.seek(0)
+        return source.read()
+    try:
+        with open(source, "rb") as handle:
+            return handle.read()
+    except (OSError, TypeError):
+        return None
+
+
+def _drop_book_views(source: Any) -> io.BytesIO | None:
+    """Strip <bookViews> from an xlsx so openpyxl will open it.
+
+    Accounting systems that write OOXML through non-Microsoft libraries emit
+    PascalCase attributes — WindowWidth where the schema says windowWidth — and
+    openpyxl raises TypeError rather than ignoring them. The element only holds
+    window geometry, so dropping it costs nothing and the cell data is untouched.
+    """
+    raw = _as_bytes(source)
+    if not raw or not raw.startswith(b"PK"):
+        return None
+    try:
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            items = [(item, archive.read(item.filename)) for item in archive.infolist()]
+    except zipfile.BadZipFile:
+        return None
+
+    patched = io.BytesIO()
+    changed = False
+    with zipfile.ZipFile(patched, "w", zipfile.ZIP_DEFLATED) as out:
+        for item, data in items:
+            if item.filename == "xl/workbook.xml":
+                data, count = BOOK_VIEWS_RE.subn(b"", data)
+                changed = changed or bool(count)
+            out.writestr(item, data)
+    if not changed:
+        return None
+    patched.seek(0)
+    return patched
+
+
+def _read_workbook(source: Any, sheet_name: int | str) -> pd.DataFrame:
+    try:
+        return pd.read_excel(source, sheet_name=sheet_name, header=None, dtype=object)
+    except TypeError:
+        repaired = _drop_book_views(source)
+        if repaired is None:
+            raise
+        return pd.read_excel(repaired, sheet_name=sheet_name, header=None, dtype=object)
+
+
 def parse_invoice_listing(source: str | bytes, sheet_name: int | str = 0) -> ParseResult:
     """Turn the raw export into one dict per line item, invoice context carried down."""
-    frame = pd.read_excel(source, sheet_name=sheet_name, header=None, dtype=object)
+    frame = _read_workbook(source, sheet_name)
     result = ParseResult(reported_range=_detect_reported_range(frame))
 
     invoice_no = doc_date = code = raw_name = None
