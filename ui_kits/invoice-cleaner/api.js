@@ -107,42 +107,32 @@
    * actually resolved, so unmapped names surface alongside the library.
    */
   function mapMappings(payload) {
-    const nameToGroup = payload.name_to_group || {};
     const observed = payload.observed || [];
-    const rows = [];
-    const seen = new Set();
-
-    observed.forEach((o) => {
-      const raw = s(o.raw);
-      if (!raw || seen.has(raw)) return;
-      seen.add(raw);
-      const confirmed = Object.prototype.hasOwnProperty.call(nameToGroup, raw.toUpperCase());
-      rows.push({
-        raw,
-        group: s(o.group),
-        // Resolved through the code layer but absent from the name library —
-        // the name itself is still not pinned down.
-        status: o.status === "unmapped" ? "unmapped" : confirmed ? "mapped" : "suggested",
-      });
-    });
-
-    // Library entries that this dataset happens not to contain.
-    Object.keys(nameToGroup).forEach((raw) => {
-      if (seen.has(raw)) return;
-      rows.push({ raw, group: s(nameToGroup[raw]), status: "mapped" });
-    });
-
     return {
-      nameMap: rows,
-      codeMap: (payload.code_rules || []).map((r) => ({
-        pattern: s(r.pattern),
-        group: s(r.group),
+      // Branch Outlet: keyword/code -> branch label.
+      branchRules: (payload.branch_rules || payload.code_rules || []).map((r) => ({
+        keyword: s(r.pattern),
+        branch: s(r.group),
         match: r.exact ? "Exact" : "Fragment",
       })),
-      // Names still unresolved after both layers — the queue of work.
+      // Store Names: keyword -> OutletGroup (the inclusion universe).
+      stores: (payload.stores || []).map((r) => ({
+        keyword: s(r.keyword),
+        store: s(r.store),
+      })),
+      // Rows the current data resolves to, for context + the Unresolved queue.
+      observed: observed.map((o) => ({
+        raw: s(o.raw),
+        code: s(o.code),
+        group: s(o.group),
+        branch: s(o.branch),
+        status: s(o.status),
+        amount: n(o.amount),
+      })),
+      // Out-of-scope rows: real revenue currently dropped for lack of a store.
       unresolved: observed
-        .filter((o) => o.status === "unmapped")
-        .map((o) => ({ raw: s(o.raw), code: s(o.code) })),
+        .filter((o) => o.status === "out-of-scope")
+        .map((o) => ({ raw: s(o.raw), code: s(o.code), amount: n(o.amount) })),
     };
   }
 
@@ -225,14 +215,20 @@
       return mapMappings(await get("/api/mappings"));
     },
 
-    /** names: [{raw, group}] — group "" deletes. codes: [{pattern, group, exact}]. */
-    async saveMappings({ names = [], codes = [] } = {}) {
+    /**
+     * branches: [{pattern, branch}] — empty branch deletes.
+     * stores:   [{keyword, store}]  — empty store deletes.
+     */
+    async saveMappings({ branches = [], stores = [] } = {}) {
       const res = await fetch("/api/mappings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ names, codes }),
+        body: JSON.stringify({
+          branches: branches.map((b) => ({ pattern: b.pattern, branch: b.branch, exact: b.exact })),
+          stores,
+        }),
       });
-      if (!res.ok) throw new Error(`save mappings → ${res.status}`);
+      if (!res.ok) throw await failure(res);
       return res.json();
     },
 
@@ -316,15 +312,15 @@
           outlets: table.outlets,
           months: table.months,
           total: table.total,
-          nameMap: mappings.nameMap,
-          codeMap: mappings.codeMap,
+          branchRules: mappings.branchRules,
+          stores: mappings.stores,
           unresolved: mappings.unresolved,
           parse: {
             invoices: reports.stats.invoices,
             lineItems: reports.stats.lineItems,
             dateFrom: "",
             dateTo: "",
-            rawNames: mappings.nameMap.length,
+            rawNames: mappings.observed.length,
             continuationRows: 0,
             discardedRows: 0,
           },

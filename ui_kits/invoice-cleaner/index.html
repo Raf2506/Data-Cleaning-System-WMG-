@@ -29,7 +29,7 @@ function App(){
   const [rev,setRev]=React.useState(0);
   const refresh=()=>setRev(r=>r+1);
   const go=(v)=>{setView(v);window.scrollTo(0,0);};
-  const unmapped=window.INVOICE.nameMap.filter(m=>m.status!=="mapped").length;
+  const unmapped=(window.INVOICE.unresolved||[]).length;
   return (<div style={{display:"flex",minHeight:"100vh",alignItems:"stretch"}}>
     <Sidebar view={view} onNavigate={go} unmapped={unmapped}/>
     <main style={{flex:1,minWidth:0,padding:"32px 40px 64px"}}>

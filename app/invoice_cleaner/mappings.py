@@ -151,45 +151,71 @@ class MappingLibrary:
         """The OutletGroup for a resolved branch; the branch itself if none."""
         return self.branch_to_chain.get((branch or "").strip().upper(), branch)
 
-    def chain_in_name(self, raw_name: str) -> str:
-        """The chain whose name appears in the raw name, longest fragment first.
+    # --- store names (the OutletGroup universe) --------------------------
+    def set_store(self, keyword: str, store: str) -> None:
+        self.chain_keywords[keyword.strip().upper()] = store.strip()
 
-        "SOON CHEONG MARINE PRODUCT SDN BHD KL" -> "SOON CHEONG". Returns "" when
-        no chain name is present.
+    def delete_store(self, keyword: str) -> None:
+        self.chain_keywords.pop(keyword.strip().upper(), None)
+
+    def store_of(self, raw_name: str, code: str = "") -> str:
+        """The Store Name (OutletGroup) a row belongs to, or "" if none.
+
+        A store keyword is matched against the raw name and the invoice code,
+        longest first. This is what decides inclusion: a row that matches no
+        store is out of scope. The keyword can be a company fragment found in the
+        name ("SOON CHEONG", "ST"), or a code fragment ("300-C") for accounts the
+        export never names.
         """
-        hay = (raw_name or "").strip().upper()
-        if not hay:
-            return ""
+        name = (raw_name or "").strip().upper()
+        code = (code or "").strip().upper()
         for fragment in sorted(self.chain_keywords, key=len, reverse=True):
-            # Leading boundary anchors the fragment; a trailing plural "S" is
-            # allowed ("CS BROTHER" matches "CS BROTHERS") but "ST" still does
-            # not bleed into "STAR", since the char after the optional S must
-            # not be alphanumeric.
-            if re.search(rf"(?<![A-Z0-9]){re.escape(fragment)}S?(?![A-Z0-9])", hay):
+            frag = fragment.strip().upper()
+            if not frag:
+                continue
+            # Codes are a continuous run of characters, so a code fragment matches
+            # as a plain substring ("300-C" is inside "300-C0084"). Names are
+            # words, so a name fragment is anchored on word boundaries with an
+            # optional trailing plural — "CS BROTHER" matches "CS BROTHERS" but
+            # "ST" never bleeds into "STAR".
+            if code and frag in code:
+                return self.chain_keywords[fragment]
+            word = rf"(?<![A-Z0-9]){re.escape(frag)}S?(?![A-Z0-9])"
+            if name and re.search(word, name):
                 return self.chain_keywords[fragment]
         return ""
 
-    def group_and_branch(self, raw_name: str, code: str) -> tuple[str, str, str]:
-        """Resolve to (OutletGroup, Branch, status), the LKA-aware view.
+    # Kept for callers that only look at the name.
+    def chain_in_name(self, raw_name: str) -> str:
+        return self.store_of(raw_name, "")
 
-        The chain name in the raw text is the authority for the group. The
-        company writes "ST ROSYAM MART (SEMENYIH)" — that is SRI TERNAK's
-        Semenyih branch, not the CLC branch that shares the location name. So a
-        chain found in the name wins the group; the branch keyword only fills in
-        which outlet. When the chain is named but no branch is, the branch falls
-        back to the invoice code.
+    OUT_OF_SCOPE = "(not a store)"
+
+    def group_and_branch(self, raw_name: str, code: str) -> tuple[str, str, str]:
+        """Resolve to (OutletGroup, Branch, status).
+
+        Two lists decide the row:
+        - Store Names give the OutletGroup and gate inclusion. A row matching no
+          store is out of scope — status "out-of-scope" — and dropped downstream.
+        - Branch Outlet rules (the code rules) name the specific branch. The
+          store found on the same row wins the group, so "ST ROSYAM MART
+          (SEMENYIH)" is SRI TERNAK's Semenyih branch, not CLC's. When the store
+          is known but no branch matches, the branch is the invoice code.
         """
         branch, status = self.resolve(raw_name, code)
 
-        chain = self.chain_in_name(raw_name)
-        if chain:
-            named_branch = branch if status in ("mapped-name", "mapped-code") else ""
-            if named_branch and not looks_like_code_name(named_branch):
-                return chain, named_branch, status
-            return chain, (code or "").strip() or branch, "mapped-group"
+        # The store can be named in the raw text ("ST ROSYAM..." -> SRI TERNAK),
+        # matched by the code, or reached because the Branch Outlet rule resolved
+        # to something that is itself a store (300-10 -> ECONSAVE, a store).
+        store = self.store_of(raw_name, code) or self.store_of(branch, "")
+        if not store:
+            return self.OUT_OF_SCOPE, (code or "").strip() or (raw_name or "").strip(), "out-of-scope"
 
-        # No chain in the name — group by the branch's own chain, if any.
-        return self.chain_of(branch), branch, status
+        if status in ("mapped-name", "mapped-code") and branch and not looks_like_code_name(branch):
+            # When the branch equals its store there is no distinct outlet.
+            branch_label = (code or "").strip() or branch if branch.upper() == store.upper() else branch
+            return store, branch_label, status
+        return store, (code or "").strip() or branch, "mapped-group"
 
     def unmapped_names(self, raw_names: list[str], codes: dict[str, str] | None = None) -> list[str]:
         """Raw names with no resolution through either layer."""

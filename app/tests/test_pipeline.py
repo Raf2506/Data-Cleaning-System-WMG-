@@ -50,18 +50,21 @@ def test_pipeline():
     m = MappingLibrary()
     m.merge_suggestions(suggestions)
     m.set_code("300-10042", "ECONSAVE", exact=True)
+    # ECONSAVE must be a Store Name for its rows to be in scope.
+    m.set_store("ECONSAVE", "ECONSAVE")
 
     frame = clean_dataframe(parsed, m)
-    assert set(frame["Outlet"]) == {"ECONSAVE"}
-    assert set(frame["Mapping Status"]) == {"mapped-name", "mapped-code"}
+    assert set(frame["OutletGroup"]) == {"ECONSAVE"}
     assert frame["Amount"].sum() == 1900.0
 
 
-def test_unmapped_is_flagged_not_dropped():
+def test_rows_without_a_store_are_out_of_scope():
+    """No Store Name matches — the rows are dropped from scope, not renamed."""
     parsed = parse_invoice_listing(_fixture())
     frame = clean_dataframe(parsed, MappingLibrary())
-    assert len(frame) == 3
-    assert "unmapped" in set(frame["Mapping Status"])
+    assert len(frame) == 3  # still present in the audit table
+    assert set(frame["Mapping Status"]) == {"out-of-scope"}
+    assert set(frame["OutletGroup"]) == {MappingLibrary.OUT_OF_SCOPE}
 
 
 def _wide_fixture() -> io.BytesIO:
@@ -164,21 +167,22 @@ def test_keyword_matches_name_or_code_longest_first():
     assert library.resolve("10101 SD/CR", "300-SNWG01")[0] == "SENAWANG"
 
 
-def test_outlet_group_from_chain_map_else_branch():
-    library = MappingLibrary(branch_to_chain={"SENAWANG": "SRI TERNAK"})
-    assert library.chain_of("SENAWANG") == "SRI TERNAK"
-    # A branch with no chain entry is its own group — how the big chains behave.
-    assert library.chain_of("LOTUSS STORES") == "LOTUSS STORES"
+def test_store_matches_by_code_prefix_for_unnamed_accounts():
+    """IKA-style: the export never names the chain, so a code fragment does it."""
+    m = MappingLibrary(chain_keywords={"300-10": "ECONSAVE"})
+    assert m.store_of("10068 AMPANG BARU", "300-10042") == "ECONSAVE"
+    group, _, _ = m.group_and_branch("10068 AMPANG BARU", "300-10042")
+    assert group == "ECONSAVE"
 
 
 def test_clean_frame_carries_outlet_group():
     parsed = parse_invoice_listing(_fixture())
-    m = MappingLibrary(branch_to_chain={"ECONSAVE": "ECONSAVE GROUP"})
+    m = MappingLibrary(chain_keywords={"ECONSAVE": "ECONSAVE"})
     m.merge_suggestions(suggest_name_groups(parsed.raw_names))
     m.set_code("300-10042", "ECONSAVE", exact=True)
     frame = clean_dataframe(parsed, m)
     assert "OutletGroup" in frame.columns
-    assert set(frame["OutletGroup"]) == {"ECONSAVE GROUP"}
+    assert set(frame["OutletGroup"]) == {"ECONSAVE"}
 
 
 def test_chain_name_in_raw_gives_group_with_code_as_branch():
@@ -190,16 +194,23 @@ def test_chain_name_in_raw_gives_group_with_code_as_branch():
     assert status == "mapped-group"
 
 
-def test_chain_in_name_wins_over_a_branch_keywords_chain():
-    """ST ROSYAM MART (SEMENYIH) is SRI TERNAK's branch, not CLC's."""
-    m = MappingLibrary(
-        chain_keywords={"ST": "SRI TERNAK"},
-        branch_to_chain={"SEMENYIH": "CLC"},  # SEMENYIH also lives under CLC
-    )
-    m.set_code("SEMENYIH", "SEMENYIH")
+def test_store_in_name_wins_the_group_branch_only_labels():
+    """ST ROSYAM MART (SEMENYIH) is SRI TERNAK's Semenyih branch."""
+    m = MappingLibrary(chain_keywords={"ST": "SRI TERNAK"})
+    m.set_code("SEMENYIH", "SEMENYIH")  # a Branch Outlet rule, not a store
     group, branch, _ = m.group_and_branch("ST ROSYAM MART (SEMENYIH)", "300-S0215")
     assert group == "SRI TERNAK"
     assert branch == "SEMENYIH"
+
+
+def test_no_store_means_out_of_scope():
+    m = MappingLibrary(chain_keywords={"ST": "SRI TERNAK"})
+    group, _, status = m.group_and_branch("AEON (KL RDC)", "300-A0118")
+    assert group == MappingLibrary.OUT_OF_SCOPE
+    assert status == "out-of-scope"
+    # Adding AEON as a store brings it into scope.
+    m.set_store("AEON", "AEON")
+    assert m.group_and_branch("AEON (KL RDC)", "300-A0118")[0] == "AEON"
 
 
 def test_chain_keyword_tolerates_plural_but_not_a_longer_word():
@@ -208,11 +219,8 @@ def test_chain_keyword_tolerates_plural_but_not_a_longer_word():
     assert m.chain_in_name("STAR GROCER SDN BHD") == ""  # ST must not leak into STAR
 
 
-def test_chain_name_does_not_override_a_resolved_branch():
-    m = MappingLibrary(
-        chain_keywords={"SOON CHEONG": "SOON CHEONG"},
-        branch_to_chain={"SG BULOH": "SOON CHEONG"},
-    )
+def test_store_with_a_named_branch():
+    m = MappingLibrary(chain_keywords={"SOON CHEONG": "SOON CHEONG"})
     m.set_code("SG BULOH", "SG BULOH")
     group, branch, _ = m.group_and_branch("SOON CHEONG SG BULOH", "300-S0257")
     assert (group, branch) == ("SOON CHEONG", "SG BULOH")
@@ -262,18 +270,19 @@ def test_pascalcase_workbook_attributes_are_repaired():
 
 if __name__ == "__main__":
     test_pipeline()
-    test_unmapped_is_flagged_not_dropped()
+    test_rows_without_a_store_are_out_of_scope()
     test_wide_layout_is_parsed_by_content_not_position()
     test_header_without_iv_prefix_is_not_read_as_a_line_item()
     test_trailing_summary_block_is_not_stitched()
     test_undetected_outlet_falls_back_to_the_invoice_code()
     test_keyword_matches_name_or_code_longest_first()
-    test_outlet_group_from_chain_map_else_branch()
+    test_store_matches_by_code_prefix_for_unnamed_accounts()
     test_clean_frame_carries_outlet_group()
     test_chain_name_in_raw_gives_group_with_code_as_branch()
-    test_chain_in_name_wins_over_a_branch_keywords_chain()
+    test_store_in_name_wins_the_group_branch_only_labels()
+    test_no_store_means_out_of_scope()
     test_chain_keyword_tolerates_plural_but_not_a_longer_word()
-    test_chain_name_does_not_override_a_resolved_branch()
+    test_store_with_a_named_branch()
     test_plain_names_map_to_themselves()
     test_pascalcase_workbook_attributes_are_repaired()
     print("ok")

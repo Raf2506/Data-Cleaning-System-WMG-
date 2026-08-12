@@ -31,9 +31,22 @@ app = Flask(__name__, static_folder=str(ROOT), static_url_path="")
 
 
 def _clean_frame() -> pd.DataFrame:
+    """The full cleaned table, including rows that match no Store Name."""
     if CLEAN_PATH.exists():
         return pd.read_parquet(CLEAN_PATH)
     return pd.DataFrame()
+
+
+def _scoped_frame() -> pd.DataFrame:
+    """Only rows that belong to a Store Name — what every report is built on.
+
+    Out-of-scope rows stay in the stored table for the Dropped tab and audit,
+    but are excluded from all totals so "not in a store = dropped" holds.
+    """
+    frame = _clean_frame()
+    if frame.empty or "Mapping Status" not in frame.columns:
+        return frame
+    return frame[frame["Mapping Status"] != "out-of-scope"]
 
 
 def _store(frame: pd.DataFrame) -> None:
@@ -96,7 +109,7 @@ def clean():
     frame = clean_dataframe(parsed, mappings)
     _store(frame)
     return jsonify(
-        {"rows": len(frame), "stats": reports.summary_stats(frame)}
+        {"rows": len(frame), "stats": reports.summary_stats(_scoped_frame())}
     )
 
 
@@ -108,20 +121,30 @@ def get_mappings():
     # library alone can't tell the Mapping Manager which names are still unmapped.
     observed = []
     if not frame.empty:
-        seen = frame[["Raw Name", "Code", "Outlet", "Mapping Status"]].drop_duplicates("Raw Name")
-        observed = [
-            {
-                "raw": r["Raw Name"] or r["Code"] or "",
-                "code": r["Code"] or "",
-                "group": r["Outlet"] if r["Mapping Status"] != "unmapped" else "",
-                "status": r["Mapping Status"],
-            }
-            for r in seen.astype(object).where(pd.notna(seen), None).to_dict("records")
-        ]
+        cols = ["Raw Name", "Code", "OutletGroup", "Outlet", "Mapping Status"]
+        seen = frame[cols].drop_duplicates("Raw Name")
+        resolved = frame.groupby("Raw Name")["Amount"].sum().to_dict()
+        for r in seen.astype(object).where(pd.notna(seen), None).to_dict("records"):
+            observed.append(
+                {
+                    "raw": r["Raw Name"] or r["Code"] or "",
+                    "code": r["Code"] or "",
+                    "group": r["OutletGroup"] if r["Mapping Status"] != "out-of-scope" else "",
+                    "branch": r["Outlet"] or "",
+                    "status": r["Mapping Status"],
+                    "amount": float(resolved.get(r["Raw Name"], 0.0)),
+                }
+            )
     return jsonify(
         {
             "name_to_group": m.name_to_group,
-            "code_rules": [r.__dict__ for r in m.code_rules],
+            # Branch Outlet: keyword/code -> branch label.
+            "branch_rules": [r.__dict__ for r in m.code_rules],
+            # Store Names: keyword -> OutletGroup, the inclusion universe.
+            "stores": [
+                {"keyword": k, "store": v} for k, v in sorted(m.chain_keywords.items())
+            ],
+            "code_rules": [r.__dict__ for r in m.code_rules],  # legacy alias
             "observed": observed,
         }
     )
@@ -131,15 +154,28 @@ def get_mappings():
 def put_mappings():
     body = request.get_json(force=True)
     m = MappingLibrary.load(MAPPING_PATH)
+    # Branch Outlet rules (accepts the legacy "codes" key too).
+    for entry in body.get("branches", []) + body.get("codes", []):
+        pattern = entry.get("pattern") or entry.get("keyword")
+        group = entry.get("group") or entry.get("branch")
+        if group:
+            m.set_code(pattern, group, entry.get("exact", False))
+        else:
+            m.delete_code(pattern)
+    # Store Names.
+    for entry in body.get("stores", []):
+        keyword = entry.get("keyword", "")
+        store = entry.get("store", "")
+        if store:
+            m.set_store(keyword, store)
+        else:
+            m.delete_store(keyword)
     for entry in body.get("names", []):
         m.set_name(entry["raw"], entry["group"]) if entry.get("group") else m.delete_name(entry["raw"])
-    for entry in body.get("codes", []):
-        if entry.get("group"):
-            m.set_code(entry["pattern"], entry["group"], entry.get("exact", False))
-        else:
-            m.delete_code(entry["pattern"])
     m.save(MAPPING_PATH)
-    return jsonify({"ok": True, "names": len(m.name_to_group), "codes": len(m.code_rules)})
+    return jsonify(
+        {"ok": True, "branches": len(m.code_rules), "stores": len(m.chain_keywords)}
+    )
 
 
 @app.post("/api/remap")
@@ -161,12 +197,12 @@ def remap():
     frame["Outlet"] = [branch for _, branch, _ in resolved]
     frame["Mapping Status"] = [status for _, _, status in resolved]
     _store(frame)
-    return jsonify({"rows": len(frame), "stats": reports.summary_stats(frame)})
+    return jsonify({"rows": len(frame), "stats": reports.summary_stats(_scoped_frame())})
 
 
 @app.get("/api/table")
 def table():
-    full = _clean_frame()
+    full = _scoped_frame()
     frame = full
     outlet, month = request.args.get("outlet"), request.args.get("month")
     if outlet:
@@ -202,19 +238,11 @@ def tree():
     scope=lka keeps only rows belonging to a mapped chain — the outlets in the
     outlet file — dropping the large single-account chains the tool also sees.
     """
-    frame = _clean_frame()
+    # Out of scope is dropped, unless the caller asks to see everything.
+    frame = _clean_frame() if request.args.get("include_unmatched") == "1" else _scoped_frame()
     selected = [p for p in (request.args.get("path") or "").split("|") if p]
     if frame.empty:
         return jsonify({"total": 0.0, "levels": []})
-
-    if request.args.get("scope") == "lka":
-        mappings = MappingLibrary.load(MAPPING_PATH)
-        # LKA = any row whose OutletGroup is a known chain, whether reached
-        # through a branch mapping or through the chain name in the raw text.
-        chains = set(mappings.branch_to_chain.values()) | set(mappings.chain_keywords.values())
-        frame = frame[frame["OutletGroup"].isin(chains)]
-        if frame.empty:
-            return jsonify({"total": 0.0, "levels": [], "scope": "lka"})
 
     levels = []
     scope = frame
@@ -247,7 +275,7 @@ def tree():
 
 @app.get("/api/reports")
 def api_reports():
-    frame = _clean_frame()
+    frame = _scoped_frame()
     outlets = reports.sales_by_outlet(frame)
     return jsonify(
         {
@@ -263,7 +291,7 @@ def api_reports():
 
 @app.get("/api/reports/outlet/<path:outlet>")
 def api_outlet(outlet: str):
-    frame = _clean_frame()
+    frame = _scoped_frame()
     products = reports.product_sales_per_outlet(frame, outlet)
     pages = reports.paginate(products)
     return jsonify(
@@ -277,7 +305,7 @@ def api_outlet(outlet: str):
 
 @app.get("/api/export/<fmt>")
 def export(fmt: str):
-    frame = _clean_frame()
+    frame = _scoped_frame()
     outlet, month = request.args.get("outlet"), request.args.get("month")
     if outlet:
         frame = frame[frame["Outlet"] == outlet]

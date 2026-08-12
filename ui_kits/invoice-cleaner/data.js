@@ -73,24 +73,23 @@ window.INVOICE = {
     { month: "2026-06", outlet: "ECONSAVE", amount: 204110.9 },
     { month: "2026-07", outlet: "ECONSAVE", amount: 186880.25 },
   ],
-  nameMap: [
-    { raw: "ECONSAVE - AMPANG BARU", group: "ECONSAVE", status: "mapped" },
-    { raw: "ECONSAVE - BAGAN SERAI", group: "ECONSAVE", status: "mapped" },
-    { raw: "ECONSAVE - BATU GAJAH", group: "ECONSAVE", status: "mapped" },
-    { raw: "ECONSAVE - BANDAR SERI BOTANI", group: "ECONSAVE", status: "suggested" },
-    { raw: "BORONG DIN AS CASH & CARRY (BAGAN SERAI)", group: "BORONG DIN AS CASH & CARRY", status: "mapped" },
-    { raw: "BORONG DIN AS CASH & CARRY (SUNGAI PETANI)", group: "BORONG DIN AS CASH & CARRY", status: "suggested" },
-    { raw: "MYDIN MOHAMED HOLDINGS - USJ", group: "MYDIN", status: "mapped" },
-    { raw: "LOTUSS STORES (M) SDN BHD - IPOH", group: "LOTUS'S", status: "mapped" },
-    { raw: "99 SPEED MART S/B - PJ", group: "99 SPEEDMART", status: "suggested" },
-    { raw: "SEGI FRESH DIST SDN BHD", group: "", status: "unmapped" },
+  // Store Names — the OutletGroup universe (keyword -> store). A row matching
+  // none of these is dropped.
+  stores: [
+    { keyword: "ECONSAVE", store: "ECONSAVE" },
+    { keyword: "SRI TERNAK", store: "SRI TERNAK" },
+    { keyword: "ST", store: "SRI TERNAK" },
+    { keyword: "SOON CHEONG", store: "SOON CHEONG" },
+    { keyword: "300-10", store: "ECONSAVE" },
   ],
-  codeMap: [
-    { pattern: "300-10042", group: "ECONSAVE", match: "Exact" },
-    { pattern: "300-B0133", group: "BANGI", match: "Exact" },
-    { pattern: "SNWG", group: "SENAWANG", match: "Fragment" },
-    { pattern: "300-M01", group: "MYDIN", match: "Prefix" },
-    { pattern: "300-N0", group: "NSK TRADE CITY", match: "Prefix" },
+  // Branch Outlet — keyword/code -> branch label.
+  branchRules: [
+    { keyword: "300-10042", branch: "AMPANG BARU", match: "Exact" },
+    { keyword: "SNWG", branch: "SENAWANG", match: "Fragment" },
+    { keyword: "C0084", branch: "BDR TECH", match: "Fragment" },
+  ],
+  unresolved: [
+    { raw: "PASARAYA ECON JAYA (MACHANG) SDN BHD", code: "300-P0221", amount: 10533.0 },
   ],
   rows: [
     { outlet: "ECONSAVE", invoice: "IV-13371", date: "05/01/2026", month: "2026-01", product: "RASTO CARBONARA MUSHROOM PASTA SAUCE 350G X 12", qty: 10, uom: "CTN", unit: 90.0, amount: 900.0, raw: "ECONSAVE - AMPANG BARU", status: "mapped-name" },
