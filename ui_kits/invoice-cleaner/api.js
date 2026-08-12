@@ -189,7 +189,9 @@
     async tree(path = [], { lkaOnly = true } = {}) {
       const params = new URLSearchParams();
       if (path.length) params.set("path", path.join("|"));
-      if (lkaOnly) params.set("scope", "lka");
+      // In-scope (store-matched) rows are the default; "All customers" adds the
+      // dropped rows back in.
+      if (!lkaOnly) params.set("include_unmatched", "1");
       const qs = params.toString();
       const d = await get("/api/tree" + (qs ? "?" + qs : ""));
       return {
