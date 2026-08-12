@@ -10,10 +10,12 @@ from .mappings import MappingLibrary
 from .parser import ParseResult, parse_invoice_listing, suggest_name_groups
 
 CLEAN_COLUMNS = [
+    "OutletGroup",
     "Outlet",
     "Invoice No",
     "Date",
     "Month",
+    "Brand",
     "Product",
     "Quantity",
     "UOM",
@@ -24,6 +26,28 @@ CLEAN_COLUMNS = [
     "Mapping Status",
 ]
 
+# Brands are a leading token of the product description, but not always one
+# word — "CIK SURI" and "TREVOR'S" would be cut wrongly by a naive split. The
+# longest matching prefix wins, so a two-word brand beats a one-word one.
+BRANDS = [
+    "CIK SURI",
+    "TREVOR'S",
+    "TREVOR",
+    "SONGKHLA",
+    "PAPADAM",
+    "RASTO",
+    "MONT",
+]
+
+
+def detect_brand(product: str) -> str:
+    """Leading brand token of a product description, or '' when none matches."""
+    text = (product or "").strip().upper()
+    for brand in sorted(BRANDS, key=len, reverse=True):
+        if text.startswith(brand):
+            return brand.rstrip("'S") if brand.endswith("'S") else brand
+    return ""
+
 
 def clean_dataframe(parsed: ParseResult, mappings: MappingLibrary) -> pd.DataFrame:
     """Steps 5–6: resolve the canonical outlet per row and emit the clean table."""
@@ -32,10 +56,12 @@ def clean_dataframe(parsed: ParseResult, mappings: MappingLibrary) -> pd.DataFra
         outlet, status = mappings.resolve(row.get("Raw Name", ""), row.get("Code", ""))
         records.append(
             {
+                "OutletGroup": mappings.chain_of(outlet),
                 "Outlet": outlet,
                 "Invoice No": row.get("Invoice No"),
                 "Date": row.get("Date"),
                 "Month": row.get("Month"),
+                "Brand": detect_brand(row.get("Product", "")) or "Unbranded",
                 "Product": row.get("Product"),
                 "Quantity": row.get("Quantity"),
                 "UOM": row.get("UOM"),

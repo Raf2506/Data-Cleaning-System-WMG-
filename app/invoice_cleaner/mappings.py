@@ -9,6 +9,7 @@ Both layers persist to JSON so they carry across future monthly uploads.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -36,14 +37,22 @@ class CodeRule:
         code = (code or "").strip().upper()
         if self.exact:
             return bool(code) and code == pattern
+        if code and pattern in code:
+            return True
+        # Names match on whole words only. A loose substring makes SENA match
+        # SENAI, and BM match any name containing those letters — silently
+        # moving revenue to the wrong branch.
         name = (name or "").strip().upper()
-        return (bool(code) and pattern in code) or (bool(name) and pattern in name)
+        return bool(name) and re.search(rf"(?<![A-Z0-9]){re.escape(pattern)}(?![A-Z0-9])", name) is not None
 
 
 @dataclass
 class MappingLibrary:
     name_to_group: dict[str, str] = field(default_factory=dict)
     code_rules: list[CodeRule] = field(default_factory=list)
+    # Branch (Outlet) -> OutletGroup (chain). A branch with no entry is its own
+    # group, which is how the big single-account chains behave.
+    branch_to_chain: dict[str, str] = field(default_factory=dict)
 
     # --- persistence -----------------------------------------------------
     @classmethod
@@ -55,6 +64,7 @@ class MappingLibrary:
         return cls(
             name_to_group={k.upper(): v for k, v in data.get("name_to_group", {}).items()},
             code_rules=[CodeRule(**r) for r in data.get("code_rules", [])],
+            branch_to_chain={k.upper(): v for k, v in data.get("branch_to_chain", {}).items()},
         )
 
     def save(self, path: str | Path) -> None:
@@ -65,6 +75,7 @@ class MappingLibrary:
                 {
                     "name_to_group": self.name_to_group,
                     "code_rules": [r.__dict__ for r in self.code_rules],
+                    "branch_to_chain": self.branch_to_chain,
                 },
                 indent=2,
                 ensure_ascii=False,
@@ -129,6 +140,10 @@ class MappingLibrary:
         if fallback:
             return fallback, "unmapped"
         return name or "UNKNOWN", "unmapped"
+
+    def chain_of(self, branch: str) -> str:
+        """The OutletGroup for a resolved branch; the branch itself if none."""
+        return self.branch_to_chain.get((branch or "").strip().upper(), branch)
 
     def unmapped_names(self, raw_names: list[str], codes: dict[str, str] | None = None) -> list[str]:
         """Raw names with no resolution through either layer."""

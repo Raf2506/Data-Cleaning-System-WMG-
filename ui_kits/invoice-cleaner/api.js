@@ -195,6 +195,23 @@
       };
     },
 
+    /** Decomposition tree: ranked children at each level under `path`. */
+    async tree(path = [], { lkaOnly = true } = {}) {
+      const params = new URLSearchParams();
+      if (path.length) params.set("path", path.join("|"));
+      if (lkaOnly) params.set("scope", "lka");
+      const qs = params.toString();
+      const d = await get("/api/tree" + (qs ? "?" + qs : ""));
+      return {
+        total: n(d.total),
+        levels: (d.levels || []).map((lv) => ({
+          dimension: s(lv.dimension),
+          selected: lv.selected == null ? null : s(lv.selected),
+          items: (lv.items || []).map((i) => ({ name: s(i.name), amount: n(i.amount) })),
+        })),
+      };
+    },
+
     async outletProducts(outlet) {
       const d = await get(`/api/reports/outlet/${encodeURIComponent(outlet)}`);
       return {

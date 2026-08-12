@@ -6,6 +6,7 @@ const NAV = [
   { id: "mapping", label: "Mapping Manager", icon: "git-merge" },
   { id: "table", label: "Clean Data Table", icon: "table" },
   { id: "reports", label: "Reports", icon: "bar-chart-3" },
+  { id: "tree", label: "Decomposition", icon: "git-fork" },
 ];
 
 function Sidebar({ view, onNavigate, unmapped }) {

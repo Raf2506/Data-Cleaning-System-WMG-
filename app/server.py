@@ -158,6 +158,7 @@ def remap():
         for row in frame.to_dict("records")
     ]
     frame["Outlet"] = [outlet for outlet, _ in resolved]
+    frame["OutletGroup"] = [mappings.chain_of(outlet) for outlet, _ in resolved]
     frame["Mapping Status"] = [status for _, status in resolved]
     _store(frame)
     return jsonify({"rows": len(frame), "stats": reports.summary_stats(frame)})
@@ -185,6 +186,61 @@ def table():
             "rows": page.astype(object).where(pd.notna(page), None).to_dict("records"),
         }
     )
+
+
+TREE_LEVELS = ["OutletGroup", "Outlet", "Brand", "Product"]
+
+
+@app.get("/api/tree")
+def tree():
+    """Decomposition tree: ranked children at each level under a chosen path.
+
+    `path` is the selection so far, pipe separated and aligned to TREE_LEVELS.
+    Each level is filtered by everything selected above it, so the columns read
+    left to right exactly as they are drawn.
+
+    scope=lka keeps only rows belonging to a mapped chain — the outlets in the
+    outlet file — dropping the large single-account chains the tool also sees.
+    """
+    frame = _clean_frame()
+    selected = [p for p in (request.args.get("path") or "").split("|") if p]
+    if frame.empty:
+        return jsonify({"total": 0.0, "levels": []})
+
+    if request.args.get("scope") == "lka":
+        mappings = MappingLibrary.load(MAPPING_PATH)
+        chains = set(mappings.branch_to_chain.values())
+        frame = frame[frame["OutletGroup"].isin(chains)]
+        if frame.empty:
+            return jsonify({"total": 0.0, "levels": [], "scope": "lka"})
+
+    levels = []
+    scope = frame
+    for depth, dimension in enumerate(TREE_LEVELS):
+        grouped = (
+            scope.groupby(dimension, dropna=False)["Amount"]
+            .sum()
+            .sort_values(ascending=False)
+        )
+        chosen = selected[depth] if depth < len(selected) else None
+        levels.append(
+            {
+                "dimension": dimension,
+                "selected": chosen,
+                "total": float(scope["Amount"].fillna(0).sum()),
+                "items": [
+                    {"name": str(name), "amount": float(amount)}
+                    for name, amount in grouped.items()
+                ],
+            }
+        )
+        if chosen is None:
+            break
+        scope = scope[scope[dimension].astype(str) == chosen]
+        if scope.empty:
+            break
+
+    return jsonify({"total": float(frame["Amount"].fillna(0).sum()), "levels": levels})
 
 
 @app.get("/api/reports")

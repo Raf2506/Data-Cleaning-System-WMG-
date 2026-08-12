@@ -19,6 +19,7 @@
 <script type="text/babel" src="MappingScreen.jsx"></script>
 <script type="text/babel" src="TableScreen.jsx"></script>
 <script type="text/babel" src="ReportsScreen.jsx"></script>
+<script type="text/babel" src="TreeScreen.jsx"></script>
 <style>body{font-family:Archivo,sans-serif;background:var(--canvas)}h1,h2,h3{font-family:'Archivo Narrow',Archivo,sans-serif}a{color:var(--ink)}a:hover{color:var(--charcoal)}::selection{background:var(--ink);color:var(--canvas)}</style>
 </head><body><div id="root"></div>
 <script type="text/babel" data-presets="react">
@@ -40,6 +41,7 @@ function App(){
       {view==="mapping" && <MappingScreen onSaved={refresh}/>}
       {view==="table" && <TableScreen key={rev}/>}
       {view==="reports" && <ReportsScreen key={rev}/>}
+      {view==="tree" && <TreeScreen key={rev}/>}
     </main>
   </div>);
 }

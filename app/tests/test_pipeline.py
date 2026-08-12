@@ -164,6 +164,23 @@ def test_keyword_matches_name_or_code_longest_first():
     assert library.resolve("10101 SD/CR", "300-SNWG01")[0] == "SENAWANG"
 
 
+def test_outlet_group_from_chain_map_else_branch():
+    library = MappingLibrary(branch_to_chain={"SENAWANG": "SRI TERNAK"})
+    assert library.chain_of("SENAWANG") == "SRI TERNAK"
+    # A branch with no chain entry is its own group — how the big chains behave.
+    assert library.chain_of("LOTUSS STORES") == "LOTUSS STORES"
+
+
+def test_clean_frame_carries_outlet_group():
+    parsed = parse_invoice_listing(_fixture())
+    m = MappingLibrary(branch_to_chain={"ECONSAVE": "ECONSAVE GROUP"})
+    m.merge_suggestions(suggest_name_groups(parsed.raw_names))
+    m.set_code("300-10042", "ECONSAVE", exact=True)
+    frame = clean_dataframe(parsed, m)
+    assert "OutletGroup" in frame.columns
+    assert set(frame["OutletGroup"]) == {"ECONSAVE GROUP"}
+
+
 def test_plain_names_map_to_themselves():
     """A name with no branch suffix is canonical already — not 'unmapped'."""
     suggestions = suggest_name_groups(["MYDIN MOHAMED HOLDINGS BHD", "ECONSAVE - AMPANG BARU"])
@@ -214,6 +231,8 @@ if __name__ == "__main__":
     test_trailing_summary_block_is_not_stitched()
     test_undetected_outlet_falls_back_to_the_invoice_code()
     test_keyword_matches_name_or_code_longest_first()
+    test_outlet_group_from_chain_map_else_branch()
+    test_clean_frame_carries_outlet_group()
     test_plain_names_map_to_themselves()
     test_pascalcase_workbook_attributes_are_repaired()
     print("ok")
