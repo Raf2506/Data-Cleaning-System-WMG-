@@ -161,30 +161,35 @@ class MappingLibrary:
         if not hay:
             return ""
         for fragment in sorted(self.chain_keywords, key=len, reverse=True):
-            if re.search(rf"(?<![A-Z0-9]){re.escape(fragment)}(?![A-Z0-9])", hay):
+            # Leading boundary anchors the fragment; a trailing plural "S" is
+            # allowed ("CS BROTHER" matches "CS BROTHERS") but "ST" still does
+            # not bleed into "STAR", since the char after the optional S must
+            # not be alphanumeric.
+            if re.search(rf"(?<![A-Z0-9]){re.escape(fragment)}S?(?![A-Z0-9])", hay):
                 return self.chain_keywords[fragment]
         return ""
 
     def group_and_branch(self, raw_name: str, code: str) -> tuple[str, str, str]:
         """Resolve to (OutletGroup, Branch, status), the LKA-aware view.
 
-        A branch resolved normally keeps its own chain. Otherwise, if the raw
-        name carries a chain name, the row still counts as LKA: the group is that
-        chain and the branch falls back to the invoice code, since the export
-        named the company but not the outlet.
+        The chain name in the raw text is the authority for the group. The
+        company writes "ST ROSYAM MART (SEMENYIH)" — that is SRI TERNAK's
+        Semenyih branch, not the CLC branch that shares the location name. So a
+        chain found in the name wins the group; the branch keyword only fills in
+        which outlet. When the chain is named but no branch is, the branch falls
+        back to the invoice code.
         """
         branch, status = self.resolve(raw_name, code)
-        chained = self.chain_of(branch)
-        if chained != branch:
-            return chained, branch, status
 
         chain = self.chain_in_name(raw_name)
         if chain:
-            # Chain known, branch not — label the branch by its code.
-            branch_label = (code or "").strip() or branch
-            return chain, branch_label, "mapped-group"
+            named_branch = branch if status in ("mapped-name", "mapped-code") else ""
+            if named_branch and not looks_like_code_name(named_branch):
+                return chain, named_branch, status
+            return chain, (code or "").strip() or branch, "mapped-group"
 
-        return branch, branch, status
+        # No chain in the name — group by the branch's own chain, if any.
+        return self.chain_of(branch), branch, status
 
     def unmapped_names(self, raw_names: list[str], codes: dict[str, str] | None = None) -> list[str]:
         """Raw names with no resolution through either layer."""

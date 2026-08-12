@@ -190,6 +190,24 @@ def test_chain_name_in_raw_gives_group_with_code_as_branch():
     assert status == "mapped-group"
 
 
+def test_chain_in_name_wins_over_a_branch_keywords_chain():
+    """ST ROSYAM MART (SEMENYIH) is SRI TERNAK's branch, not CLC's."""
+    m = MappingLibrary(
+        chain_keywords={"ST": "SRI TERNAK"},
+        branch_to_chain={"SEMENYIH": "CLC"},  # SEMENYIH also lives under CLC
+    )
+    m.set_code("SEMENYIH", "SEMENYIH")
+    group, branch, _ = m.group_and_branch("ST ROSYAM MART (SEMENYIH)", "300-S0215")
+    assert group == "SRI TERNAK"
+    assert branch == "SEMENYIH"
+
+
+def test_chain_keyword_tolerates_plural_but_not_a_longer_word():
+    m = MappingLibrary(chain_keywords={"CS BROTHER": "CS BROTHER", "ST": "SRI TERNAK"})
+    assert m.chain_in_name("CS BROTHERS SDN BHD") == "CS BROTHER"
+    assert m.chain_in_name("STAR GROCER SDN BHD") == ""  # ST must not leak into STAR
+
+
 def test_chain_name_does_not_override_a_resolved_branch():
     m = MappingLibrary(
         chain_keywords={"SOON CHEONG": "SOON CHEONG"},
@@ -253,6 +271,8 @@ if __name__ == "__main__":
     test_outlet_group_from_chain_map_else_branch()
     test_clean_frame_carries_outlet_group()
     test_chain_name_in_raw_gives_group_with_code_as_branch()
+    test_chain_in_name_wins_over_a_branch_keywords_chain()
+    test_chain_keyword_tolerates_plural_but_not_a_longer_word()
     test_chain_name_does_not_override_a_resolved_branch()
     test_plain_names_map_to_themselves()
     test_pascalcase_workbook_attributes_are_repaired()
