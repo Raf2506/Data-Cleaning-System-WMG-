@@ -181,6 +181,25 @@ def test_clean_frame_carries_outlet_group():
     assert set(frame["OutletGroup"]) == {"ECONSAVE GROUP"}
 
 
+def test_chain_name_in_raw_gives_group_with_code_as_branch():
+    """The SOON CHEONG case: chain named, branch not — group it, branch by code."""
+    m = MappingLibrary(chain_keywords={"SOON CHEONG": "SOON CHEONG"})
+    group, branch, status = m.group_and_branch("SOON CHEONG MARINE PRODUCT SDN BHD KL", "300-S0256")
+    assert group == "SOON CHEONG"
+    assert branch == "300-S0256"  # no outlet named, so the code stands in
+    assert status == "mapped-group"
+
+
+def test_chain_name_does_not_override_a_resolved_branch():
+    m = MappingLibrary(
+        chain_keywords={"SOON CHEONG": "SOON CHEONG"},
+        branch_to_chain={"SG BULOH": "SOON CHEONG"},
+    )
+    m.set_code("SG BULOH", "SG BULOH")
+    group, branch, _ = m.group_and_branch("SOON CHEONG SG BULOH", "300-S0257")
+    assert (group, branch) == ("SOON CHEONG", "SG BULOH")
+
+
 def test_plain_names_map_to_themselves():
     """A name with no branch suffix is canonical already — not 'unmapped'."""
     suggestions = suggest_name_groups(["MYDIN MOHAMED HOLDINGS BHD", "ECONSAVE - AMPANG BARU"])
@@ -233,6 +252,8 @@ if __name__ == "__main__":
     test_keyword_matches_name_or_code_longest_first()
     test_outlet_group_from_chain_map_else_branch()
     test_clean_frame_carries_outlet_group()
+    test_chain_name_in_raw_gives_group_with_code_as_branch()
+    test_chain_name_does_not_override_a_resolved_branch()
     test_plain_names_map_to_themselves()
     test_pascalcase_workbook_attributes_are_repaired()
     print("ok")

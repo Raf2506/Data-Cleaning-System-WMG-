@@ -53,10 +53,12 @@ def clean_dataframe(parsed: ParseResult, mappings: MappingLibrary) -> pd.DataFra
     """Steps 5–6: resolve the canonical outlet per row and emit the clean table."""
     records = []
     for row in parsed.rows:
-        outlet, status = mappings.resolve(row.get("Raw Name", ""), row.get("Code", ""))
+        group, outlet, status = mappings.group_and_branch(
+            row.get("Raw Name", ""), row.get("Code", "")
+        )
         records.append(
             {
-                "OutletGroup": mappings.chain_of(outlet),
+                "OutletGroup": group,
                 "Outlet": outlet,
                 "Invoice No": row.get("Invoice No"),
                 "Date": row.get("Date"),

@@ -53,6 +53,10 @@ class MappingLibrary:
     # Branch (Outlet) -> OutletGroup (chain). A branch with no entry is its own
     # group, which is how the big single-account chains behave.
     branch_to_chain: dict[str, str] = field(default_factory=dict)
+    # Chain-name fragment -> OutletGroup, found in the raw name itself, e.g.
+    # "SOON CHEONG MARINE PRODUCT SDN BHD KL" carries the chain but no branch.
+    # This is what makes a row count as LKA even when the branch is unnamed.
+    chain_keywords: dict[str, str] = field(default_factory=dict)
 
     # --- persistence -----------------------------------------------------
     @classmethod
@@ -65,6 +69,7 @@ class MappingLibrary:
             name_to_group={k.upper(): v for k, v in data.get("name_to_group", {}).items()},
             code_rules=[CodeRule(**r) for r in data.get("code_rules", [])],
             branch_to_chain={k.upper(): v for k, v in data.get("branch_to_chain", {}).items()},
+            chain_keywords={k.upper(): v for k, v in data.get("chain_keywords", {}).items()},
         )
 
     def save(self, path: str | Path) -> None:
@@ -76,6 +81,7 @@ class MappingLibrary:
                     "name_to_group": self.name_to_group,
                     "code_rules": [r.__dict__ for r in self.code_rules],
                     "branch_to_chain": self.branch_to_chain,
+                    "chain_keywords": self.chain_keywords,
                 },
                 indent=2,
                 ensure_ascii=False,
@@ -144,6 +150,41 @@ class MappingLibrary:
     def chain_of(self, branch: str) -> str:
         """The OutletGroup for a resolved branch; the branch itself if none."""
         return self.branch_to_chain.get((branch or "").strip().upper(), branch)
+
+    def chain_in_name(self, raw_name: str) -> str:
+        """The chain whose name appears in the raw name, longest fragment first.
+
+        "SOON CHEONG MARINE PRODUCT SDN BHD KL" -> "SOON CHEONG". Returns "" when
+        no chain name is present.
+        """
+        hay = (raw_name or "").strip().upper()
+        if not hay:
+            return ""
+        for fragment in sorted(self.chain_keywords, key=len, reverse=True):
+            if re.search(rf"(?<![A-Z0-9]){re.escape(fragment)}(?![A-Z0-9])", hay):
+                return self.chain_keywords[fragment]
+        return ""
+
+    def group_and_branch(self, raw_name: str, code: str) -> tuple[str, str, str]:
+        """Resolve to (OutletGroup, Branch, status), the LKA-aware view.
+
+        A branch resolved normally keeps its own chain. Otherwise, if the raw
+        name carries a chain name, the row still counts as LKA: the group is that
+        chain and the branch falls back to the invoice code, since the export
+        named the company but not the outlet.
+        """
+        branch, status = self.resolve(raw_name, code)
+        chained = self.chain_of(branch)
+        if chained != branch:
+            return chained, branch, status
+
+        chain = self.chain_in_name(raw_name)
+        if chain:
+            # Chain known, branch not — label the branch by its code.
+            branch_label = (code or "").strip() or branch
+            return chain, branch_label, "mapped-group"
+
+        return branch, branch, status
 
     def unmapped_names(self, raw_names: list[str], codes: dict[str, str] | None = None) -> list[str]:
         """Raw names with no resolution through either layer."""

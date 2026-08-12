@@ -154,12 +154,12 @@ def remap():
         return jsonify({"rows": 0, "stats": {}})
     mappings = MappingLibrary.load(MAPPING_PATH)
     resolved = [
-        mappings.resolve(row.get("Raw Name", ""), row.get("Code", ""))
+        mappings.group_and_branch(row.get("Raw Name", ""), row.get("Code", ""))
         for row in frame.to_dict("records")
     ]
-    frame["Outlet"] = [outlet for outlet, _ in resolved]
-    frame["OutletGroup"] = [mappings.chain_of(outlet) for outlet, _ in resolved]
-    frame["Mapping Status"] = [status for _, status in resolved]
+    frame["OutletGroup"] = [group for group, _, _ in resolved]
+    frame["Outlet"] = [branch for _, branch, _ in resolved]
+    frame["Mapping Status"] = [status for _, _, status in resolved]
     _store(frame)
     return jsonify({"rows": len(frame), "stats": reports.summary_stats(frame)})
 
@@ -209,7 +209,9 @@ def tree():
 
     if request.args.get("scope") == "lka":
         mappings = MappingLibrary.load(MAPPING_PATH)
-        chains = set(mappings.branch_to_chain.values())
+        # LKA = any row whose OutletGroup is a known chain, whether reached
+        # through a branch mapping or through the chain name in the raw text.
+        chains = set(mappings.branch_to_chain.values()) | set(mappings.chain_keywords.values())
         frame = frame[frame["OutletGroup"].isin(chains)]
         if frame.empty:
             return jsonify({"total": 0.0, "levels": [], "scope": "lka"})
