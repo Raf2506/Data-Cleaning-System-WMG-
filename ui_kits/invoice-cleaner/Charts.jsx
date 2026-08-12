@@ -1,19 +1,43 @@
-// Shared chart primitives. Deliberately plain SVG/flex so they match the report
-// PDF: horizontal bars with the exact RM value labeled at the end of each bar.
+// Shared chart primitives. Horizontal bars with the exact RM value labeled at
+// the end of each bar, now colour-coded so rows are easy to tell apart.
 
-function BarList({ rows, labelKey = "outlet", valueKey = "amount", max, format = window.RM, height = 34 }) {
+// A categorical palette anchored on the design system's teal. Colours are
+// assigned by a stable hash of the label, so a given store keeps its colour
+// across every chart and table.
+const PALETTE = [
+  "#0a7281", "#2563eb", "#7c3aed", "#db2777", "#ea580c", "#16a34a",
+  "#0891b2", "#ca8a04", "#dc2626", "#4f46e5", "#0d9488", "#9333ea",
+  "#c026d3", "#65a30d", "#0369a1", "#b45309",
+];
+
+function colorFor(key) {
+  const s = String(key == null ? "" : key);
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return PALETTE[h % PALETTE.length];
+}
+
+function BarList({ rows, labelKey = "outlet", valueKey = "amount", max, format = window.RM, height = 34, colorKey }) {
   const top = max || Math.max(...rows.map((r) => r[valueKey]), 1);
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      {rows.map((r) => (
-        <div key={r[labelKey]} style={{ display: "grid", gridTemplateColumns: "minmax(140px, 260px) 1fr auto", gap: 16, alignItems: "center" }}>
-          <div style={{ fontSize: 13, color: "var(--charcoal)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={r[labelKey]}>{r[labelKey]}</div>
-          <div style={{ background: "var(--soft-cloud)", height }}>
-            <div style={{ width: (r[valueKey] / top) * 100 + "%", height: "100%", background: "var(--ink)" }} title={format(r[valueKey])} />
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      {rows.map((r, i) => {
+        // Ranked lists colour by position so neighbours always differ; pass a
+        // colorKey to lock a colour to an identity instead.
+        const color = colorKey ? colorFor(r[colorKey]) : PALETTE[i % PALETTE.length];
+        return (
+          <div key={r[labelKey]} className="barrow" style={{ display: "grid", gridTemplateColumns: "minmax(140px, 260px) 1fr auto", gap: 16, alignItems: "center", padding: "3px 6px", borderRadius: 4 }}>
+            <div style={{ fontSize: 13, color: "var(--charcoal)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 8 }} title={r[labelKey]}>
+              <span style={{ width: 9, height: 9, flex: "0 0 auto", borderRadius: 2, background: color }} />
+              {r[labelKey]}
+            </div>
+            <div style={{ background: "var(--soft-cloud)", height, borderRadius: 3, overflow: "hidden" }}>
+              <div className="barfill" style={{ width: (r[valueKey] / top) * 100 + "%", height: "100%", background: color }} title={format(r[valueKey])} />
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 600, fontVariantNumeric: "tabular-nums", minWidth: 110, textAlign: "right" }}>{format(r[valueKey])}</div>
           </div>
-          <div style={{ fontSize: 13, fontWeight: 600, fontVariantNumeric: "tabular-nums", minWidth: 110, textAlign: "right" }}>{format(r[valueKey])}</div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -23,9 +47,9 @@ function ColumnChart({ rows, labelKey = "month", valueKey = "amount", height = 1
   return (
     <div style={{ display: "flex", gap: 8, alignItems: "flex-end", height }}>
       {rows.map((r) => (
-        <div key={r[labelKey]} style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", gap: 8, height: "100%" }}>
+        <div key={r[labelKey]} className="colbar" style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", gap: 8, height: "100%" }}>
           <div style={{ fontSize: 11, fontWeight: 600, textAlign: "center", color: "var(--mute)", fontVariantNumeric: "tabular-nums" }}>{window.RMk(r[valueKey])}</div>
-          <div style={{ height: (r[valueKey] / top) * 100 + "%", background: "var(--ink)" }} title={window.RM(r[valueKey])} />
+          <div className="colfill" style={{ height: (r[valueKey] / top) * 100 + "%", background: colorFor(r[labelKey]), borderRadius: "3px 3px 0 0" }} title={window.RM(r[valueKey])} />
           <div style={{ fontSize: 11, textAlign: "center", color: "var(--mute)" }}>{window.monthLabel(r[labelKey])}</div>
         </div>
       ))}
@@ -33,7 +57,8 @@ function ColumnChart({ rows, labelKey = "month", valueKey = "amount", height = 1
   );
 }
 
-const DONUT_TONES = ["#111111", "#39393b", "#4b4b4d", "#707072", "#9e9ea0", "#cacacb", "#0a7281", "#e5e5e5"];
+// Donut slices cycle the full palette for maximum contrast between neighbours.
+const DONUT_TONES = PALETTE;
 
 function Donut({ rows, labelKey = "product", valueKey = "amount", size = 240, thickness = 42 }) {
   const total = rows.reduce((a, r) => a + r[valueKey], 0) || 1;
@@ -72,4 +97,4 @@ function Donut({ rows, labelKey = "product", valueKey = "amount", size = 240, th
   );
 }
 
-Object.assign(window, { BarList, ColumnChart, Donut, DONUT_TONES });
+Object.assign(window, { BarList, ColumnChart, Donut, DONUT_TONES, PALETTE, colorFor });

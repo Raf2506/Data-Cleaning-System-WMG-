@@ -20,7 +20,44 @@
 <script type="text/babel" src="TableScreen.jsx"></script>
 <script type="text/babel" src="ReportsScreen.jsx"></script>
 <script type="text/babel" src="TreeScreen.jsx"></script>
-<style>body{font-family:Archivo,sans-serif;background:var(--canvas)}h1,h2,h3{font-family:'Archivo Narrow',Archivo,sans-serif}a{color:var(--ink)}a:hover{color:var(--charcoal)}::selection{background:var(--ink);color:var(--canvas)}</style>
+<style>
+body{font-family:Archivo,sans-serif;background:var(--canvas)}
+h1,h2,h3{font-family:'Archivo Narrow',Archivo,sans-serif}
+a{color:var(--ink)}a:hover{color:var(--charcoal)}
+::selection{background:var(--ink);color:var(--canvas)}
+
+/* --- Interactivity: everything clickable gives feedback before the click --- */
+button,a,select,[data-click]{transition:background .14s ease,color .14s ease,transform .12s ease,box-shadow .14s ease,filter .14s ease,border-color .14s ease}
+button:not(:disabled):active,[data-click]:active{transform:translateY(1px)}
+
+/* Cards and panels that navigate lift on hover */
+.lift{cursor:pointer}
+.lift:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(17,17,17,.14)}
+
+/* Pill / ghost buttons brighten and lift slightly */
+.hoverable:hover{filter:brightness(.94)}
+
+/* Bar rows: the fill brightens and the row tints when the pointer is over it */
+.barrow:hover{background:var(--soft-cloud)}
+.barrow:hover .barfill{filter:brightness(1.15) saturate(1.12)}
+.colbar:hover .colfill{filter:brightness(1.18) saturate(1.12)}
+
+/* Colourful, legible tables: zebra striping + a clear hover row */
+table.grid tbody tr:nth-child(even){background:color-mix(in srgb,var(--soft-cloud) 55%,transparent)}
+table.grid tbody tr{transition:background .12s ease}
+table.grid tbody tr:hover{background:color-mix(in srgb,var(--info,#0a7281) 10%,var(--canvas))}
+table.grid tbody td{border-bottom:1px solid var(--hairline-soft)}
+
+/* Tree nodes and list buttons */
+.node:hover{background:var(--soft-cloud)!important}
+.node:hover .barfill{filter:brightness(1.15) saturate(1.1)}
+
+/* Sidebar navigation, stat cards, quick links */
+.navitem:hover{background:rgba(255,255,255,.10)}
+.statcard{transition:box-shadow .16s ease,transform .12s ease}
+.statcard:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(17,17,17,.12)}
+.golink:hover{background:var(--soft-cloud)!important;padding-left:28px!important}
+</style>
 </head><body><div id="root"></div>
 <script type="text/babel" data-presets="react">
 function App(){

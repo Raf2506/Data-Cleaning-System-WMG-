@@ -12,9 +12,9 @@ function DashboardScreen({ onNavigate }) {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 24 }}>
         <StatCard tone="ink" label="Total sales" value={window.RMk(d.stats.totalSales)} sub={d.stats.period} />
-        <StatCard label="Best outlet" value={top.outlet} sub={window.RM(top.amount)} />
-        <StatCard label="Best month" value={best.label} sub={window.RM(best.amount)} />
-        <StatCard label="Unmapped rows" value={d.stats.unmappedRows.toLocaleString()} sub="Flagged, not dropped — resolve in Mapping Manager" />
+        <StatCard tone="#0a7281" label="Best outlet" value={top.outlet} sub={window.RM(top.amount)} />
+        <StatCard tone="#2563eb" label="Best month" value={best.label} sub={window.RM(best.amount)} />
+        <StatCard tone={d.stats.unmappedRows ? "#dc2626" : "#16a34a"} label="Unmapped rows" value={d.stats.unmappedRows.toLocaleString()} sub="Flagged, not dropped — resolve in Mapping Manager" />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 8, marginBottom: 8 }}>
@@ -51,7 +51,7 @@ function DashboardScreen({ onNavigate }) {
 
           <Panel title="Go to" pad={0}>
             {NAV.filter((n) => n.id !== "dashboard").map((n) => (
-              <button key={n.id} onClick={() => onNavigate(n.id)} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "14px 24px", background: "none", border: "none", borderBottom: "1px solid var(--hairline-soft)", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 14, fontWeight: 500, color: "var(--ink)", textAlign: "left" }}>
+              <button key={n.id} className="golink" onClick={() => onNavigate(n.id)} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "14px 24px", background: "none", border: "none", borderBottom: "1px solid var(--hairline-soft)", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 14, fontWeight: 500, color: "var(--ink)", textAlign: "left" }}>
                 <Icon name={n.icon} size={17} />{n.label}
                 <Icon name="chevron-right" size={16} style={{ marginLeft: "auto", color: "var(--stone)" }} />
               </button>

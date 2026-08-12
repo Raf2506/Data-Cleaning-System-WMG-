@@ -112,7 +112,7 @@ function TableScreen() {
         title={store ? `${store}${month ? " · " + month : ""}` : month ? month : "All cleaned line items"}
         note={loading ? "Loading…" : `${total.toLocaleString()} rows${filtered ? " in this view" : ` · ${d.stats.period || "—"}`} · showing ${rows.length.toLocaleString()}`}>
         <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 1100 }}>
+          <table className="grid" style={{ width: "100%", borderCollapse: "collapse", minWidth: 1160 }}>
             <thead><tr>
               <th style={th}>Store</th><th style={th}>Outlet</th><th style={th}>Invoice No</th><th style={th}>Date</th><th style={th}>Product</th>
               <th style={{ ...th, textAlign: "right" }}>Qty</th><th style={th}>UOM</th>
@@ -122,7 +122,12 @@ function TableScreen() {
             <tbody>
               {rows.map((r, i) => (
                 <tr key={i}>
-                  <td style={{ ...td, fontWeight: 600 }}>{r.group}</td>
+                  <td style={{ ...td, fontWeight: 600 }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ width: 9, height: 9, borderRadius: 2, flex: "0 0 auto", background: window.colorFor(r.group) }} />
+                      {r.group}
+                    </span>
+                  </td>
                   <td style={{ ...td, color: "var(--charcoal)" }}>{r.outlet}</td>
                   <td style={{ ...td, fontFamily: "ui-monospace, monospace" }}>{r.invoice}</td>
                   <td style={td}>{r.date}</td>

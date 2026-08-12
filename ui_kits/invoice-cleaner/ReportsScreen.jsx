@@ -63,10 +63,10 @@ function ReportsScreen() {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 8 }}>
         <StatCard tone="ink" label="Total sales, period" value={window.RMk(d.stats.totalSales)} sub={d.stats.period} />
-        <StatCard label="Best-selling outlet" value={topOutlet.outlet} sub={window.RM(topOutlet.amount)} />
-        <StatCard label="Best-selling product" value={bestProduct.name}
+        <StatCard tone="#0a7281" label="Best-selling outlet" value={topOutlet.outlet} sub={window.RM(topOutlet.amount)} />
+        <StatCard tone="#7c3aed" label="Best-selling product" value={bestProduct.name}
           sub={`${window.RM(bestProduct.amount)} · ${share.toFixed(1)}% of total`} />
-        <StatCard label="Best month" value={bestMonth.label} sub={window.RM(bestMonth.amount)} />
+        <StatCard tone="#2563eb" label="Best month" value={bestMonth.label} sub={window.RM(bestMonth.amount)} />
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

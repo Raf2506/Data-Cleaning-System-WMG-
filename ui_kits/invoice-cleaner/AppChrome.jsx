@@ -20,7 +20,7 @@ function Sidebar({ view, onNavigate, unmapped }) {
         {NAV.map((n) => {
           const on = n.id === view;
           return (
-            <button key={n.id} onClick={() => onNavigate(n.id)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 12px", background: on ? "var(--canvas)" : "transparent", color: on ? "var(--ink)" : "var(--hairline)", border: "none", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 15, fontWeight: 500, textAlign: "left", borderRadius: 0 }}>
+            <button key={n.id} className={on ? "" : "navitem"} onClick={() => onNavigate(n.id)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 12px", background: on ? "var(--canvas)" : "transparent", color: on ? "var(--ink)" : "var(--hairline)", border: "none", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 15, fontWeight: 500, textAlign: "left", borderRadius: 0 }}>
               <Icon name={n.icon} size={18} />
               {n.label}
               {n.id === "mapping" && unmapped > 0 && (
@@ -55,8 +55,9 @@ function PageHead({ title, kicker, actions }) {
 
 function StatCard({ label, value, sub, tone = "soft" }) {
   const dark = tone === "ink";
+  const accent = tone !== "ink" && tone !== "soft" ? tone : null;
   return (
-    <div style={{ background: dark ? "var(--ink)" : "var(--soft-cloud)", color: dark ? "var(--canvas)" : "var(--ink)", padding: "20px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
+    <div className="statcard" style={{ background: dark ? "var(--ink)" : "var(--soft-cloud)", color: dark ? "var(--canvas)" : "var(--ink)", padding: "20px 24px", display: "flex", flexDirection: "column", gap: 10, borderLeft: accent ? `4px solid ${accent}` : "none" }}>
       <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: dark ? "var(--stone)" : "var(--mute)" }}>{label}</div>
       <div style={{ fontFamily: "'Archivo Narrow', Archivo, sans-serif", fontWeight: 700, fontSize: 34, lineHeight: 1, letterSpacing: "-0.01em" }}>{value}</div>
       {sub && <div style={{ fontSize: 13, color: dark ? "var(--hairline)" : "var(--mute)", borderTop: dark ? "1px solid var(--ash)" : "1px solid var(--hairline)", paddingTop: 10 }}>{sub}</div>}
@@ -102,8 +103,8 @@ function GhostButton({ children, icon, onClick, href, disabled }) {
   const style = { display: "inline-flex", alignItems: "center", gap: 8, height: 36, padding: "0 16px", background: "var(--canvas)", color: disabled ? "var(--stone)" : "var(--ink)", border: "1px solid var(--hairline)", borderRadius: "var(--radius-pill)", cursor: disabled ? "not-allowed" : "pointer", fontFamily: "Archivo, sans-serif", fontSize: 14, fontWeight: 500, textDecoration: "none" };
   const inner = <>{icon && <Icon name={icon} size={15} />}{children}</>;
   // Downloads have to be real navigations, so exports render as anchors.
-  if (href && !disabled) return <a href={href} style={style}>{inner}</a>;
-  return <button onClick={onClick} disabled={disabled} style={style}>{inner}</button>;
+  if (href && !disabled) return <a className="hoverable" href={href} style={style}>{inner}</a>;
+  return <button className="hoverable" onClick={onClick} disabled={disabled} style={style}>{inner}</button>;
 }
 
 /**

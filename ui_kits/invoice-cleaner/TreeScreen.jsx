@@ -107,11 +107,12 @@ function TreeScreen() {
               <div style={{ maxHeight: 560, overflowY: "auto" }}>
                 {level.items.map((item) => {
                   const on = level.selected === item.name;
+                  const color = window.colorFor(item.name);
                   return (
-                    <button key={item.name} onClick={() => choose(depth, item.name)}
-                      style={{ display: "block", width: "100%", textAlign: "left", border: "none", borderBottom: "1px solid var(--hairline-soft)", background: on ? "var(--soft-cloud)" : "var(--canvas)", cursor: "pointer", padding: "10px 16px", fontFamily: "Archivo, sans-serif" }}>
-                      <div style={{ height: 6, background: "var(--hairline)", marginBottom: 8 }}>
-                        <div style={{ height: "100%", width: (item.amount / max) * 100 + "%", background: on ? "var(--ink)" : "var(--info, var(--charcoal))" }} />
+                    <button key={item.name} className="node" onClick={() => choose(depth, item.name)}
+                      style={{ display: "block", width: "100%", textAlign: "left", border: "none", borderLeft: `3px solid ${on ? color : "transparent"}`, borderBottom: "1px solid var(--hairline-soft)", background: on ? "var(--soft-cloud)" : "var(--canvas)", cursor: "pointer", padding: "10px 16px 10px 13px", fontFamily: "Archivo, sans-serif" }}>
+                      <div style={{ height: 6, background: "var(--soft-cloud)", marginBottom: 8, borderRadius: 3, overflow: "hidden" }}>
+                        <div className="barfill" style={{ height: "100%", width: (item.amount / max) * 100 + "%", background: color }} />
                       </div>
                       <div style={{ fontSize: 13, fontWeight: on ? 700 : 500, color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={item.name}>
                         {item.name}

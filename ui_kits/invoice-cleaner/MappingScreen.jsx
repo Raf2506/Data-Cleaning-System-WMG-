@@ -117,7 +117,7 @@ function MappingScreen({ onSaved }) {
           </div>
 
           {tab === "store" && (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table className="grid" style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead><tr><th style={th}>Keyword (name or code)</th><th style={th}>Store name (OutletGroup)</th><th style={{ ...th, width: 60 }} /></tr></thead>
               <tbody>
                 {shownStores.map((s, i) => (
@@ -132,7 +132,7 @@ function MappingScreen({ onSaved }) {
           )}
 
           {tab === "branch" && (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table className="grid" style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead><tr><th style={th}>Keyword (code or name)</th><th style={th}>Branch outlet</th><th style={{ ...th, width: 110 }}>Match</th><th style={{ ...th, width: 60 }} /></tr></thead>
               <tbody>
                 {shownBranches.map((b, i) => (
@@ -153,7 +153,7 @@ function MappingScreen({ onSaved }) {
           )}
 
           {tab === "dropped" && (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table className="grid" style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead><tr><th style={th}>Raw name in your data</th><th style={{ ...th, width: 96 }}>Code</th><th style={{ ...th, width: 110, textAlign: "right" }}>Value</th><th style={th}>Add as store</th><th style={{ ...th, width: 70 }} /></tr></thead>
               <tbody>
                 {shownDropped.map((q) => (
