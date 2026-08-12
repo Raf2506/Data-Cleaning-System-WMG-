@@ -121,10 +121,14 @@ class MappingLibrary:
             if rule.matches(code, name):
                 return rule.group, "mapped-code"
 
-        if name and not looks_like_code_name(name) and key not in self.name_to_group:
-            return name, "unmapped"
-
-        return name or (code or "").strip() or "UNKNOWN", "unmapped"
+        # Nothing detected. Fall back to the invoice code, which is stable and
+        # unique per account — a branch name like "10094 KUBANG KERIAN" carries
+        # an internal number that changes between systems, so the code is the
+        # safer label. Still flagged unmapped so it stays in the queue.
+        fallback = (code or "").strip()
+        if fallback:
+            return fallback, "unmapped"
+        return name or "UNKNOWN", "unmapped"
 
     def unmapped_names(self, raw_names: list[str], codes: dict[str, str] | None = None) -> list[str]:
         """Raw names with no resolution through either layer."""

@@ -141,6 +141,29 @@ def test_trailing_summary_block_is_not_stitched():
     assert parsed.continuation_rows == 1  # only the real one, not the summary's
 
 
+def test_undetected_outlet_falls_back_to_the_invoice_code():
+    """No name rule, no keyword rule — label by the code, and keep it flagged."""
+    library = MappingLibrary()
+    outlet, status = library.resolve("10094 KUBANG KERIAN", "300-10075")
+    assert outlet == "300-10075"
+    assert status == "unmapped"
+
+    # With no code at all there is nothing better than the raw name.
+    assert library.resolve("SOME GROCER", "") == ("SOME GROCER", "unmapped")
+
+
+def test_keyword_matches_name_or_code_longest_first():
+    library = MappingLibrary()
+    library.set_code("KLUANG", "KLUANG")
+    library.set_code("KLUANG PERDANA", "KLUANG PERDANA")
+    library.set_code("SNWG", "SENAWANG")
+
+    assert library.resolve("10043 KLUANG PERDANA", "300-1")[0] == "KLUANG PERDANA"
+    assert library.resolve("10043 KLUANG", "300-1")[0] == "KLUANG"
+    # Matched through the code rather than the name.
+    assert library.resolve("10101 SD/CR", "300-SNWG01")[0] == "SENAWANG"
+
+
 def test_plain_names_map_to_themselves():
     """A name with no branch suffix is canonical already — not 'unmapped'."""
     suggestions = suggest_name_groups(["MYDIN MOHAMED HOLDINGS BHD", "ECONSAVE - AMPANG BARU"])
@@ -189,6 +212,8 @@ if __name__ == "__main__":
     test_wide_layout_is_parsed_by_content_not_position()
     test_header_without_iv_prefix_is_not_read_as_a_line_item()
     test_trailing_summary_block_is_not_stitched()
+    test_undetected_outlet_falls_back_to_the_invoice_code()
+    test_keyword_matches_name_or_code_longest_first()
     test_plain_names_map_to_themselves()
     test_pascalcase_workbook_attributes_are_repaired()
     print("ok")
