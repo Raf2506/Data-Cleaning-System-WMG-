@@ -261,9 +261,114 @@ def _read_line_item(cells: list[Any]) -> tuple[dict, int | None]:
     return line, (description_at if remaining else None)
 
 
+# A tidy export is one flat row per line item under a real header row, rather
+# than the paginated accounting report. Header labels vary, so they are matched
+# after stripping spaces, dots and underscores.
+TIDY_FIELDS = {
+    "Invoice No": ("docno", "docno", "invoiceno", "documentno"),
+    "Date": ("docdate", "date", "documentdate"),
+    "Code": ("code", "accountcode", "customercode"),
+    "Raw Name": ("name", "customername", "accountname"),
+    "Invoice Total": ("invoiceamount", "documentamount", "invoicetotal"),
+    "Seq": ("seq", "seqno", "line", "lineno"),
+    "GL Code": ("glcode", "gl"),
+    "Product": ("description", "desc", "productdescription", "itemdescription"),
+    "Quantity": ("quantity", "qty"),
+    "UOM": ("uom", "unit"),
+    "Unit Price": ("unitprice", "price"),
+    "Amount": ("lineamount", "amount", "amountrm", "linetotal"),
+}
+
+
+def _norm_header(value: Any) -> str:
+    # Strip spaces and punctuation only — "Amount (RM)" -> "amountrm",
+    # "Doc. No" -> "docno" — without touching letters of the words themselves.
+    return re.sub(r"[\s._()/-]", "", _s(value).lower())
+
+
+def _tidy_header(cells: list[Any]) -> dict[str, int] | None:
+    """Map a header row to {field: column}, or None if it isn't a tidy header.
+
+    A tidy table is recognised only when the columns that make a line item —
+    a document number, a description and a line amount — are all named.
+    """
+    lookup: dict[str, int] = {}
+    for i, cell in enumerate(cells):
+        token = _norm_header(cell)
+        if not token:
+            continue
+        for field, aliases in TIDY_FIELDS.items():
+            if token in aliases and field not in lookup:
+                lookup[field] = i
+    if {"Invoice No", "Product", "Amount"} <= lookup.keys():
+        return lookup
+    return None
+
+
+def _parse_tidy(frame: pd.DataFrame, header_row: int, cols: dict[str, int]) -> ParseResult:
+    """Parse a flat one-row-per-line-item table addressed by column name."""
+    result = ParseResult()
+    seen_invoices: set[str] = set()
+    seen_names: dict[str, None] = {}
+
+    def cell(row: list[Any], field: str) -> Any:
+        idx = cols.get(field)
+        return row[idx] if idx is not None and idx < len(row) else None
+
+    for _, raw_row in frame.iloc[header_row + 1 :].iterrows():
+        row = raw_row.tolist()
+        invoice_no = _s(cell(row, "Invoice No"))
+        product = _s(cell(row, "Product"))
+        amount = _num(cell(row, "Amount"))
+        # A row needs an invoice number and either a product or an amount; blank
+        # trailing rows and stray totals are skipped.
+        if not invoice_no or (not product and amount is None):
+            result.discarded_rows += 1
+            continue
+
+        doc_date = _parse_date(cell(row, "Date"))
+        raw_name = _s(cell(row, "Raw Name"))
+        result.rows.append(
+            {
+                "Invoice No": invoice_no,
+                "Date": doc_date,
+                "Month": doc_date.strftime("%Y-%m") if doc_date else "",
+                "Code": _s(cell(row, "Code")),
+                "Raw Name": raw_name,
+                "Seq": int(float(_s(cell(row, "Seq")))) if _is_seq(cell(row, "Seq")) else None,
+                "GL Code": _s(cell(row, "GL Code")),
+                "Product": product,
+                "Quantity": _num(cell(row, "Quantity")),
+                "UOM": _s(cell(row, "UOM")),
+                "Unit Price": _num(cell(row, "Unit Price")),
+                "Amount": amount,
+                "Invoice Total": _num(cell(row, "Invoice Total")),
+            }
+        )
+        seen_invoices.add(invoice_no)
+        if raw_name:
+            seen_names.setdefault(raw_name, None)
+        if doc_date:
+            result.date_from = min(filter(None, [result.date_from, doc_date]))
+            result.date_to = max(filter(None, [result.date_to, doc_date]))
+
+    result.invoice_count = len(seen_invoices)
+    result.line_item_count = len(result.rows)
+    result.raw_names = list(seen_names.keys())
+    return result
+
+
 def parse_invoice_listing(source: str | bytes, sheet_name: int | str = 0) -> ParseResult:
     """Turn the raw export into one dict per line item, invoice context carried down."""
     frame = _read_workbook(source, sheet_name)
+
+    # A tidy table (proper header row, one row per line item) is parsed by column
+    # name; the paginated accounting report falls through to the layout parser.
+    for scan in range(min(8, len(frame))):
+        cols = _tidy_header(frame.iloc[scan].tolist())
+        if cols:
+            return _parse_tidy(frame, scan, cols)
+
     result = ParseResult(reported_range=_detect_reported_range(frame))
 
     invoice_no = doc_date = code = raw_name = None

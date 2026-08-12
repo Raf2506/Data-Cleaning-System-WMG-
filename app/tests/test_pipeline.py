@@ -233,6 +233,45 @@ def test_plain_names_map_to_themselves():
     assert suggestions["ECONSAVE - AMPANG BARU"] == "ECONSAVE"
 
 
+def _tidy_fixture() -> io.BytesIO:
+    """A clean one-row-per-line-item export under a real header row."""
+    rows = [
+        ["DocNo", "DocDate", "Code", "Name", "InvoiceAmount", "Seq", "GLCode",
+         "Description", "Project", "Quantity", "UOM", "UnitPrice", "LineAmount"],
+        ["IV-16481", "2026-07-01", "300-10025", "10026 BUTTERWORTH", 396.26, 1000,
+         "500-000", "RASTO NACHO CHEESE SAUCE 1KG X 20", "----", 1, "CTN", 179.82, 171.26],
+        ["IV-16481", "2026-07-01", "300-10025", "10026 BUTTERWORTH", 396.26, 2000,
+         "500-000", "RASTO CHILI SAUCE 1KG X 20", "----", 3, "CTN", 75, 225],
+        ["IV-16494", "2026-07-03", "300-S0205", "ST ROSYAM MART (SHAH ALAM)", 102.86, 1000,
+         "500-000", "CIK SURI ASAM JAWA XTRA 200G x 36", "----", 1, "CTN", 108, 102.86],
+    ]
+    buffer = io.BytesIO()
+    pd.DataFrame(rows).to_excel(buffer, index=False, header=False)
+    buffer.seek(0)
+    return buffer
+
+
+def test_tidy_table_is_parsed_by_column_name():
+    parsed = parse_invoice_listing(_tidy_fixture())
+    assert parsed.invoice_count == 2
+    assert parsed.line_item_count == 3
+    assert parsed.discarded_rows == 0
+    first = parsed.rows[0]
+    assert first["Invoice No"] == "IV-16481"
+    assert first["Code"] == "300-10025"
+    assert first["Product"] == "RASTO NACHO CHEESE SAUCE 1KG X 20"
+    assert first["Amount"] == 171.26  # LineAmount, not InvoiceAmount
+    assert first["Quantity"] == 1
+
+
+def test_month_is_read_from_the_dates_not_a_metadata_block():
+    """The tidy export has no 'Date : From ... to ...' header — dates carry it."""
+    parsed = parse_invoice_listing(_tidy_fixture())
+    assert {r["Month"] for r in parsed.rows} == {"2026-07"}
+    assert parsed.date_from.date().isoformat() == "2026-07-01"
+    assert parsed.date_to.date().isoformat() == "2026-07-03"
+
+
 def _pascal_case_book_views(source: io.BytesIO) -> io.BytesIO:
     """Rewrite workbookView attributes the way non-Microsoft exporters do."""
     out = io.BytesIO()
@@ -271,6 +310,8 @@ def test_pascalcase_workbook_attributes_are_repaired():
 if __name__ == "__main__":
     test_pipeline()
     test_rows_without_a_store_are_out_of_scope()
+    test_tidy_table_is_parsed_by_column_name()
+    test_month_is_read_from_the_dates_not_a_metadata_block()
     test_wide_layout_is_parsed_by_content_not_position()
     test_header_without_iv_prefix_is_not_read_as_a_line_item()
     test_trailing_summary_block_is_not_stitched()
