@@ -204,7 +204,9 @@ def remap():
 def table():
     full = _scoped_frame()
     frame = full
-    outlet, month = request.args.get("outlet"), request.args.get("month")
+    group, outlet, month = request.args.get("group"), request.args.get("outlet"), request.args.get("month")
+    if group:
+        frame = frame[frame["OutletGroup"] == group]
     if outlet:
         frame = frame[frame["Outlet"] == outlet]
     if month:
@@ -217,6 +219,9 @@ def table():
     return jsonify(
         {
             "total": len(frame),
+            # Stores (OutletGroups) are what the picker lists — one SRI TERNAK,
+            # not each ST ROSYAM branch. Outlets are still returned for detail.
+            "groups": sorted(full["OutletGroup"].dropna().unique().tolist()) if not full.empty else [],
             "outlets": sorted(full["Outlet"].dropna().unique().tolist()) if not full.empty else [],
             "months": sorted(full["Month"].dropna().unique().tolist()) if not full.empty else [],
             "rows": page.astype(object).where(pd.notna(page), None).to_dict("records"),
@@ -306,7 +311,9 @@ def api_outlet(outlet: str):
 @app.get("/api/export/<fmt>")
 def export(fmt: str):
     frame = _scoped_frame()
-    outlet, month = request.args.get("outlet"), request.args.get("month")
+    group, outlet, month = request.args.get("group"), request.args.get("outlet"), request.args.get("month")
+    if group:
+        frame = frame[frame["OutletGroup"] == group]
     if outlet:
         frame = frame[frame["Outlet"] == outlet]
     if month:

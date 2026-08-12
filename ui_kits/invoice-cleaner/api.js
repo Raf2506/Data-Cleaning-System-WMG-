@@ -63,6 +63,7 @@
   const mapMonth = (r) => ({ month: s(r.Month), amount: n(r.Amount) });
 
   const mapRow = (r) => ({
+    group: s(r.OutletGroup),
     outlet: s(r.Outlet),
     invoice: s(r["Invoice No"]),
     date: s(r.Date),
@@ -171,14 +172,16 @@
       };
     },
 
-    async table({ outlet, month, limit = 500 } = {}) {
+    async table({ group, outlet, month, limit = 500 } = {}) {
       const q = new URLSearchParams();
+      if (group) q.set("group", group);
       if (outlet) q.set("outlet", outlet);
       if (month) q.set("month", month);
       q.set("limit", limit);
       const d = await get(`/api/table?${q}`);
       return {
         total: n(d.total),
+        groups: d.groups || [],
         outlets: d.outlets || [],
         months: d.months || [],
         rows: (d.rows || []).map(mapRow),
@@ -272,8 +275,9 @@
       return { rows: n(d.rows), stats: mapStats(d.stats) };
     },
 
-    exportUrl(fmt, { outlet, month } = {}) {
+    exportUrl(fmt, { group, outlet, month } = {}) {
       const q = new URLSearchParams();
+      if (group) q.set("group", group);
       if (outlet) q.set("outlet", outlet);
       if (month) q.set("month", month);
       const qs = q.toString();
@@ -311,6 +315,7 @@
           monthly: reports.monthly,
           bestProductByOutlet: reports.bestProductByOutlet,
           rows: table.rows,
+          groups: table.groups,
           outlets: table.outlets,
           months: table.months,
           total: table.total,
