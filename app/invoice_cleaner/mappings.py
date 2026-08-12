@@ -169,20 +169,26 @@ class MappingLibrary:
         """
         name = (raw_name or "").strip().upper()
         code = (code or "").strip().upper()
-        for fragment in sorted(self.chain_keywords, key=len, reverse=True):
-            frag = fragment.strip().upper()
-            if not frag:
-                continue
-            # Codes are a continuous run of characters, so a code fragment matches
-            # as a plain substring ("300-C" is inside "300-C0084"). Names are
-            # words, so a name fragment is anchored on word boundaries with an
-            # optional trailing plural — "CS BROTHER" matches "CS BROTHERS" but
-            # "ST" never bleeds into "STAR".
-            if code and frag in code:
-                return self.chain_keywords[fragment]
-            word = rf"(?<![A-Z0-9]){re.escape(frag)}S?(?![A-Z0-9])"
-            if name and re.search(word, name):
-                return self.chain_keywords[fragment]
+        fragments = sorted(self.chain_keywords, key=len, reverse=True)
+
+        # Code matches first: an invoice code is a per-account key, so a code
+        # rule is a specific override and must win over any name fragment — the
+        # account 300-S0257 belongs to SOON CHEONG even though its name reads
+        # "ST ROSYAM MART". A code fragment matches as a plain substring.
+        if code:
+            for fragment in fragments:
+                frag = fragment.strip().upper()
+                if frag and frag in code:
+                    return self.chain_keywords[fragment]
+
+        # Then name matches: anchored on word boundaries with an optional trailing
+        # plural, so "CS BROTHER" matches "CS BROTHERS" but "ST" never bleeds into
+        # "STAR".
+        if name:
+            for fragment in fragments:
+                frag = fragment.strip().upper()
+                if frag and re.search(rf"(?<![A-Z0-9]){re.escape(frag)}S?(?![A-Z0-9])", name):
+                    return self.chain_keywords[fragment]
         return ""
 
     # Kept for callers that only look at the name.
