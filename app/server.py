@@ -117,35 +117,36 @@ def clean():
 def get_mappings():
     m = MappingLibrary.load(MAPPING_PATH)
     frame = _clean_frame()
-    # Raw names actually present in the cleaned data, with how they resolved. The
-    # library alone can't tell the Mapping Manager which names are still unmapped.
-    observed = []
+    # One row per invoice code seen in the data — the "Branch names" table. Each
+    # shows how the code currently resolves (branch + store) and its value, so a
+    # code with no store is visible and one edit away from being included.
+    codes = []
     if not frame.empty:
-        cols = ["Raw Name", "Code", "OutletGroup", "Outlet", "Mapping Status"]
-        seen = frame[cols].drop_duplicates("Raw Name")
-        resolved = frame.groupby("Raw Name")["Amount"].sum().to_dict()
-        for r in seen.astype(object).where(pd.notna(seen), None).to_dict("records"):
-            observed.append(
+        cols = ["Code", "Raw Name", "OutletGroup", "Outlet", "Mapping Status"]
+        first = frame[cols].drop_duplicates("Code")
+        value = frame.groupby("Code")["Amount"].sum().to_dict()
+        for r in first.astype(object).where(pd.notna(first), None).to_dict("records"):
+            code = r["Code"] or ""
+            codes.append(
                 {
-                    "raw": r["Raw Name"] or r["Code"] or "",
-                    "code": r["Code"] or "",
-                    "group": r["OutletGroup"] if r["Mapping Status"] != "out-of-scope" else "",
+                    "code": code,
+                    "raw": r["Raw Name"] or "",
                     "branch": r["Outlet"] or "",
-                    "status": r["Mapping Status"],
-                    "amount": float(resolved.get(r["Raw Name"], 0.0)),
+                    "store": "" if r["Mapping Status"] == "out-of-scope" else (r["OutletGroup"] or ""),
+                    "dropped": r["Mapping Status"] == "out-of-scope",
+                    "amount": float(value.get(code, 0.0)),
                 }
             )
+        codes.sort(key=lambda c: -c["amount"])
     return jsonify(
         {
-            "name_to_group": m.name_to_group,
-            # Branch Outlet: keyword/code -> branch label.
+            # Store Names: keyword (name or code) -> OutletGroup.
+            "stores": [{"keyword": k, "store": v} for k, v in sorted(m.chain_keywords.items())],
+            # Branch names: every invoice code in the data with its resolution.
+            "codes": codes,
+            # The raw branch keyword rules, so the UI can tell an assigned code
+            # from one still on its code fallback.
             "branch_rules": [r.__dict__ for r in m.code_rules],
-            # Store Names: keyword -> OutletGroup, the inclusion universe.
-            "stores": [
-                {"keyword": k, "store": v} for k, v in sorted(m.chain_keywords.items())
-            ],
-            "code_rules": [r.__dict__ for r in m.code_rules],  # legacy alias
-            "observed": observed,
         }
     )
 
@@ -154,28 +155,31 @@ def get_mappings():
 def put_mappings():
     body = request.get_json(force=True)
     m = MappingLibrary.load(MAPPING_PATH)
-    # Branch Outlet rules (accepts the legacy "codes" key too).
-    for entry in body.get("branches", []) + body.get("codes", []):
-        pattern = entry.get("pattern") or entry.get("keyword")
-        group = entry.get("group") or entry.get("branch")
-        if group:
-            m.set_code(pattern, group, entry.get("exact", False))
-        else:
-            m.delete_code(pattern)
-    # Store Names.
+
+    # Store Names: broad keyword (name or code) -> store. Empty store deletes.
     for entry in body.get("stores", []):
-        keyword = entry.get("keyword", "")
-        store = entry.get("store", "")
-        if store:
-            m.set_store(keyword, store)
-        else:
-            m.delete_store(keyword)
-    for entry in body.get("names", []):
-        m.set_name(entry["raw"], entry["group"]) if entry.get("group") else m.delete_name(entry["raw"])
+        keyword = (entry.get("keyword") or "").strip()
+        if not keyword:
+            continue
+        store = (entry.get("store") or "").strip()
+        m.set_store(keyword, store) if store else m.delete_store(keyword)
+
+    # Branch names: one entry per invoice code. A sent branch becomes an exact
+    # code rule; a sent store an exact code-keyed override. Fields absent from
+    # the entry are left untouched, so editing one never clears the other.
+    for entry in body.get("codes", []):
+        code = (entry.get("code") or "").strip()
+        if not code:
+            continue
+        if "branch" in entry:
+            branch = (entry.get("branch") or "").strip()
+            m.set_code(code, branch, exact=True) if branch else m.delete_code(code)
+        if "store" in entry:
+            store = (entry.get("store") or "").strip()
+            m.set_store(code, store) if store else m.delete_store(code)
+
     m.save(MAPPING_PATH)
-    return jsonify(
-        {"ok": True, "branches": len(m.code_rules), "stores": len(m.chain_keywords)}
-    )
+    return jsonify({"ok": True, "branches": len(m.code_rules), "stores": len(m.chain_keywords)})
 
 
 @app.post("/api/remap")

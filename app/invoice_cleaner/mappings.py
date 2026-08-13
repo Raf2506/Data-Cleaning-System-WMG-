@@ -195,33 +195,36 @@ class MappingLibrary:
     def chain_in_name(self, raw_name: str) -> str:
         return self.store_of(raw_name, "")
 
+    def branch_of(self, raw_name: str, code: str) -> tuple[str, bool]:
+        """The branch label for a row, and whether a keyword named it.
+
+        A Branch Names keyword matches the invoice code or the raw name, longest
+        first, so "300-H.LGT" -> Langat and "USJ" -> USJ. When nothing matches,
+        the branch is the invoice code itself — a stable per-account key the user
+        can later assign a nicer keyword to.
+        """
+        name = (raw_name or "").strip()
+        for rule in sorted(self.code_rules, key=lambda r: -len(r.pattern.strip())):
+            if rule.matches(code, name):
+                return rule.group, True
+        return (code or "").strip() or name or "UNKNOWN", False
+
     OUT_OF_SCOPE = "(not a store)"
 
     def group_and_branch(self, raw_name: str, code: str) -> tuple[str, str, str]:
         """Resolve to (OutletGroup, Branch, status).
 
-        Two lists decide the row:
-        - Store Names give the OutletGroup and gate inclusion. A row matching no
-          store is out of scope — status "out-of-scope" — and dropped downstream.
-        - Branch Outlet rules (the code rules) name the specific branch. The
-          store found on the same row wins the group, so "ST ROSYAM MART
-          (SEMENYIH)" is SRI TERNAK's Semenyih branch, not CLC's. When the store
-          is known but no branch matches, the branch is the invoice code.
+        The store comes from the raw name or code via the Store Names keywords —
+        "ST ROSYAM..." is SRI TERNAK for every one of its branches, so a store
+        like CLC that no raw name matches simply never appears. A row matching no
+        store is out of scope and dropped. The branch is a Branch Names keyword
+        when one matches, otherwise the invoice code.
         """
-        branch, status = self.resolve(raw_name, code)
-
-        # The store can be named in the raw text ("ST ROSYAM..." -> SRI TERNAK),
-        # matched by the code, or reached because the Branch Outlet rule resolved
-        # to something that is itself a store (300-10 -> ECONSAVE, a store).
-        store = self.store_of(raw_name, code) or self.store_of(branch, "")
+        store = self.store_of(raw_name, code)
+        branch, _ = self.branch_of(raw_name, code)
         if not store:
-            return self.OUT_OF_SCOPE, (code or "").strip() or (raw_name or "").strip(), "out-of-scope"
-
-        if status in ("mapped-name", "mapped-code") and branch and not looks_like_code_name(branch):
-            # When the branch equals its store there is no distinct outlet.
-            branch_label = (code or "").strip() or branch if branch.upper() == store.upper() else branch
-            return store, branch_label, status
-        return store, (code or "").strip() or branch, "mapped-group"
+            return self.OUT_OF_SCOPE, branch, "out-of-scope"
+        return store, branch, "mapped"
 
     def unmapped_names(self, raw_names: list[str], codes: dict[str, str] | None = None) -> list[str]:
         """Raw names with no resolution through either layer."""

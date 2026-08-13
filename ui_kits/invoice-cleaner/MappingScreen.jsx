@@ -2,60 +2,57 @@ const { Icon, Button, SearchPill } = window.SubtleGradientDesignSystem_21f929;
 
 /**
  * Two lists decide every row:
- *  - Store Names  : keyword -> OutletGroup. The inclusion universe. A row that
- *                   matches no store is dropped.
- *  - Branch Outlet: keyword/code -> branch label within a store.
- * The Dropped tab lists rows currently out of scope, so revenue that needs a
- * store is visible and one click away from being included.
+ *  - Branch names: one row per invoice code in the data. Assign the branch label
+ *    for a code (300-H.LGT -> Langat) and see / set which store it belongs to.
+ *    A code with no store is dropped, shown here in red so it is one edit away.
+ *  - Store names: broad keyword (name or code) -> store. "ST" -> SRI TERNAK
+ *    groups every ST ROSYAM branch; a store no name matches never appears.
  */
 function MappingScreen({ onSaved }) {
   const d = window.INVOICE;
   const live = window.API.live;
 
-  const [tab, setTab] = React.useState("store");
+  const [tab, setTab] = React.useState("branch");
   const [query, setQuery] = React.useState("");
+  const [codes, setCodes] = React.useState(() => (d.codes || []).map((c) => ({ ...c })));
   const [stores, setStores] = React.useState(() => (d.stores || []).map((m) => ({ ...m })));
-  const [branches, setBranches] = React.useState(() => (d.branchRules || []).map((m) => ({ ...m })));
-  const [dropped, setDropped] = React.useState(() =>
-    (d.unresolved || []).map((u) => ({ ...u, store: "", keyword: window.suggestKeyword(u.raw) }))
-  );
+  // Original branch/store per code, so only edited codes are saved.
+  const original = React.useRef(Object.fromEntries((d.codes || []).map((c) => [c.code, { branch: c.branch, store: c.store }])));
   const [dirty, setDirty] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [saved, setSaved] = React.useState(null);
 
   const touch = () => { setDirty(true); setSaved(null); };
 
-  // --- Store Names ------------------------------------------------------
+  // --- Branch names (per invoice code) ---------------------------------
+  const editCode = (code, field, value) => { setCodes(codes.map((c) => (c.code === code ? { ...c, [field]: value } : c))); touch(); };
+
+  // --- Store names ------------------------------------------------------
   const editStore = (i, field, value) => { setStores(stores.map((s, j) => (j === i ? { ...s, [field]: value } : s))); touch(); };
   const addStore = () => { setStores([{ keyword: "", store: "" }, ...stores]); touch(); };
   const removeStore = (i) => { setStores(stores.filter((_, j) => j !== i)); touch(); };
-
-  // --- Branch Outlet ----------------------------------------------------
-  const editBranch = (i, field, value) => { setBranches(branches.map((b, j) => (j === i ? { ...b, [field]: value } : b))); touch(); };
-  const addBranch = () => { setBranches([{ keyword: "", branch: "", match: "Fragment" }, ...branches]); touch(); };
-  const removeBranch = (i) => { setBranches(branches.filter((_, j) => j !== i)); touch(); };
-
-  // --- Dropped ----------------------------------------------------------
-  const editDropped = (raw, field, value) => { setDropped(dropped.map((q) => (q.raw === raw ? { ...q, [field]: value } : q))); };
-  const includeOne = (row) => {
-    const store = (row.store || row.keyword).trim();
-    if (!store) return;
-    setStores([{ keyword: (row.keyword || store).trim(), store }, ...stores]);
-    setDropped(dropped.filter((q) => q.raw !== row.raw));
-    touch();
-  };
 
   async function save() {
     if (!live) return window.alert("Not connected to the API — start app/server.py to persist.");
     setSaving(true);
     try {
+      // Send only the fields the user actually changed, per code. A branch that
+      // now equals the code fallback is sent as "" to delete its rule.
+      const editedCodes = [];
+      codes.forEach((c) => {
+        const o = original.current[c.code] || { branch: "", store: "" };
+        const entry = { code: c.code };
+        if (c.branch.trim() !== o.branch.trim()) entry.branch = c.branch.trim() === c.code ? "" : c.branch.trim();
+        if (c.store.trim() !== o.store.trim()) entry.store = c.store.trim();
+        if (entry.branch !== undefined || entry.store !== undefined) editedCodes.push(entry);
+      });
       const res = await window.API.saveMappings({
         stores: stores.filter((s) => s.keyword.trim()).map((s) => ({ keyword: s.keyword.trim(), store: s.store.trim() })),
-        branches: branches.filter((b) => b.keyword.trim()).map((b) => ({ pattern: b.keyword.trim(), branch: b.branch.trim(), exact: b.match === "Exact" })),
+        codes: editedCodes,
       });
       const applied = await window.API.remap();
       await window.API.boot();
-      setSaved(`${res.stores} store names, ${res.branches} branch rules saved · RM ${Math.round(applied.stats.totalSales).toLocaleString()} in scope`);
+      setSaved(`${res.branches} branch names, ${res.stores} store names saved · RM ${Math.round(applied.stats.totalSales).toLocaleString()} in scope`);
       setDirty(false);
       onSaved && onSaved();
     } catch (err) {
@@ -66,23 +63,20 @@ function MappingScreen({ onSaved }) {
   }
 
   const has = (v) => !query || String(v).toLowerCase().includes(query.toLowerCase());
+  const shownCodes = codes.filter((c) => has(c.code) || has(c.raw) || has(c.branch) || has(c.store));
   const shownStores = stores.filter((s) => has(s.keyword) || has(s.store));
-  const shownBranches = branches.filter((b) => has(b.keyword) || has(b.branch));
-  const shownDropped = dropped.filter((q) => has(q.raw) || has(q.keyword) || has(q.store));
-  const droppedValue = dropped.reduce((a, q) => a + (q.amount || 0), 0);
+  const droppedCount = codes.filter((c) => !c.store.trim()).length;
 
-  const th = { textAlign: "left", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--mute)", padding: "10px 16px", borderBottom: "1px solid var(--ink)" };
-  const td = { padding: "10px 16px", fontSize: 14, borderBottom: "1px solid var(--hairline-soft)", verticalAlign: "middle" };
-  const input = { width: "100%", border: "1px solid var(--hairline)", background: "var(--canvas)", padding: "6px 10px", font: "inherit", fontSize: 14, fontWeight: 600, color: "var(--ink)" };
+  const th = { textAlign: "left", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--mute)", padding: "10px 14px", borderBottom: "1px solid var(--ink)", whiteSpace: "nowrap" };
+  const td = { padding: "9px 14px", fontSize: 13, borderBottom: "1px solid var(--hairline-soft)", verticalAlign: "middle" };
+  const input = { width: "100%", border: "1px solid var(--hairline)", background: "var(--canvas)", padding: "6px 9px", font: "inherit", fontSize: 13, fontWeight: 600, color: "var(--ink)" };
   const mono = { ...input, fontFamily: "ui-monospace, monospace", fontWeight: 500 };
-
-  const add = tab === "store" ? addStore : tab === "branch" ? addBranch : null;
 
   return (
     <div>
       <PageHead kicker="Step 2 · reusable across uploads" title="Mapping Manager"
         actions={<>
-          {add && <GhostButton icon="plus" onClick={add}>Add row</GhostButton>}
+          {tab === "store" && <GhostButton icon="plus" onClick={addStore}>Add row</GhostButton>}
           <Button size="sm" onClick={save} disabled={saving || !dirty}>{saving ? "Saving…" : "Save"}</Button>
         </>} />
 
@@ -90,102 +84,88 @@ function MappingScreen({ onSaved }) {
         <div style={{ marginBottom: 8, padding: "12px 20px", background: "var(--soft-cloud)", border: "1px solid var(--hairline)", fontSize: 13, color: "var(--charcoal)" }}>{saved}</div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 8 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 8 }}>
         <Panel pad={0} title={null} actions={null}>
           <div style={{ display: "flex", borderBottom: "1px solid var(--hairline)" }}>
             {[
-              ["store", "Store Names", stores.length, false],
-              ["branch", "Branch Outlet", branches.length, false],
-              ["dropped", "Dropped", dropped.length, dropped.length > 0],
+              ["branch", "Branch names", codes.length, droppedCount],
+              ["store", "Store names", stores.length, 0],
             ].map(([id, label, n, alert]) => (
               <button key={id} onClick={() => { setTab(id); setQuery(""); }} style={{ flex: 1, padding: "14px 20px", background: tab === id ? "var(--canvas)" : "var(--soft-cloud)", border: "none", borderBottom: tab === id ? "2px solid var(--ink)" : "2px solid transparent", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 15, fontWeight: 600, color: tab === id ? "var(--ink)" : "var(--mute)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 {label}
-                <span style={{ fontSize: 12, fontWeight: 600, color: alert ? "var(--canvas)" : "var(--mute)", background: alert ? "var(--sale)" : "transparent", padding: alert ? "1px 8px" : 0, borderRadius: "var(--radius-pill)" }}>{alert ? n : `(${n})`}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--mute)" }}>({n})</span>
+                {alert > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: "var(--canvas)", background: "var(--sale)", padding: "1px 8px", borderRadius: "var(--radius-pill)" }}>{alert} dropped</span>}
               </button>
             ))}
           </div>
 
-          <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--hairline-soft)", display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--hairline-soft)", display: "flex", gap: 12, alignItems: "center" }}>
             <SearchPill placeholder="Search" width={260} value={query} onChange={(e) => setQuery(e.target.value)} />
             <span style={{ fontSize: 13, color: "var(--mute)", marginLeft: "auto" }}>
-              {tab === "store"
-                ? "Keyword matches the invoice name or code. A row matching none is dropped."
-                : tab === "branch"
-                ? "Keyword → branch label. The store comes from the Store Names on the same row."
-                : `${dropped.length} raw names in no store — RM ${Math.round(droppedValue).toLocaleString()} out of scope.`}
+              {tab === "branch"
+                ? "Every invoice code in the data. Set its branch, and the store it belongs to."
+                : "Broad keyword → store. Matches the invoice name or code."}
             </span>
           </div>
 
+          {tab === "branch" && (
+            <div style={{ overflowX: "auto" }}>
+              <table className="grid" style={{ width: "100%", borderCollapse: "collapse", minWidth: 780 }}>
+                <thead><tr>
+                  <th style={{ ...th, width: 110 }}>Invoice code</th>
+                  <th style={th}>Name in data</th>
+                  <th style={{ ...th, width: 150 }}>Branch</th>
+                  <th style={{ ...th, width: 150 }}>Store</th>
+                  <th style={{ ...th, width: 96, textAlign: "right" }}>Value</th>
+                </tr></thead>
+                <tbody>
+                  {shownCodes.map((c) => {
+                    const dropped = !c.store.trim();
+                    return (
+                      <tr key={c.code} style={{ background: dropped ? "#fff4f4" : undefined }}>
+                        <td style={{ ...td, fontFamily: "ui-monospace, monospace", color: "var(--charcoal)" }}>{c.code || "—"}</td>
+                        <td style={{ ...td, color: "var(--mute)", maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={c.raw}>{c.raw || "—"}</td>
+                        <td style={td}><input style={mono} value={c.branch} placeholder={c.code} disabled={!live} onChange={(e) => editCode(c.code, "branch", e.target.value)} /></td>
+                        <td style={td}><input style={{ ...input, color: dropped ? "var(--sale)" : "var(--ink)" }} value={c.store} placeholder="— dropped —" disabled={!live} onChange={(e) => editCode(c.code, "store", e.target.value)} /></td>
+                        <td style={{ ...td, textAlign: "right", fontVariantNumeric: "tabular-nums", color: "var(--mute)" }}>{window.RM(c.amount)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              {!shownCodes.length && <Empty q={query} zero="No invoice codes yet — upload a file first." />}
+            </div>
+          )}
+
           {tab === "store" && (
             <table className="grid" style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead><tr><th style={th}>Keyword (name or code)</th><th style={th}>Store name (OutletGroup)</th><th style={{ ...th, width: 60 }} /></tr></thead>
+              <thead><tr><th style={th}>Keyword (name or code)</th><th style={th}>Store name</th><th style={{ ...th, width: 56 }} /></tr></thead>
               <tbody>
-                {shownStores.map((s, i) => (
-                  <tr key={i}>
-                    <td style={td}><input style={mono} value={s.keyword} placeholder="e.g. ST, SOON CHEONG, 300-C" disabled={!live} onChange={(e) => editStore(stores.indexOf(s), "keyword", e.target.value)} /></td>
-                    <td style={td}><input style={input} value={s.store} placeholder="e.g. SRI TERNAK" disabled={!live} onChange={(e) => editStore(stores.indexOf(s), "store", e.target.value)} /></td>
-                    <td style={td}>{live && <button onClick={() => removeStore(stores.indexOf(s))} title="Remove" style={{ border: "none", background: "none", cursor: "pointer", color: "var(--mute)" }}><Icon name="trash-2" size={15} /></button>}</td>
-                  </tr>
-                ))}
+                {shownStores.map((s) => {
+                  const i = stores.indexOf(s);
+                  return (
+                    <tr key={i}>
+                      <td style={td}><input style={mono} value={s.keyword} placeholder="e.g. ST, SOON CHEONG, 300-C" disabled={!live} onChange={(e) => editStore(i, "keyword", e.target.value)} /></td>
+                      <td style={td}><input style={input} value={s.store} placeholder="e.g. SRI TERNAK" disabled={!live} onChange={(e) => editStore(i, "store", e.target.value)} /></td>
+                      <td style={td}>{live && <button onClick={() => removeStore(i)} title="Remove" style={{ border: "none", background: "none", cursor: "pointer", color: "var(--mute)" }}><Icon name="trash-2" size={15} /></button>}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
-
-          {tab === "branch" && (
-            <table className="grid" style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead><tr><th style={th}>Keyword (code or name)</th><th style={th}>Branch outlet</th><th style={{ ...th, width: 110 }}>Match</th><th style={{ ...th, width: 60 }} /></tr></thead>
-              <tbody>
-                {shownBranches.map((b, i) => (
-                  <tr key={i}>
-                    <td style={td}><input style={mono} value={b.keyword} placeholder="e.g. C0084, SNWG" disabled={!live} onChange={(e) => editBranch(branches.indexOf(b), "keyword", e.target.value)} /></td>
-                    <td style={td}><input style={input} value={b.branch} placeholder="e.g. BDR TECH" disabled={!live} onChange={(e) => editBranch(branches.indexOf(b), "branch", e.target.value)} /></td>
-                    <td style={td}>
-                      <select value={b.match || "Fragment"} disabled={!live} onChange={(e) => editBranch(branches.indexOf(b), "match", e.target.value)}
-                        style={{ font: "inherit", fontSize: 13, padding: "5px 6px", border: "1px solid var(--hairline)", background: "var(--canvas)" }}>
-                        <option>Fragment</option><option>Exact</option>
-                      </select>
-                    </td>
-                    <td style={td}>{live && <button onClick={() => removeBranch(branches.indexOf(b))} title="Remove" style={{ border: "none", background: "none", cursor: "pointer", color: "var(--mute)" }}><Icon name="trash-2" size={15} /></button>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {tab === "dropped" && (
-            <table className="grid" style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead><tr><th style={th}>Raw name in your data</th><th style={{ ...th, width: 96 }}>Code</th><th style={{ ...th, width: 110, textAlign: "right" }}>Value</th><th style={th}>Add as store</th><th style={{ ...th, width: 70 }} /></tr></thead>
-              <tbody>
-                {shownDropped.map((q) => (
-                  <tr key={q.raw}>
-                    <td style={{ ...td, color: "var(--charcoal)" }}>{q.raw}</td>
-                    <td style={{ ...td, fontFamily: "ui-monospace, monospace", fontSize: 13, color: "var(--mute)" }}>{q.code || "—"}</td>
-                    <td style={{ ...td, textAlign: "right", fontVariantNumeric: "tabular-nums", color: "var(--mute)" }}>{window.RM(q.amount || 0)}</td>
-                    <td style={td}><input style={input} value={q.store} placeholder="store name" disabled={!live} onChange={(e) => editDropped(q.raw, "store", e.target.value)} /></td>
-                    <td style={td}>{live && <GhostButton icon="check" onClick={() => includeOne(q)}>Add</GhostButton>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {tab === "store" && !shownStores.length && <Empty q={query} zero="No store names yet. Add one to bring rows into scope." />}
-          {tab === "branch" && !shownBranches.length && <Empty q={query} zero="No branch rules yet." />}
-          {tab === "dropped" && !shownDropped.length && <Empty q={query} zero="Nothing dropped — every row belongs to a store." />}
+          {tab === "store" && !shownStores.length && <Empty q={query} zero="No store names yet." />}
         </Panel>
 
         <Panel title="How grouping works" pad={0}>
-          <Guide icon="git-fork" head="Store Names decide inclusion">
-            A row is kept only if its name or code matches a Store Name. <strong>ST ROSYAM MART</strong> matches the keyword <code style={mc}>ST</code> → grouped under <strong>SRI TERNAK</strong>. To include IKA accounts (AEON, LOTUS, NSK), add them here.
+          <Guide icon="tag" head="Branch names — one per invoice code">
+            Every code in the data is listed. Set its <strong>Branch</strong> (<code style={mc}>300-H.LGT</code> → Langat) and the <strong>Store</strong> it belongs to. When the export doesn't name the outlet, the branch stays the invoice code until you rename it.
           </Guide>
-          <Guide icon="tag" head="Branch Outlet names the store">
-            <code style={mc}>C0084</code> → <strong>BDR TECH</strong>. When the invoice carries the code but not the outlet, the branch is labelled from the code and grouped under whichever Store Name the row matches.
+          <Guide icon="git-fork" head="Store names — the groups">
+            A keyword matching the name or code sets the store. <code style={mc}>ST</code> → SRI TERNAK groups every ST ROSYAM branch. To include an IKA chain (AEON, LOTUS), add it here.
           </Guide>
-          <Guide icon="corner-down-right" head="No branch named? Use the code">
-            <strong>SOON CHEONG MARINE PRODUCT</strong> with no outlet → grouped under <strong>SOON CHEONG</strong>, branch <code style={mc}>300-S0256</code>.
-          </Guide>
-          <Guide icon="trash-2" head="Everything else is dropped" last>
-            Rows in no Store Name sit in the <strong>Dropped</strong> tab with their value, never silently deleted. Add a store to pull them back in.
+          <Guide icon="alert-triangle" head="No store = dropped" last>
+            A code that matches no store shows red and is left out of every total — a store from your list only appears when the data actually contains it.
             {!live && <><br /><strong>Read-only</strong> — editing needs the API running.</>}
           </Guide>
         </Panel>

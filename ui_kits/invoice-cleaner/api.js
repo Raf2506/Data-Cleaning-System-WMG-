@@ -23,7 +23,7 @@
       stats: { totalSales: 0, period: "", invoices: 0, lineItems: 0, outlets: 0, products: 0, unmappedRows: 0, unmappedNames: [], bestOutlet: null, bestProduct: null, bestMonth: null, bestOutletByMonth: [] },
       byOutlet: [], contribution: [], monthly: [], brandPie: [], bestProductByOutlet: [],
       rows: [], groups: [], outlets: [], months: [], total: 0,
-      branchRules: [], stores: [], unresolved: [],
+      stores: [], codes: [],
       parse: { invoices: 0, lineItems: 0, dateFrom: "", dateTo: "", rawNames: 0, continuationRows: 0, discardedRows: 0 },
       productsByOutlet: {},
     };
@@ -121,32 +121,23 @@
    * actually resolved, so unmapped names surface alongside the library.
    */
   function mapMappings(payload) {
-    const observed = payload.observed || [];
+    const branchKeywords = new Set(
+      (payload.branch_rules || []).map((r) => s(r.pattern).toUpperCase())
+    );
     return {
-      // Branch Outlet: keyword/code -> branch label.
-      branchRules: (payload.branch_rules || payload.code_rules || []).map((r) => ({
-        keyword: s(r.pattern),
-        branch: s(r.group),
-        match: r.exact ? "Exact" : "Fragment",
+      // Store Names: keyword (name or code) -> OutletGroup.
+      stores: (payload.stores || []).map((r) => ({ keyword: s(r.keyword), store: s(r.store) })),
+      // Branch names: every invoice code in the data with its resolution.
+      codes: (payload.codes || []).map((c) => ({
+        code: s(c.code),
+        raw: s(c.raw),
+        branch: s(c.branch),
+        store: s(c.store),
+        dropped: !!c.dropped,
+        amount: n(c.amount),
+        // True when a keyword set the branch, false when it fell back to the code.
+        assigned: branchKeywords.has(s(c.code).toUpperCase()),
       })),
-      // Store Names: keyword -> OutletGroup (the inclusion universe).
-      stores: (payload.stores || []).map((r) => ({
-        keyword: s(r.keyword),
-        store: s(r.store),
-      })),
-      // Rows the current data resolves to, for context + the Unresolved queue.
-      observed: observed.map((o) => ({
-        raw: s(o.raw),
-        code: s(o.code),
-        group: s(o.group),
-        branch: s(o.branch),
-        status: s(o.status),
-        amount: n(o.amount),
-      })),
-      // Out-of-scope rows: real revenue currently dropped for lack of a store.
-      unresolved: observed
-        .filter((o) => o.status === "out-of-scope")
-        .map((o) => ({ raw: s(o.raw), code: s(o.code), amount: n(o.amount) })),
     };
   }
 
@@ -229,17 +220,14 @@
     },
 
     /**
-     * branches: [{pattern, branch}] — empty branch deletes.
-     * stores:   [{keyword, store}]  — empty store deletes.
+     * stores: [{keyword, store}] — broad name/code -> store; empty store deletes.
+     * codes:  [{code, branch, store}] — per invoice code; empty clears that field.
      */
-    async saveMappings({ branches = [], stores = [] } = {}) {
+    async saveMappings({ stores = [], codes = [] } = {}) {
       const res = await fetch("/api/mappings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          branches: branches.map((b) => ({ pattern: b.pattern, branch: b.branch, exact: b.exact })),
-          stores,
-        }),
+        body: JSON.stringify({ stores, codes }),
       });
       if (!res.ok) throw await failure(res);
       return res.json();
@@ -365,15 +353,14 @@
           outlets: table.outlets,
           months: table.months,
           total: table.total,
-          branchRules: mappings.branchRules,
           stores: mappings.stores,
-          unresolved: mappings.unresolved,
+          codes: mappings.codes,
           parse: {
             invoices: reports.stats.invoices,
             lineItems: reports.stats.lineItems,
             dateFrom: "",
             dateTo: "",
-            rawNames: mappings.observed.length,
+            rawNames: mappings.codes.length,
             continuationRows: 0,
             discardedRows: 0,
           },

@@ -17,7 +17,7 @@ function UploadScreen({ onNavigate, onCleaned }) {
   // Offline the sample stands in; live it comes from the parse response.
   const unmappedNames = live
     ? (preview ? preview.unmappedNames : [])
-    : (d.unresolved || []).map((m) => m.raw);
+    : (d.codes || []).filter((c) => c.dropped).map((c) => c.code);
   const unmapped = unmappedNames.length;
 
   async function choose(f) {

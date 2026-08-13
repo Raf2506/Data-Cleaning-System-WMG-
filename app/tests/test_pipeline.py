@@ -57,9 +57,10 @@ def test_pipeline():
 
     m = MappingLibrary()
     m.merge_suggestions(suggestions)
-    m.set_code("300-10042", "ECONSAVE", exact=True)
-    # ECONSAVE must be a Store Name for its rows to be in scope.
+    # ECONSAVE reaches its rows two ways: the name, and the branch-code account
+    # 300-10042 whose name is numeric.
     m.set_store("ECONSAVE", "ECONSAVE")
+    m.set_store("300-10042", "ECONSAVE")
 
     frame = clean_dataframe(parsed, m)
     assert set(frame["OutletGroup"]) == {"ECONSAVE"}
@@ -185,9 +186,7 @@ def test_store_matches_by_code_prefix_for_unnamed_accounts():
 
 def test_clean_frame_carries_outlet_group():
     parsed = parse_invoice_listing(_fixture())
-    m = MappingLibrary(chain_keywords={"ECONSAVE": "ECONSAVE"})
-    m.merge_suggestions(suggest_name_groups(parsed.raw_names))
-    m.set_code("300-10042", "ECONSAVE", exact=True)
+    m = MappingLibrary(chain_keywords={"ECONSAVE": "ECONSAVE", "300-10042": "ECONSAVE"})
     frame = clean_dataframe(parsed, m)
     assert "OutletGroup" in frame.columns
     assert set(frame["OutletGroup"]) == {"ECONSAVE"}
@@ -199,7 +198,7 @@ def test_chain_name_in_raw_gives_group_with_code_as_branch():
     group, branch, status = m.group_and_branch("SOON CHEONG MARINE PRODUCT SDN BHD KL", "300-S0256")
     assert group == "SOON CHEONG"
     assert branch == "300-S0256"  # no outlet named, so the code stands in
-    assert status == "mapped-group"
+    assert status == "mapped"
 
 
 def test_store_in_name_wins_the_group_branch_only_labels():
