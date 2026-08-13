@@ -83,9 +83,9 @@ function App(){
   </div>);
 }
 
-// Hydrate from the API before first paint so no screen flashes sample data as
-// though it were real. Falls back to data.js when the API is unreachable.
-window.API.boot().then(()=>{
+// Start empty on every page load: clear any stored data so the app shows zeros
+// until a file is uploaded this session.
+window.API.boot({fresh:true}).then(()=>{
   ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 });
 </script></body></html>

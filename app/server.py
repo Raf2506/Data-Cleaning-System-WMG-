@@ -278,6 +278,52 @@ def tree():
     return jsonify({"total": float(frame["Amount"].fillna(0).sum()), "levels": levels})
 
 
+@app.post("/api/reset")
+def reset():
+    """Forget the cleaned table so the app starts empty until the next upload."""
+    if CLEAN_PATH.exists():
+        CLEAN_PATH.unlink()
+    return jsonify({"ok": True})
+
+
+def _rank(frame: pd.DataFrame, dimension: str) -> list[dict]:
+    grouped = (
+        frame.groupby(dimension, dropna=False)["Amount"].sum().sort_values(ascending=False)
+    )
+    return [{"name": str(name), "amount": float(amount)} for name, amount in grouped.items()]
+
+
+@app.get("/api/brands")
+def brands():
+    """Company-wide brand totals for the dashboard pie."""
+    frame = _scoped_frame()
+    if frame.empty:
+        return jsonify({"total": 0.0, "brands": []})
+    return jsonify({"total": float(frame["Amount"].fillna(0).sum()), "brands": _rank(frame, "Brand")})
+
+
+@app.get("/api/breakdown")
+def breakdown():
+    """Drill a bar chart: an outlet's brands, or one brand's products within it.
+
+    No params -> outlets. outlet -> that outlet's brands. outlet+brand -> the
+    products of that brand at that outlet, best first.
+    """
+    frame = _scoped_frame()
+    outlet, brand = request.args.get("outlet"), request.args.get("brand")
+    if frame.empty:
+        return jsonify({"level": "outlet", "items": []})
+    if outlet:
+        frame = frame[frame["Outlet"] == outlet]
+    if brand:
+        frame = frame[frame["Brand"] == brand]
+    if not outlet:
+        return jsonify({"level": "outlet", "items": _rank(frame, "Outlet")})
+    if not brand:
+        return jsonify({"level": "brand", "outlet": outlet, "items": _rank(frame, "Brand")})
+    return jsonify({"level": "product", "outlet": outlet, "brand": brand, "items": _rank(frame, "Product")})
+
+
 @app.get("/api/reports")
 def api_reports():
     frame = _scoped_frame()

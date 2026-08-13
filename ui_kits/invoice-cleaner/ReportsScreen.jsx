@@ -1,48 +1,36 @@
 const { Icon, Button } = window.SubtleGradientDesignSystem_21f929;
 
-const PER_PAGE = 24; // matches reports.BARS_PER_PAGE
-
 function ReportsScreen() {
   const d = window.INVOICE;
   const live = window.API.live;
 
-  const outletNames = live
-    ? d.byOutlet.map((o) => o.outlet)
-    : Object.keys(d.productsByOutlet || {});
+  // Drill-down: click an outlet to see its brands, a brand to see its products.
+  const [drillOutlet, setDrillOutlet] = React.useState("");
+  const [drillBrand, setDrillBrand] = React.useState("");
+  const [drillItems, setDrillItems] = React.useState(d.byOutlet.map((o) => ({ name: o.outlet, amount: o.amount })));
+  const [drillLoading, setDrillLoading] = React.useState(false);
 
-  const [outlet, setOutlet] = React.useState(outletNames[0] || "");
-  const [page, setPage] = React.useState(0);
-  const [pages, setPages] = React.useState([]);
-  const [outletTotal, setOutletTotal] = React.useState(0);
-  const [loading, setLoading] = React.useState(false);
-
-  // The API paginates per outlet server-side, so the products for one outlet
-  // are fetched on selection rather than shipped with the first payload.
   React.useEffect(() => {
     let cancelled = false;
-    if (!outlet) return;
-    if (!live) {
-      const rows = (d.productsByOutlet || {})[outlet] || [];
-      const chunks = [];
-      for (let i = 0; i < rows.length; i += PER_PAGE) chunks.push(rows.slice(i, i + PER_PAGE));
-      setPages(chunks.length ? chunks : [[]]);
-      setOutletTotal(rows.reduce((a, p) => a + p.amount, 0));
-      return;
-    }
-    setLoading(true);
-    window.API.outletProducts(outlet)
-      .then((res) => {
-        if (cancelled) return;
-        setPages(res.pages.length ? res.pages : [[]]);
-        setOutletTotal(res.total);
-      })
-      .catch(() => !cancelled && setPages([[]]))
-      .finally(() => !cancelled && setLoading(false));
+    // Top level (no outlet selected) is the outlet list already in memory.
+    if (!drillOutlet) { setDrillItems(d.byOutlet.map((o) => ({ name: o.outlet, amount: o.amount }))); return; }
+    if (!live) return;
+    setDrillLoading(true);
+    window.API.breakdown({ outlet: drillOutlet, brand: drillBrand || undefined })
+      .then((res) => { if (!cancelled) setDrillItems(res.items); })
+      .catch(() => !cancelled && setDrillItems([]))
+      .finally(() => !cancelled && setDrillLoading(false));
     return () => { cancelled = true; };
-  }, [outlet, live]);
+  }, [drillOutlet, drillBrand, live]);
 
-  const pageCount = Math.max(1, pages.length);
-  const rows = pages[Math.min(page, pageCount - 1)] || [];
+  // Clicking a bar drills one level deeper; the breadcrumb steps back out.
+  const onDrillClick = (row) => {
+    if (!drillOutlet) setDrillOutlet(row.name);
+    else if (!drillBrand) setDrillBrand(row.name);
+    // At product level there is nowhere deeper to go.
+  };
+  const drillLevel = !drillOutlet ? "outlet" : !drillBrand ? "brand" : "product";
+  const drillTotal = drillItems.reduce((a, r) => a + r.amount, 0);
 
   const topOutlet = d.byOutlet[0] || { outlet: "—", amount: 0 };
   const bestProduct = (d.stats.bestProduct && d.stats.bestProduct.name)
@@ -70,24 +58,30 @@ function ReportsScreen() {
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <Panel title="1 — Yearly overview: sales by outlet"
-          note={`${d.stats.outlets || d.byOutlet.length} outlets · ${window.RM(d.stats.totalSales)} company-wide · ${d.stats.period || "—"}`}>
-          <BarList rows={d.byOutlet} />
-        </Panel>
-
-        <Panel title="2 — Product sales per outlet"
-          note={loading ? "Loading…" : `${outlet} · ${window.RM(outletTotal)}`}
-          actions={<div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <Select value={outlet} onChange={(v) => { setOutlet(v); setPage(0); }} options={outletNames} />
-            <span style={{ fontSize: 13, color: "var(--mute)", whiteSpace: "nowrap" }}>Page {Math.min(page, pageCount - 1) + 1} of {pageCount}</span>
-          </div>}>
-          <BarList rows={rows} labelKey="product" />
-          {pageCount > 1 && (
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
-              <GhostButton icon="chevron-left" onClick={() => setPage(Math.max(0, page - 1))}>Previous</GhostButton>
-              <GhostButton icon="chevron-right" onClick={() => setPage(Math.min(pageCount - 1, page + 1))}>Next</GhostButton>
+        <Panel
+          title={drillLevel === "outlet" ? "1 — Sales by outlet — click to drill in"
+            : drillLevel === "brand" ? `${drillOutlet} — brands` : `${drillOutlet} · ${drillBrand} — products`}
+          note={drillLoading ? "Loading…"
+            : drillLevel === "outlet" ? `${d.byOutlet.length} outlets · click an outlet to see its brands`
+            : drillLevel === "brand" ? "Click a brand to see its best-selling products"
+            : `${drillItems.length} products · ${window.RM(drillTotal)}`}
+          actions={
+            <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 13, flexWrap: "wrap" }}>
+              <button onClick={() => { setDrillOutlet(""); setDrillBrand(""); }}
+                className="hoverable" style={{ border: "none", background: "none", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 13, fontWeight: drillLevel === "outlet" ? 700 : 500, color: "var(--ink)" }}>
+                All outlets
+              </button>
+              {drillOutlet && <><span style={{ color: "var(--stone)" }}>›</span>
+                <button onClick={() => setDrillBrand("")} className="hoverable" style={{ border: "none", background: "none", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 13, fontWeight: drillLevel === "brand" ? 700 : 500, color: "var(--ink)" }}>{drillOutlet}</button></>}
+              {drillBrand && <><span style={{ color: "var(--stone)" }}>›</span>
+                <span style={{ fontWeight: 700 }}>{drillBrand}</span></>}
             </div>
-          )}
+          }>
+          {drillItems.length
+            ? <BarList rows={drillItems.slice(0, 30)} labelKey="name"
+                colorKey={drillLevel === "brand" ? "name" : undefined}
+                onRowClick={drillLevel === "product" ? undefined : onDrillClick} />
+            : <div style={{ padding: "24px", color: "var(--mute)", fontSize: 14 }}>{drillLoading ? "Loading…" : "Nothing here."}</div>}
         </Panel>
 
         <Panel title="3 — Product contribution to total sales" note="Top products as named slices, everything else rolled into Others">

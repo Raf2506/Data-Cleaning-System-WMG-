@@ -5,6 +5,26 @@ function DashboardScreen({ onNavigate }) {
   const top = d.byOutlet[0] || { outlet: "—", amount: 0 };
   const best = window.bestMonth(d);
   const shown = Math.min(10, d.byOutlet.length);
+  const empty = !d.total;
+
+  // Before any file is uploaded the dashboard is a blank slate with one action.
+  if (empty) {
+    return (
+      <div>
+        <PageHead kicker="Overview" title="Dashboard" />
+        <Panel>
+          <div style={{ padding: "48px 24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            <Icon name="upload-cloud" size={40} color="var(--mute)" />
+            <div style={{ fontSize: 20, fontWeight: 600 }}>No data yet</div>
+            <div style={{ fontSize: 14, color: "var(--mute)", maxWidth: "44ch", lineHeight: 1.6 }}>
+              Upload an Invoice Listing export to clean it and see sales by store, brand and product. The dashboard stays empty until then.
+            </div>
+            <Button onClick={() => onNavigate("upload")}>Upload a file</Button>
+          </div>
+        </Panel>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -60,8 +80,10 @@ function DashboardScreen({ onNavigate }) {
         </div>
       </div>
 
-      <Panel title="Monthly sales, company-wide" note="Computed from the uploaded range — not a fixed calendar">
-        <ColumnChart rows={d.monthly} />
+      <Panel title="Brand sales, company-wide" note="Share of sales by brand — PAPADAM counts under CIK SURI">
+        {d.brandPie && d.brandPie.length
+          ? <Donut rows={d.brandPie} />
+          : <div style={{ padding: "24px", color: "var(--mute)", fontSize: 14 }}>No brand data.</div>}
       </Panel>
     </div>
   );

@@ -39,13 +39,17 @@ BRANDS = [
     "MONT",
 ]
 
+# Products that carry a different label but belong to a parent brand.
+# PAPADAM is a Cik Suri line, so it reports under CIK SURI.
+BRAND_ALIASES = {"PAPADAM": "CIK SURI", "TREVOR'S": "TREVOR"}
+
 
 def detect_brand(product: str) -> str:
     """Leading brand token of a product description, or '' when none matches."""
     text = (product or "").strip().upper()
     for brand in sorted(BRANDS, key=len, reverse=True):
         if text.startswith(brand):
-            return brand.rstrip("'S") if brand.endswith("'S") else brand
+            return BRAND_ALIASES.get(brand, brand)
     return ""
 
 

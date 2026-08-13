@@ -16,6 +16,19 @@
   const n = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
   const s = (v) => (v == null ? "" : String(v));
 
+  // The blank slate the app shows on a fresh load, before any file is uploaded.
+  function emptyDataset() {
+    window.INVOICE = {
+      file: null,
+      stats: { totalSales: 0, period: "", invoices: 0, lineItems: 0, outlets: 0, products: 0, unmappedRows: 0, unmappedNames: [], bestOutlet: null, bestProduct: null, bestMonth: null, bestOutletByMonth: [] },
+      byOutlet: [], contribution: [], others: [], monthly: [], brandPie: [], bestProductByOutlet: [],
+      rows: [], groups: [], outlets: [], months: [], total: 0,
+      branchRules: [], stores: [], unresolved: [],
+      parse: { invoices: 0, lineItems: 0, dateFrom: "", dateTo: "", rawNames: 0, continuationRows: 0, discardedRows: 0 },
+      productsByOutlet: {},
+    };
+  }
+
   /** "2026-01" -> "Jan 2026". Anything unparseable passes through unchanged. */
   function monthLabel(month) {
     const m = /^(\d{4})-(\d{2})$/.exec(s(month));
@@ -284,23 +297,61 @@
       return `/api/export/${fmt}${qs ? "?" + qs : ""}`;
     },
 
+    /** Company-wide brand totals for the dashboard pie. */
+    async brands() {
+      const d = await get("/api/brands");
+      return {
+        total: n(d.total),
+        brands: (d.brands || []).map((b) => ({ product: s(b.name), amount: n(b.amount) })),
+      };
+    },
+
+    /** Drill: no args -> outlets, {outlet} -> its brands, {outlet,brand} -> products. */
+    async breakdown({ outlet, brand } = {}) {
+      const q = new URLSearchParams();
+      if (outlet) q.set("outlet", outlet);
+      if (brand) q.set("brand", brand);
+      const qs = q.toString();
+      const d = await get("/api/breakdown" + (qs ? "?" + qs : ""));
+      return {
+        level: s(d.level),
+        outlet: s(d.outlet),
+        brand: s(d.brand),
+        items: (d.items || []).map((i) => ({ name: s(i.name), amount: n(i.amount) })),
+      };
+    },
+
+    /** Forget the cleaned table so the app is empty until the next upload. */
+    async reset() {
+      try { await fetch("/api/reset", { method: "POST" }); } catch (_) { /* ignore */ }
+    },
+
     /**
      * Pull everything the screens read at first paint into window.INVOICE.
-     * Returns true when live data replaced the sample.
+     * With {fresh:true} it first clears any stored data, so a page refresh
+     * starts empty until a file is uploaded. Returns true when live data loaded.
      */
-    async boot() {
+    async boot({ fresh = false } = {}) {
       API.sample = JSON.parse(JSON.stringify(window.INVOICE));
+      if (fresh) {
+        await API.reset();
+        emptyDataset();
+        API.live = true;
+        API.empty = true;
+        return false;
+      }
       try {
-        const [reports, table, mappings] = await Promise.all([
+        const [reports, table, mappings, brands] = await Promise.all([
           API.reports(),
           API.table({ limit: 500 }),
           API.mappings(),
+          API.brands(),
         ]);
 
-        // No upload has been cleaned yet — leave the sample in place so the
-        // screens still demonstrate something, but say so.
+        // Nothing cleaned yet — show the empty state, not the sample.
         if (!table.total && !reports.byOutlet.length) {
-          API.live = false;
+          emptyDataset();
+          API.live = true;
           API.empty = true;
           return false;
         }
@@ -313,6 +364,7 @@
           contribution: reports.contribution,
           others: reports.others,
           monthly: reports.monthly,
+          brandPie: brands.brands,
           bestProductByOutlet: reports.bestProductByOutlet,
           rows: table.rows,
           groups: table.groups,

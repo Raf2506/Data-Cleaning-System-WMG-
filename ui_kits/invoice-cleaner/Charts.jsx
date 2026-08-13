@@ -17,7 +17,7 @@ function colorFor(key) {
   return PALETTE[h % PALETTE.length];
 }
 
-function BarList({ rows, labelKey = "outlet", valueKey = "amount", max, format = window.RM, height = 34, colorKey }) {
+function BarList({ rows, labelKey = "outlet", valueKey = "amount", max, format = window.RM, height = 34, colorKey, onRowClick }) {
   const top = max || Math.max(...rows.map((r) => r[valueKey]), 1);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -26,7 +26,8 @@ function BarList({ rows, labelKey = "outlet", valueKey = "amount", max, format =
         // colorKey to lock a colour to an identity instead.
         const color = colorKey ? colorFor(r[colorKey]) : PALETTE[i % PALETTE.length];
         return (
-          <div key={r[labelKey]} className="barrow" style={{ display: "grid", gridTemplateColumns: "minmax(140px, 260px) 1fr auto", gap: 16, alignItems: "center", padding: "3px 6px", borderRadius: 4 }}>
+          <div key={r[labelKey]} className="barrow" onClick={onRowClick ? () => onRowClick(r) : undefined}
+            style={{ display: "grid", gridTemplateColumns: "minmax(140px, 260px) 1fr auto", gap: 16, alignItems: "center", padding: "3px 6px", borderRadius: 4, cursor: onRowClick ? "pointer" : "default" }}>
             <div style={{ fontSize: 13, color: "var(--charcoal)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 8 }} title={r[labelKey]}>
               <span style={{ width: 9, height: 9, flex: "0 0 auto", borderRadius: 2, background: color }} />
               {r[labelKey]}

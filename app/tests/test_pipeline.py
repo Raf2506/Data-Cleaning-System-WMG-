@@ -5,7 +5,15 @@ from datetime import datetime
 import pandas as pd
 
 from invoice_cleaner import MappingLibrary, clean_dataframe, parse_invoice_listing
+from invoice_cleaner.cleaner import detect_brand
 from invoice_cleaner.parser import suggest_name_groups
+
+
+def test_papadam_reports_under_cik_suri():
+    assert detect_brand("PAPADAM SURI BULAT 100G X 10's X 20") == "CIK SURI"
+    assert detect_brand("CIK SURI ASAM JAWA 900G") == "CIK SURI"
+    assert detect_brand("TREVOR'S CREAMY HONEY BLEND") == "TREVOR"
+    assert detect_brand("RASTO NACHO CHEESE SAUCE") == "RASTO"
 
 
 def _fixture() -> io.BytesIO:
@@ -309,6 +317,7 @@ def test_pascalcase_workbook_attributes_are_repaired():
 
 if __name__ == "__main__":
     test_pipeline()
+    test_papadam_reports_under_cik_suri()
     test_rows_without_a_store_are_out_of_scope()
     test_tidy_table_is_parsed_by_column_name()
     test_month_is_read_from_the_dates_not_a_metadata_block()
