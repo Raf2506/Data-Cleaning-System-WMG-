@@ -1,5 +1,6 @@
 const { Icon, Button } = window.SubtleGradientDesignSystem_21f929;
 
+const RENDER_LIMIT = 300; // rows drawn at once; export has the full table
 const money = (v) => (typeof v === "number" && isFinite(v) ? v.toFixed(2) : "—");
 
 /**
@@ -79,7 +80,10 @@ function TableScreen() {
       return;
     }
     setLoading(true);
-    window.API.table({ group: store || undefined, month: month || undefined, limit: 2000 })
+    // Render a light page (the server still reports the true total). Rendering
+    // thousands of rows at once in the dev React build can freeze the tab; the
+    // full data is available through CSV/XLSX export.
+    window.API.table({ group: store || undefined, month: month || undefined, limit: RENDER_LIMIT })
       .then((res) => { if (!cancelled) { setRows(res.rows); setTotal(res.total); } })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
