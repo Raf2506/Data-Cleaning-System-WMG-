@@ -336,6 +336,7 @@ def api_reports():
         {
             "stats": reports.summary_stats(frame),
             "by_outlet": outlets.to_dict("records"),
+            "by_store": reports.sales_by_store(frame).to_dict("records"),
             "contribution": reports.product_contribution(frame).to_dict("records"),
             "monthly": reports.monthly_sales(frame).to_dict("records"),
             "best_product_per_outlet": reports.best_product_per_outlet(frame).to_dict("records"),

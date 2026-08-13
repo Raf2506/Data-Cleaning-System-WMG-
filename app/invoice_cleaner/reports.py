@@ -10,16 +10,27 @@ def _total(frame: pd.DataFrame) -> float:
     return float(frame["Amount"].fillna(0).sum()) if not frame.empty else 0.0
 
 
-def sales_by_outlet(frame: pd.DataFrame) -> pd.DataFrame:
-    """Report section 1 — outlets descending by total sales."""
-    if frame.empty:
-        return pd.DataFrame(columns=["Outlet", "Amount", "Share"])
+def _ranked(frame: pd.DataFrame, dimension: str) -> pd.DataFrame:
     grouped = (
-        frame.groupby("Outlet", dropna=False)["Amount"].sum().sort_values(ascending=False).reset_index()
+        frame.groupby(dimension, dropna=False)["Amount"].sum().sort_values(ascending=False).reset_index()
     )
     total = grouped["Amount"].sum() or 1
     grouped["Share"] = grouped["Amount"] / total
     return grouped
+
+
+def sales_by_outlet(frame: pd.DataFrame) -> pd.DataFrame:
+    """Outlets (branches) descending by total sales."""
+    if frame.empty:
+        return pd.DataFrame(columns=["Outlet", "Amount", "Share"])
+    return _ranked(frame, "Outlet")
+
+
+def sales_by_store(frame: pd.DataFrame) -> pd.DataFrame:
+    """Stores (OutletGroups) descending by total sales — the dashboard headline."""
+    if frame.empty:
+        return pd.DataFrame(columns=["OutletGroup", "Amount", "Share"])
+    return _ranked(frame, "OutletGroup")
 
 
 def product_sales_per_outlet(frame: pd.DataFrame, outlet: str) -> pd.DataFrame:
@@ -87,6 +98,7 @@ def summary_stats(frame: pd.DataFrame) -> dict:
     if frame.empty:
         return {}
     outlets = sales_by_outlet(frame)
+    stores = sales_by_store(frame)
     products = frame.groupby("Product", dropna=False)["Amount"].sum().sort_values(ascending=False)
     months = monthly_sales(frame)
     best_per_month = (
@@ -99,8 +111,10 @@ def summary_stats(frame: pd.DataFrame) -> dict:
         "invoice_count": int(frame["Invoice No"].nunique()),
         "line_item_count": int(len(frame)),
         "outlet_count": int(frame["Outlet"].nunique()),
+        "store_count": int(frame["OutletGroup"].nunique()),
         "product_count": int(frame["Product"].nunique()),
         "best_outlet": (outlets.iloc[0]["Outlet"], float(outlets.iloc[0]["Amount"])) if len(outlets) else None,
+        "best_store": (stores.iloc[0]["OutletGroup"], float(stores.iloc[0]["Amount"])) if len(stores) else None,
         "best_product": (products.index[0], float(products.iloc[0])) if len(products) else None,
         "best_month": (months.iloc[months["Amount"].idxmax()]["Month"], float(months["Amount"].max()))
         if len(months)

@@ -2,9 +2,10 @@ const { Icon, Button } = window.SubtleGradientDesignSystem_21f929;
 
 function DashboardScreen({ onNavigate }) {
   const d = window.INVOICE;
-  const top = d.byOutlet[0] || { outlet: "—", amount: 0 };
+  const byStore = d.byStore || [];
+  const topStore = byStore[0] || { store: "—", amount: 0 };
   const best = window.bestMonth(d);
-  const shown = Math.min(10, d.byOutlet.length);
+  const shown = Math.min(10, byStore.length);
   const empty = !d.total;
 
   // Before any file is uploaded the dashboard is a blank slate with one action.
@@ -32,14 +33,14 @@ function DashboardScreen({ onNavigate }) {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 24 }}>
         <StatCard tone="ink" label="Total sales" value={window.RMk(d.stats.totalSales)} sub={d.stats.period} />
-        <StatCard tone="#0a7281" label="Best outlet" value={top.outlet} sub={window.RM(top.amount)} />
+        <StatCard tone="#0a7281" label="Best store" value={topStore.store} sub={window.RM(topStore.amount)} />
         <StatCard tone="#2563eb" label="Best month" value={best.label} sub={window.RM(best.amount)} />
         <StatCard tone={d.stats.unmappedRows ? "#dc2626" : "#16a34a"} label="Unmapped rows" value={d.stats.unmappedRows.toLocaleString()} sub="Flagged, not dropped — resolve in Mapping Manager" />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 8, marginBottom: 8 }}>
-        <Panel title="Sales by outlet" note={`Top ${shown} of ${d.stats.outlets || d.byOutlet.length}, descending`} actions={<GhostButton icon="arrow-right" onClick={() => onNavigate("reports")}>Full report</GhostButton>}>
-          <BarList rows={d.byOutlet.slice(0, 10)} />
+        <Panel title="Sales by store" note={`Top ${shown} of ${d.stats.stores || byStore.length}, descending`} actions={<GhostButton icon="arrow-right" onClick={() => onNavigate("reports")}>Full report</GhostButton>}>
+          <BarList rows={byStore.slice(0, 10)} labelKey="store" colorKey="store" />
         </Panel>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

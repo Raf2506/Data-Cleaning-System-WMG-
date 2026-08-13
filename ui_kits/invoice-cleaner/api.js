@@ -20,8 +20,8 @@
   function emptyDataset() {
     window.INVOICE = {
       file: null,
-      stats: { totalSales: 0, period: "", invoices: 0, lineItems: 0, outlets: 0, products: 0, unmappedRows: 0, unmappedNames: [], bestOutlet: null, bestProduct: null, bestMonth: null, bestOutletByMonth: [] },
-      byOutlet: [], contribution: [], monthly: [], brandPie: [], bestProductByOutlet: [],
+      stats: { totalSales: 0, period: "", invoices: 0, lineItems: 0, outlets: 0, stores: 0, products: 0, unmappedRows: 0, unmappedNames: [], bestOutlet: null, bestStore: null, bestProduct: null, bestMonth: null, bestOutletByMonth: [] },
+      byOutlet: [], byStore: [], contribution: [], monthly: [], brandPie: [], bestProductByOutlet: [],
       rows: [], groups: [], outlets: [], months: [], total: 0,
       stores: [], codes: [],
       parse: { invoices: 0, lineItems: 0, dateFrom: "", dateTo: "", rawNames: 0, continuationRows: 0, discardedRows: 0 },
@@ -101,10 +101,12 @@
       invoices: n(st.invoice_count),
       lineItems: n(st.line_item_count),
       outlets: n(st.outlet_count),
+      stores: n(st.store_count),
       products: n(st.product_count),
       unmappedRows: n(st.unmapped_rows),
       unmappedNames: st.unmapped_names || [],
       bestOutlet: pair(st.best_outlet),
+      bestStore: pair(st.best_store),
       bestProduct: pair(st.best_product),
       bestMonth: pair(st.best_month),
       bestOutletByMonth: (st.best_outlet_by_month || []).map((r) => ({
@@ -161,6 +163,7 @@
       return {
         stats: mapStats(d.stats),
         byOutlet: (d.by_outlet || []).map(mapOutlet),
+        byStore: (d.by_store || []).map((r) => ({ store: s(r.OutletGroup), amount: n(r.Amount), share: n(r.Share) })),
         contribution: (d.contribution || []).map(mapProduct),
         monthly: (d.monthly || []).map(mapMonth),
         bestProductByOutlet: (d.best_product_per_outlet || []).map((r) => ({
@@ -344,6 +347,7 @@
           file: null,
           stats: reports.stats,
           byOutlet: reports.byOutlet,
+          byStore: reports.byStore,
           contribution: reports.contribution,
           monthly: reports.monthly,
           brandPie: brands.brands,
