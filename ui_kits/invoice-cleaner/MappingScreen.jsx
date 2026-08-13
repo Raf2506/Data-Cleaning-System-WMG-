@@ -18,6 +18,9 @@ function MappingScreen({ onSaved }) {
   const [stores, setStores] = React.useState(() => (d.stores || []).map((m) => ({ ...m })));
   // Original branch/store per code, so only edited codes are saved.
   const original = React.useRef(Object.fromEntries((d.codes || []).map((c) => [c.code, { branch: c.branch, store: c.store }])));
+  // Original store keywords, so a keyword removed from the list is deleted on
+  // the server too — otherwise dropping a store from the UI leaves it in place.
+  const originalStores = React.useRef((d.stores || []).map((m) => m.keyword.trim().toUpperCase()).filter(Boolean));
   const [dirty, setDirty] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [saved, setSaved] = React.useState(null);
@@ -46,10 +49,17 @@ function MappingScreen({ onSaved }) {
         if (c.store.trim() !== o.store.trim()) entry.store = c.store.trim();
         if (entry.branch !== undefined || entry.store !== undefined) editedCodes.push(entry);
       });
+      // Keywords present now, plus explicit deletions for any the user removed.
+      const kept = stores.filter((s) => s.keyword.trim()).map((s) => ({ keyword: s.keyword.trim(), store: s.store.trim() }));
+      const present = new Set(kept.map((s) => s.keyword.toUpperCase()));
+      const deletions = originalStores.current
+        .filter((k) => !present.has(k))
+        .map((k) => ({ keyword: k, store: "" }));
       const res = await window.API.saveMappings({
-        stores: stores.filter((s) => s.keyword.trim()).map((s) => ({ keyword: s.keyword.trim(), store: s.store.trim() })),
+        stores: [...kept, ...deletions],
         codes: editedCodes,
       });
+      originalStores.current = kept.map((s) => s.keyword.toUpperCase());
       const applied = await window.API.remap();
       await window.API.boot();
       setSaved(`${res.branches} branch names, ${res.stores} store names saved · RM ${Math.round(applied.stats.totalSales).toLocaleString()} in scope`);
