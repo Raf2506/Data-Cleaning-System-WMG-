@@ -129,7 +129,7 @@ function MappingScreen({ onSaved }) {
                   <th style={{ ...th, width: 96, textAlign: "right" }}>Value</th>
                 </tr></thead>
                 <tbody>
-                  {shownCodes.map((c) => {
+                  {shownCodes.slice(0, 200).map((c) => {
                     const dropped = !c.store.trim();
                     return (
                       <tr key={c.code} style={{ background: dropped ? "#fff4f4" : undefined }}>
@@ -144,6 +144,11 @@ function MappingScreen({ onSaved }) {
                 </tbody>
               </table>
               {!shownCodes.length && <Empty q={query} zero="No invoice codes yet — upload a file first." />}
+              {shownCodes.length > 200 && (
+                <div style={{ padding: "12px 16px", fontSize: 13, color: "var(--mute)", borderTop: "1px solid var(--hairline-soft)" }}>
+                  Showing 200 of {shownCodes.length.toLocaleString()} — search to find a specific code.
+                </div>
+              )}
             </div>
           )}
 
