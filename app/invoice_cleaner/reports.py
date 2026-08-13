@@ -41,18 +41,20 @@ def paginate(frame: pd.DataFrame, per_page: int = BARS_PER_PAGE) -> list[pd.Data
     return [frame.iloc[i : i + per_page] for i in range(0, len(frame), per_page)]
 
 
-def product_contribution(frame: pd.DataFrame, top_n: int = 25) -> pd.DataFrame:
-    """Report section 3 — top-N named slices plus a single 'Others' slice."""
+def product_contribution(frame: pd.DataFrame, top_n: int | None = None) -> pd.DataFrame:
+    """Report section 3 — every product ranked by sales, with its share.
+
+    top_n is kept for callers that still want a capped list; by default every
+    product is returned so the UI can show them all in one donut and collapse
+    the long tail behind a "show more" toggle.
+    """
     if frame.empty:
         return pd.DataFrame(columns=["Product", "Amount", "Share"])
     grouped = frame.groupby("Product", dropna=False)["Amount"].sum().sort_values(ascending=False)
-    top = grouped.head(top_n).reset_index()
-    remainder = float(grouped.iloc[top_n:].sum())
-    if remainder > 0:
-        top = pd.concat([top, pd.DataFrame([{"Product": "Others", "Amount": remainder}])], ignore_index=True)
-    total = top["Amount"].sum() or 1
-    top["Share"] = top["Amount"] / total
-    return top
+    ranked = (grouped.head(top_n) if top_n else grouped).reset_index()
+    total = ranked["Amount"].sum() or 1
+    ranked["Share"] = ranked["Amount"] / total
+    return ranked
 
 
 def others_breakdown(frame: pd.DataFrame, top_n: int = 25, detail_n: int = 20) -> pd.DataFrame:

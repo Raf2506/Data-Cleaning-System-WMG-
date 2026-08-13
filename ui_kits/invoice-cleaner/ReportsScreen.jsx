@@ -84,16 +84,9 @@ function ReportsScreen() {
             : <div style={{ padding: "24px", color: "var(--mute)", fontSize: 14 }}>{drillLoading ? "Loading…" : "Nothing here."}</div>}
         </Panel>
 
-        <Panel title="3 — Product contribution to total sales" note="Top products as named slices, everything else rolled into Others">
+        <Panel title="3 — Product contribution to total sales" note={`Every product by share — ${d.contribution.length} in total`}>
           <Donut rows={d.contribution} />
         </Panel>
-
-        {/* Empty whenever every product is already a named slice. */}
-        {d.others.length > 0 && (
-          <Panel title={'“Others” — detailed breakdown'} note="What sits inside the Others slice, as a share of company-wide sales">
-            <Donut rows={d.others} />
-          </Panel>
-        )}
 
         {perMonth.length > 0 && (
           <Panel title="Best-selling outlet per month">

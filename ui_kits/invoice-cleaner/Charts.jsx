@@ -1,3 +1,5 @@
+const { Icon } = window.SubtleGradientDesignSystem_21f929;
+
 // Shared chart primitives. Horizontal bars with the exact RM value labeled at
 // the end of each bar, now colour-coded so rows are easy to tell apart.
 
@@ -61,13 +63,21 @@ function ColumnChart({ rows, labelKey = "month", valueKey = "amount", height = 1
 // Donut slices cycle the full palette for maximum contrast between neighbours.
 const DONUT_TONES = PALETTE;
 
-function Donut({ rows, labelKey = "product", valueKey = "amount", size = 240, thickness = 42 }) {
+// legendLimit collapses a long legend: only the first N rows show until the
+// viewer expands it. The donut itself always draws every slice.
+function Donut({ rows, labelKey = "product", valueKey = "amount", size = 240, thickness = 42, legendLimit = 12 }) {
+  const [expanded, setExpanded] = React.useState(false);
   const total = rows.reduce((a, r) => a + r[valueKey], 0) || 1;
   const r = (size - thickness) / 2;
   const c = 2 * Math.PI * r;
   let offset = 0;
+
+  const collapsible = rows.length > legendLimit;
+  const shown = collapsible && !expanded ? rows.slice(0, legendLimit) : rows;
+  const hiddenCount = rows.length - shown.length;
+
   return (
-    <div style={{ display: "flex", gap: 32, alignItems: "center", flexWrap: "wrap" }}>
+    <div style={{ display: "flex", gap: 32, alignItems: "flex-start", flexWrap: "wrap" }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flex: "0 0 auto" }}>
         <g transform={`rotate(-90 ${size / 2} ${size / 2})`}>
           {rows.map((row, i) => {
@@ -85,7 +95,7 @@ function Donut({ rows, labelKey = "product", valueKey = "amount", size = 240, th
         </g>
       </svg>
       <div style={{ flex: 1, minWidth: 260, display: "flex", flexDirection: "column" }}>
-        {rows.map((row, i) => (
+        {shown.map((row, i) => (
           <div key={row[labelKey]} style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 0", borderBottom: "1px solid var(--hairline-soft)" }}>
             <span style={{ width: 12, height: 12, flex: "0 0 auto", background: DONUT_TONES[i % DONUT_TONES.length] }} />
             <span style={{ fontSize: 13, color: "var(--charcoal)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={row[labelKey]}>{row[labelKey]}</span>
@@ -93,6 +103,13 @@ function Donut({ rows, labelKey = "product", valueKey = "amount", size = 240, th
             <span style={{ fontSize: 13, fontWeight: 600, width: 56, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{((row[valueKey] / total) * 100).toFixed(1)}%</span>
           </div>
         ))}
+        {collapsible && (
+          <button className="hoverable" onClick={() => setExpanded((v) => !v)}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 10, padding: "8px 14px", border: "1px solid var(--hairline)", background: "var(--canvas)", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 13, fontWeight: 600, color: "var(--ink)", borderRadius: "var(--radius-pill)" }}>
+            <Icon name={expanded ? "chevron-up" : "chevron-down"} size={15} />
+            {expanded ? "Show less" : `Show ${hiddenCount} more product${hiddenCount === 1 ? "" : "s"}`}
+          </button>
+        )}
       </div>
     </div>
   );

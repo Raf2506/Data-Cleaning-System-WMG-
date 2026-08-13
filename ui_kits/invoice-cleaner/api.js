@@ -21,7 +21,7 @@
     window.INVOICE = {
       file: null,
       stats: { totalSales: 0, period: "", invoices: 0, lineItems: 0, outlets: 0, products: 0, unmappedRows: 0, unmappedNames: [], bestOutlet: null, bestProduct: null, bestMonth: null, bestOutletByMonth: [] },
-      byOutlet: [], contribution: [], others: [], monthly: [], brandPie: [], bestProductByOutlet: [],
+      byOutlet: [], contribution: [], monthly: [], brandPie: [], bestProductByOutlet: [],
       rows: [], groups: [], outlets: [], months: [], total: 0,
       branchRules: [], stores: [], unresolved: [],
       parse: { invoices: 0, lineItems: 0, dateFrom: "", dateTo: "", rawNames: 0, continuationRows: 0, discardedRows: 0 },
@@ -171,11 +171,6 @@
         stats: mapStats(d.stats),
         byOutlet: (d.by_outlet || []).map(mapOutlet),
         contribution: (d.contribution || []).map(mapProduct),
-        others: (d.others || []).map((r) => ({
-          product: s(r.Product),
-          amount: n(r.Amount),
-          share: n(r["Share of Total"]),
-        })),
         monthly: (d.monthly || []).map(mapMonth),
         bestProductByOutlet: (d.best_product_per_outlet || []).map((r) => ({
           outlet: s(r.Outlet),
@@ -362,7 +357,6 @@
           stats: reports.stats,
           byOutlet: reports.byOutlet,
           contribution: reports.contribution,
-          others: reports.others,
           monthly: reports.monthly,
           brandPie: brands.brands,
           bestProductByOutlet: reports.bestProductByOutlet,
