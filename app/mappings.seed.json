@@ -1,0 +1,1754 @@
+{
+  "name_to_group": {
+    "BORONG DIN AS CASH & CARRY (SUNGAI PETANI)": "BORONG DIN AS CASH & CARRY",
+    "MYDIN MOHAMED HOLDINGS - USJ": "MYDIN MOHAMED HOLDINGS",
+    "BILLION SHOPPING CENTRE - KLANG": "BILLION SHOPPING CENTRE",
+    "ECONSAVE - AMPANG BARU": "ECONSAVE",
+    "99 SPEED MART S/B - PJ": "99 SPEED MART S/B",
+    "LOTUSS STORES (M) SDN BHD - IPOH": "LOTUSS STORES (M) SDN BHD",
+    "ECONSAVE - BATU GAJAH": "ECONSAVE",
+    "BORONG DIN AS CASH & CARRY (BAGAN SERAI)": "BORONG DIN AS CASH & CARRY",
+    "ECONSAVE - BAGAN SERAI": "ECONSAVE",
+    "SEGI FRESH DIST SDN BHD": "SEGI FRESH",
+    "MYDIN MOHAMED HOLDINGS BHD": "MYDIN MOHAMED HOLDINGS BHD",
+    "AEON BIG": "AEON BIG",
+    "LOTUSS STORES (MALAYSIA) SDN BHD": "LOTUSS STORES",
+    "AEON (KL RDC)": "AEON",
+    "DC SEPANG FLOW THROUGH": "DC SEPANG FLOW THROUGH",
+    "NSK TRADE CITY (UT) SDN BHD": "NSK TRADE CITY",
+    "NSK TRADE CITY (MUAR) SDN BHD": "NSK TRADE CITY",
+    "NSK TRADE CITY SDN BHD (SELAYANG)": "NSK TRADE CITY SDN BHD",
+    "TFP RETAIL SDN BHD": "TFP RETAIL SDN BHD",
+    "NSK TRADE CITY (KD) SDN BHD": "NSK TRADE CITY",
+    "NSK GROCER (KL) SDN. BHD.": "NSK GROCER",
+    "TF VALUE-MART SDN.BHD.": "TF VALUE-MART SDN.BHD.",
+    "NSK TRADE CITY (NS2) SDN BHD": "NSK TRADE CITY",
+    "NSK TRADE CITY (CHERAS) SDN BHD (BATU 9)": "NSK TRADE CITY",
+    "NSK TRADE CITY (KL) SDN BHD @ PEEL ROAD": "NSK TRADE CITY",
+    "NSK TRADING SDN BHD (RAWANG)": "NSK TRADING SDN BHD",
+    "NSK TRADING SDN BHD (KLANG)": "NSK TRADING SDN BHD",
+    "NSK TRADE CITY (USJ) SDN BHD (KLANG SENTRAL)": "NSK TRADE CITY",
+    "ECONSAVE CASH & CARRY (KD)  SDN. BHD.": "ECONSAVE CASH & CARRY",
+    "NSK TRADE CITY (MELAKA) SDN BHD": "NSK TRADE CITY",
+    "NSK TRADE CITY (PANDAN) SDN BHD": "NSK TRADE CITY",
+    "MYDIN  MOHAMED HOLDINGS BHD": "MYDIN  MOHAMED HOLDINGS BHD",
+    "NSK TRADE CITY (RAWANG JAYA) SDN. BHD.": "NSK TRADE CITY",
+    "NSK TRADE CITY SDN BHD (KUCHAI LAMA)": "NSK TRADE CITY SDN BHD",
+    "MY HERO HYPERMARKET SDN BHD": "MY HERO HYPERMARKET SDN BHD",
+    "MY HERO HYPERMARKET SDN. BHD.": "MY HERO HYPERMARKET SDN. BHD.",
+    "TFP RETAIL SDN BHD @ M CITY": "TFP RETAIL SDN BHD @ M CITY",
+    "TFP RETAIL SDN BHD @ BIG MALL OF MEDINI": "TFP RETAIL SDN BHD @ BIG MALL OF MEDINI",
+    "TFP RETAIL SDN BHD @ MEGAH RISE": "TFP RETAIL SDN BHD @ MEGAH RISE",
+    "MY HERO  HYPERMARKET SDN BHD": "MY HERO  HYPERMARKET SDN BHD",
+    "MY HERO HYPERMARKET  SDN BHD": "MY HERO HYPERMARKET  SDN BHD",
+    "TFP RETAIL SDN BHD- SKS CITY MALL": "TFP RETAIL SDN BHD- SKS CITY MALL",
+    "TFP RETAIL SDN BHD -MYTOWN": "TFP RETAIL SDN BHD -MYTOWN",
+    "TFP RETAIL SDN BHD -  EKOCHERAS": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - EKOCHERAS": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - LEISURE MALL": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  SIERRA FRESCO": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - TAMARIND SQUARE": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - GIZA": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -DAMANSARA JAYA": "TFP RETAIL SDN BHD -DAMANSARA JAYA",
+    "TFP RETAIL SDN BHD -ARA DAMANSARA": "TFP RETAIL SDN BHD -ARA DAMANSARA",
+    "TFP RETAIL SDN BHD - SUBANG PARADE": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  SUBANG PARADE": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - GAMUDA WALK": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -BUKIT MERTAJAM": "TFP RETAIL SDN BHD -BUKIT MERTAJAM",
+    "TFP RETAIL SDN BHD - QUEENS WATERFRONT PENANG": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - FIRST AVENUE PENANG": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  168 PARK SELAYANG": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -DP ARKADIA": "TFP RETAIL SDN BHD -DP ARKADIA",
+    "TFP RETAIL SDN BHD -EMPIRE CITY": "TFP RETAIL SDN BHD -EMPIRE CITY",
+    "TFP RETAIL SDN BHD -  FORUM MALL": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  I-CITY": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  SOUTHKEY": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - PARADIGM MALL JB": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  IOI MALL KULAI": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - M CITY": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - AVENUE K": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -AVENUE K": "TFP RETAIL SDN BHD -AVENUE K",
+    "TFP RETAIL SDN BHD - BANGSAR VILLAGE": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -KL GATEWAY": "TFP RETAIL SDN BHD -KL GATEWAY",
+    "TFP RETAIL SDN BHD - MEGAH RISE": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -   SUNWAY SQUARE": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  IOI MALL PUCHONG": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  MYRA NILAI": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -MELAWATI": "TFP RETAIL SDN BHD -MELAWATI",
+    "TFP RETAIL SDN BHD- OTK GOMBAK": "TFP RETAIL SDN BHD- OTK GOMBAK",
+    "TFP RETAIL SDN BHD- OTK SENTUL": "TFP RETAIL SDN BHD- OTK SENTUL",
+    "TFP RETAIL SDN BHD -   LAMAN SERI HARMONI": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - KIARA BAY": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - MET GALLERIA": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - HARTAMAS SHOPPING CENTER": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - CITY JUNCTION": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD @ MELAWATI": "TFP RETAIL SDN BHD @ MELAWATI",
+    "TFP RETAIL SDN BHD@ LAMAN SERI HARMONI": "TFP RETAIL SDN BHD@ LAMAN SERI HARMONI",
+    "TFP RETAIL SDN BHD - OTK PUCHONG": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - LAMAN SERI HARMONI": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  M CITY": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  KL GATEWAY": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - OTK GOMBAK": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD @TASEK CENTRAL": "TFP RETAIL SDN BHD @TASEK CENTRAL",
+    "TFP RETAIL SDN BHD -BANGSAR VILLAGE": "TFP RETAIL SDN BHD -BANGSAR VILLAGE",
+    "TFP RETAIL SDN BHD -OTK SENTUL": "TFP RETAIL SDN BHD -OTK SENTUL",
+    "TFP RETAIL SDN BHD - OTK SENTUL": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - 168 PARK SELAYANG": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -OTK GOMBAK": "TFP RETAIL SDN BHD -OTK GOMBAK",
+    "TFP RETAIL SDN BHD -SOUTHKEY": "TFP RETAIL SDN BHD -SOUTHKEY",
+    "NSK PROPERTY SDN. BHD.": "NSK PROPERTY SDN. BHD.",
+    "TFP RETAIL SDN BHD - FORUM MALL": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - I-CITY": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - SUBANG MURNI": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -OTK PUCHONG": "TFP RETAIL SDN BHD -OTK PUCHONG",
+    "TFP RETAIL SDN BHD -  MET GALLERIA": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  LAMAN SERI HARMONI": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - DP ARKADIA": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  BIG PUBLIKA": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - MYRA NILAI": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  BANGSAR SHOPPING CENTRE": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  PARADIGM MALL JB": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - TASEK CENTRAL": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  BIG MALL OF MEDINI": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  SKS CITY MALL": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  FIRST AVENUE PENANG": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -GAMUDA WALK": "TFP RETAIL SDN BHD -GAMUDA WALK",
+    "TFP RETAIL SDN BHD - MELAWATI": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - BIG THE LINC": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  PAVILION KUALA LUMPUR": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - MYTOWN": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  LEISURE MALL": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -TAMARIND SQUARE": "TFP RETAIL SDN BHD -TAMARIND SQUARE",
+    "TFP RETAIL SDN BHD - KL GATEWAY": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  PAVILION DAMANSARA HEIGHT": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -  EMPIRE CITY": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -BIG IPC": "TFP RETAIL SDN BHD -BIG IPC",
+    "GLOBAL FOOD MERCHANT HOLDINGS SDN BHD": "GLOBAL FOOD MERCHANT HOLDINGS SDN BHD",
+    "TFP RETAIL SDN BHD - ARA DAMANSARA": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - DAMANSARA JAYA": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -MEGAH RISE": "TFP RETAIL SDN BHD -MEGAH RISE",
+    "TFP RETAIL SDN BHD -SUNWAY SQUARE": "TFP RETAIL SDN BHD -SUNWAY SQUARE",
+    "TFP RETAIL SDN BHD - IOI MALL PUCHONG": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD - BUKIT MERTAJAM": "TFP RETAIL SDN BHD",
+    "TFP RETAIL SDN BHD -SIERRA FRESCO": "TFP RETAIL SDN BHD -SIERRA FRESCO",
+    "TFP RETAIL SDN BHD@ SUNWAY SQUARE": "TFP RETAIL SDN BHD@ SUNWAY SQUARE",
+    "10068 AMPANG BARU": "AMPANG",
+    "10122 PPD": "PASIR PEKAN",
+    "10106 BATU GAJAH": "BATU GAJAH",
+    "10004 SEMENYIH": "SEMENYIH",
+    "10042 BANGI": "BANGI",
+    "10087 JERANTUT": "JERANTUT",
+    "10012 KOTA MASAI": "MASAI",
+    "10027 SENAI": "SENA",
+    "10030 TAMAN PUTRI KULAI": "KULAI",
+    "10043 KLUANG": "KLUANG",
+    "10057 SEGAMAT": "SEGAMAT",
+    "10073 TRIANG": "TRIANG",
+    "10028 AYER HITAM": "AYER HITAM",
+    "10055 BUKIT GAMBIR": "BUKIT GAMBIR",
+    "10038 KAMUNTING": "KAMUNTING",
+    "10080 POKOK SENA": "SENA",
+    "10078 BAKRI": "BAKRI",
+    "10025 PONTIAN": "PONTIAN",
+    "10056 KLANG PARADE": "KLANG",
+    "10119 PADANG SERAI": "PADANG SERAI",
+    "SUGO VILLAGE SDN BHD": "SUGO VILLAGE SDN BHD",
+    "BIG 10 GROCER (SEREMBAN)  SDN BHD": "BIG 10 GROCER",
+    "PASARAYA BSK SDN. BHD. (CAW. KUALA SELANGOR)": "PASARAYA BSK SDN. BHD.",
+    "SOON CHEONG MARINE PRODUCT SDN BHD KLANG": "SOON CHEONG MARINE PRODUCT SDN BHD KLANG",
+    "SRI TERNAK FOOD MART SDN BHD, SELAYANG": "SRI TERNAK FOOD MART SDN BHD, SELAYANG",
+    "STAR GROCER SDN BHD": "STAR GROCER SDN BHD",
+    "ST ROSYAM MART (SEMENYIH)": "ST ROSYAM MART",
+    "CS BROTHERS SDN BHD": "CS BROTHERS SDN BHD",
+    "HOCK MEI TRADING (BANGI)": "HOCK MEI TRADING",
+    "BIG 10 GROCER (BUKIT BARU) SDN BHD": "BIG 10 GROCER",
+    "ST ROSYAM MART (SHAH ALAM)": "ST ROSYAM MART",
+    "ST ROSYAM MART SDN BHD - KLANG": "ST ROSYAM MART SDN BHD",
+    "PASARAYA BSK SDN BHD (CAWANGAN RAWANG)": "PASARAYA BSK SDN BHD",
+    "BORONG DIN AS CASH & CARRY SDN BHD (POKOK SENA)": "BORONG DIN AS CASH & CARRY SDN BHD",
+    "LS MART PASARAYA SDN.BHD. (JURU)": "LS MART PASARAYA SDN.BHD.",
+    "LS MART PASARAYA (SG.DUA) SDN.BHD.": "LS MART PASARAYA",
+    "PASARAYA ECON JAYA ( KELANTAN) SDN BHD": "PASARAYA ECON JAYA",
+    "SALAMKU XTRA (KOK LANAS ) SDN BHD": "SALAMKU XTRA",
+    "ST ROSYAM MART SDN BHD-JAKEL SQUARE": "ST ROSYAM MART SDN BHD-JAKEL SQUARE",
+    "ST ROSYAM MART SDN BHD (SETIAWANGSA)": "ST ROSYAM MART SDN BHD",
+    "MANTIN ZEMART SDN BHD": "MANTIN ZEMART SDN BHD",
+    "ST ROSYAM MART SDN BHD - SNWG": "ST ROSYAM MART SDN BHD",
+    "CS GROCER SDN BHD (KAJANG REKO)": "CS GROCER SDN BHD",
+    "TY PASAR RAYA JIMAT SDN BHD (STATION 18)": "TY PASAR RAYA JIMAT SDN BHD",
+    "AOMORI MART SDN BHD (MANJOI)": "AOMORI MART SDN BHD",
+    "BIG 10 GROCER (GAMBANG) SDN BHD": "BIG 10 GROCER",
+    "KUMPULAN PASARAYA PANTAI TIMUR -BUKIT BUNGA": "KUMPULAN PASARAYA PANTAI TIMUR -BUKIT BUNGA",
+    "PASARAYA PANTAI TIMOR (BACHOK) SDN BHD": "PASARAYA PANTAI TIMOR",
+    "SALAMKU RETAIL (BM) SDN BHD": "SALAMKU RETAIL",
+    "SALAMKU SUPER MARKET (PP) SDN BHD": "SALAMKU SUPER MARKET",
+    "PASARAYA ECON JAYA (MACHANG) SDN BHD": "PASARAYA ECON JAYA",
+    "AOMORI MART SDN BHD (JELAPANG)": "AOMORI MART SDN BHD",
+    "LS MART PASARAYA SDN BHD (PB)": "LS MART PASARAYA SDN BHD",
+    "SALAMKU XTRA SDN BHD": "SALAMKU XTRA SDN BHD",
+    "BILLION MART (TANJUNG CHAT) SDN. BHD.": "BILLION MART",
+    "PASARAYA PANTAI TIMOR (PT) SDN BHD": "PASARAYA PANTAI TIMOR",
+    "ST ROSYAM MART (SG BULOH) SDN BHD": "ST ROSYAM MART",
+    "ST ROSYAM MART (TMN EHSAN) SDN BHD": "ST ROSYAM MART",
+    "SOON CHEONG MARINE PRODUCTS (BSD)": "SOON CHEONG MARINE PRODUCTS",
+    "CB FROZEN FOOD SDN BHD - DC": "CB FROZEN FOOD SDN BHD",
+    "TARGET SUPERMARKET SDN BHD - CAWANGAN MASAI": "TARGET SUPERMARKET SDN BHD",
+    "TARGET SUPERMARKET (BENUT) SDN BHD": "TARGET SUPERMARKET",
+    "EXCOWELL CORPORATION SDN BHD": "EXCOWELL CORPORATION SDN BHD",
+    "TARGET SUPERMARKET (AYER HITAM) SDN BHD": "TARGET SUPERMARKET",
+    "TARGET SUPERMARKET (PARIT RAJA) SDN BHD": "TARGET SUPERMARKET",
+    "TARGET SUPERMARKET SDN BHD - CAWANGAN YONG": "TARGET SUPERMARKET SDN BHD",
+    "TARGET SUPERMARKET (SRI KLUANG) SDN BHD": "TARGET SUPERMARKET",
+    "CLC WHOLESALER GROUP SDN BHD - BANTING": "CLC WHOLESALER GROUP SDN BHD",
+    "LS MART PASARAYA (SIMPANG AMPAT)": "LS MART PASARAYA",
+    "LS MART PASARAYA SDN. BHD (J.JURU)": "LS MART PASARAYA SDN. BHD",
+    "LS MART PASARAYA SDN BHD (BTM)": "LS MART PASARAYA SDN BHD",
+    "PANTAI TIMOR HYPERMARKET SDN BHD-PENGKALAN": "PANTAI TIMOR HYPERMARKET SDN BHD-PENGKALAN",
+    "PASARAYA PANTAI TIMOR (PASIR MAS) -KUALA BESUT": "PASARAYA PANTAI TIMOR",
+    "PASARAYA BORONG DIN AS CASH & CARRY SDN BHD": "PASARAYA BORONG DIN AS CASH & CARRY SDN BHD",
+    "PASARAYA BORONG DIN AS SDN BHD (MERGONG)": "PASARAYA BORONG DIN AS SDN BHD",
+    "BORONG DIN AS CASH & CARRY (ALOR JANGGUS)": "BORONG DIN AS CASH & CARRY",
+    "BORONG DIN AS CASH & CARRY SDN BHD (KANGAR": "BORONG DIN AS CASH & CARRY SDN BHD",
+    "PASARAYA BORONG DIN AS SDN BHD (JITRA BDI)": "PASARAYA BORONG DIN AS SDN BHD",
+    "PASARAYA BORONG DIN AS SD BHD (AYER HITAM)": "PASARAYA BORONG DIN AS SD BHD",
+    "LS MART PASARAYA  SDN BHD (PS2)": "LS MART PASARAYA  SDN BHD",
+    "BORONG DIN AS CASH & CARRY SDN BHD (SIMPANG": "BORONG DIN AS CASH & CARRY SDN BHD",
+    "BORONG DIN AS CASH & CARRY (SERIAB)": "BORONG DIN AS CASH & CARRY",
+    "BORONG DIN AS CASH & CARRY SDN BHD (SENA)": "BORONG DIN AS CASH & CARRY SDN BHD",
+    "BORONG DIN AS CASH & CARRY SDN BHD (PAUH)": "BORONG DIN AS CASH & CARRY SDN BHD",
+    "BORONG DIN AS CASH & CARRY (PADANG BESAR)": "BORONG DIN AS CASH & CARRY",
+    "BORONG DIN AS CASH & CARRY SDN BHD (KUALA PERLIS)": "BORONG DIN AS CASH & CARRY SDN BHD",
+    "BORONG DIN AS CASH & CARRY SDN BHD (JEJAWI)": "BORONG DIN AS CASH & CARRY SDN BHD",
+    "PASARAYA BSK (CAWANGAN TTDI JAYA)": "PASARAYA BSK",
+    "GT MART SDN BHD": "GT MART SDN BHD",
+    "SUGO GARDEN SDN BHD": "SUGO GARDEN SDN BHD",
+    "PASARAYA JAYA GADING (MM) SDN BHD- TANAH MERAH": "PASARAYA JAYA GADING",
+    "KK FAMILY MART SDN BHD": "KK FAMILY MART SDN BHD",
+    "HOCK MEI TRADING SDN BHD (TAMAN MEDAN)": "HOCK MEI TRADING SDN BHD",
+    "HOCK MEI (KAJANG SUNGAI CHUA)": "HOCK MEI",
+    "SRI TERNAK MART (SK) SDN BHD": "SRI TERNAK MART",
+    "TARGET SUPERMARKET (BATU PAHAT) SDN BHD": "TARGET SUPERMARKET",
+    "TARGET SUPERMARKET SDN BHD- BRANCH GPR": "TARGET SUPERMARKET SDN BHD- BRANCH GPR",
+    "TARGET SUPERMARKET (KLUANG) SDN BHD": "TARGET SUPERMARKET",
+    "TARGET SUPERMARKET (TAMAN KLUANG PERDANA) SDN": "TARGET SUPERMARKET",
+    "TARGET SUPERMARKET (PONTIAN) SDN BHD": "TARGET SUPERMARKET",
+    "TARGET SUPERMARKET (KULAI) SDN BHD": "TARGET SUPERMARKET",
+    "MASLEE EXPRESS SDN. BHD. (B5)": "MASLEE EXPRESS SDN. BHD.",
+    "MASLEE EXPRESS SDN.BHD. (LARKIN AMAN)": "MASLEE EXPRESS SDN.BHD.",
+    "MASLEE EXPRESS SDN.BHD. (TAMAN DAYA)": "MASLEE EXPRESS SDN.BHD.",
+    "B FAMILY MART SDN BHD": "B FAMILY MART SDN BHD",
+    "V SEGAR MART SDN BHD (SUNGAI SIPUT)": "V SEGAR MART SDN BHD",
+    "CLC WHOLESALER GROUP  SDN. BHD.-SG PELEK": "CLC WHOLESALER GROUP  SDN. BHD.-SG PELEK",
+    "LS MART PASARAYA SDN BHD (TASEK GELUGOR)": "LS MART PASARAYA SDN BHD",
+    "LS MART PASARAYA SDN BHD-SPC": "LS MART PASARAYA SDN BHD-SPC",
+    "KENWINGSTON GROCER SDN. BHD.(MMZZ GROCER @": "KENWINGSTON GROCER SDN. BHD.",
+    "KENWINGSTON GROCER SDN. BHD.": "KENWINGSTON GROCER SDN. BHD.",
+    "TY PASAR RAYA JIMAT  SDN BHD (PENGKALAN)": "TY PASAR RAYA JIMAT  SDN BHD",
+    "TY PASAR RAYA JIMAT SDN BHD (TMN PERPADUAN)": "TY PASAR RAYA JIMAT SDN BHD",
+    "TY PASAR RAYA JIMAT SDN BHD (AMPANG)": "TY PASAR RAYA JIMAT SDN BHD",
+    "TARGET SUPERMARKET (BUKIT BAKRI) SDN BHD": "TARGET SUPERMARKET",
+    "BIG 10 GROCER (KLUANG)  SDN. BHD.": "BIG 10 GROCER",
+    "PASARAYA HWA THAI SDN BHD @ SALENG": "PASARAYA HWA THAI SDN BHD @ SALENG",
+    "PASARAYA HWA THAI SDN BHD @ KOTA TINGGI": "PASARAYA HWA THAI SDN BHD @ KOTA TINGGI",
+    "PASARAYA HWA THAI SDN BHD @ PANDAN 2": "PASARAYA HWA THAI SDN BHD @ PANDAN 2",
+    "PASARAYA HWA THAI SDN BHD @ LARKIN": "PASARAYA HWA THAI SDN BHD @ LARKIN",
+    "PASARAYA HWA THAI SDN BHD @ TAMPOI": "PASARAYA HWA THAI SDN BHD @ TAMPOI",
+    "PASARAYA HWA THAI SDN BHD @ BESTMART": "PASARAYA HWA THAI SDN BHD @ BESTMART",
+    "TY PASAR RAYA JIMAT SDN BHD (TANJUNG RAMBUTAN)": "TY PASAR RAYA JIMAT SDN BHD",
+    "TY PASAR RAYA JIMAT SDN BHD (KUALA KANGSAR)": "TY PASAR RAYA JIMAT SDN BHD",
+    "TY PASAR RAYA JIMAT SDN BHD (TELUK INTAN)": "TY PASAR RAYA JIMAT SDN BHD",
+    "PANTAI TIMOR SHOPPING CENTRE (RANTAU) SDN BHD": "PANTAI TIMOR SHOPPING CENTRE",
+    "BIG 10 GROCER (SEGAMAT) SDN BHD": "BIG 10 GROCER",
+    "PASARAYA PANTAI TIMOR (PASIR MAS)": "PASARAYA PANTAI TIMOR",
+    "TY PASAR RAYA JIMAT SDN BHD (BATU GAJAH)": "TY PASAR RAYA JIMAT SDN BHD",
+    "TY PASAR RAYA JIMAT SDN BHD (KAMUNTING)": "TY PASAR RAYA JIMAT SDN BHD",
+    "SENAWANG ZEMART SDN BHD": "SENAWANG ZEMART SDN BHD",
+    "KENWINGSTON GROCER SDN. BHD. (MMZZ GROCER @": "KENWINGSTON GROCER SDN. BHD.",
+    "KENWINGSTON GROCER SDN. BHD. (KEN'S GROCER@ KSG": "KENWINGSTON GROCER SDN. BHD.",
+    "LS MART PASARAYA SDN BHD (TDD)": "LS MART PASARAYA SDN BHD",
+    "BAHAU ZEMART SDN BHD": "BAHAU ZEMART SDN BHD",
+    "FS FAMILY STORE SDN BHD": "FS FAMILY STORE SDN BHD",
+    "TARGET SUPERMARKET (SIMPANG RENGGAM) SDN BHD": "TARGET SUPERMARKET",
+    "MASLEE EXPRESS SDN.BHD. (PULAI UTAMA)": "MASLEE EXPRESS SDN.BHD.",
+    "PASARAYA HWA THAI SDN BHD @ THE COMMUNE": "PASARAYA HWA THAI SDN BHD @ THE COMMUNE",
+    "MASLEE EXPRESS SDN. BHD.": "MASLEE EXPRESS SDN. BHD.",
+    "LS MART PASARAYA SDN BHD (GSP)": "LS MART PASARAYA SDN BHD",
+    "CS GROCER SDN BHD (PUCHONG)": "CS GROCER SDN BHD",
+    "LS MART PASARAYA SDN. BHD (J.JURU) HQ": "LS MART PASARAYA SDN. BHD",
+    "LS MART PASARAYA SDN BHD (GTK)": "LS MART PASARAYA SDN BHD",
+    "ARMANI VENTURE SDN BHD": "ARMANI VENTURE SDN BHD",
+    "PERNIAGAAN PAK TORI SDN. BHD.": "PERNIAGAAN PAK TORI SDN. BHD.",
+    "BORONG DIN AS CASH & CARRY SDN BHD (KANGAR)": "BORONG DIN AS CASH & CARRY SDN BHD",
+    "V SEGAR MART (MERU) SDN BHD": "V SEGAR MART",
+    "V SEGAR MART (BATU GAJAH) SDN BHD": "V SEGAR MART",
+    "V SEGAR MART (TG RAMBUTAN) SDN BHD": "V SEGAR MART",
+    "LS MART PASARAYA SDN BHD (SP)": "LS MART PASARAYA SDN BHD",
+    "PASARAYA KITO (PT) SDN BHD": "PASARAYA KITO",
+    "MASLEE EXPRESS SDN. BHD. (DESARU UTAMA)": "MASLEE EXPRESS SDN. BHD.",
+    "SOON CHEONG MARINE PRODUCTS SDN BHD (GBK)": "SOON CHEONG MARINE PRODUCTS SDN BHD",
+    "V SEGAR MART  ( LAPANGAN JAYA) SDN BHD": "V SEGAR MART",
+    "V SEGAR MART (TAPAH) SDN. BHD.": "V SEGAR MART",
+    "TARGET SUPERMARKET SDN BHD -BRANCH TSC": "TARGET SUPERMARKET SDN BHD -BRANCH TSC",
+    "SIKAMAT FAMILY STORE SDN BHD": "SIKAMAT FAMILY STORE SDN BHD",
+    "PASARAYA JAYA GADING  (MT) SDN BHD-KUALA KRAI": "PASARAYA JAYA GADING",
+    "BIG 10 FRESHMART ( SOUTHERN) SDN  BHD": "BIG 10 FRESHMART",
+    "MASLEE EXPRESS SDN.BHD (PULAI PERDANA)": "MASLEE EXPRESS SDN.BHD",
+    "PASARAYA HWA THAI SDN BHD @ MASAI": "PASARAYA HWA THAI SDN BHD @ MASAI",
+    "LS MART PASARAYA SDN BHD-TBM": "LS MART PASARAYA SDN BHD-TBM",
+    "SALAMKU GROCERY (SERING) SDN BHD": "SALAMKU GROCERY",
+    "ST ROSYAM WHOLESALE EXPRESS SDN BHD (R002) USJ": "ST ROSYAM WHOLESALE EXPRESS SDN BHD",
+    "TY PASAR RAYA JIMAT SDN BHD (TAIPING)": "TY PASAR RAYA JIMAT SDN BHD",
+    "BIG 10 FRESHMART (SOUTHERN) SDN BHD": "BIG 10 FRESHMART",
+    "TY PASAR RAYA JIMAT SDN. BHD. (BATU GAJAH)": "TY PASAR RAYA JIMAT SDN. BHD.",
+    "LS MART PASARAYA SDN BHD": "LS MART PASARAYA SDN BHD",
+    "LS MART PASARAYA SDN BHD (PS)": "LS MART PASARAYA SDN BHD",
+    "SALAMKU ACTIVE STORE SDN BHD": "SALAMKU ACTIVE STORE SDN BHD",
+    "PASARAYA PANTAI TIMOR (PM) S/B-KUALA KRAI": "PASARAYA PANTAI TIMOR",
+    "BIG 10 GROCER (GEMENCHEH) SDN BHD": "BIG 10 GROCER",
+    "BIG 10 FRESHMART ( SOUTHERN) SDN BHD": "BIG 10 FRESHMART",
+    "BIG 10 GROCER (AYER HITAM) SDN BHD": "BIG 10 GROCER",
+    "PASARAYA HWA THAI SDN BHD @ GELANG PATAH": "PASARAYA HWA THAI SDN BHD @ GELANG PATAH",
+    "PASARAYA PANTAI TIMOR (PT) SDN BHD - MACHANG": "PASARAYA PANTAI TIMOR (PT) SDN BHD",
+    "RJ FAMILY STORE SDN BHD": "RJ FAMILY STORE SDN BHD",
+    "PASARAYA HWA THAI SDN BHD @ BBU": "PASARAYA HWA THAI SDN BHD @ BBU",
+    "BIG 10 FRESHMART ( SOUTHERN)  SDN  BHD": "BIG 10 FRESHMART",
+    "SALAMKU GROCERY (PC) SDN BHD": "SALAMKU GROCERY",
+    "PASARAYA HWA THAI SDN BHD": "PASARAYA HWA THAI SDN BHD",
+    "PASARAYA HWA THAI SDN BHD @ PLENTONG": "PASARAYA HWA THAI SDN BHD @ PLENTONG",
+    "PASARAYA HWA THAI SDN BHD @ SEGAMAT": "PASARAYA HWA THAI SDN BHD @ SEGAMAT",
+    "V SEGAR MART  (LAPANGAN JAYA) SDN BHD": "V SEGAR MART",
+    "STAR GROCER SDN BHD - KINRARA PUCHONG": "STAR GROCER SDN BHD",
+    "SALAMKU XTRA (PALOH) SDN BHD": "SALAMKU XTRA",
+    "PERNIAGAAN PAK TORI SDN BHD (PDG SERA)": "PERNIAGAAN PAK TORI SDN BHD",
+    "LS MART PASARAYA (TANGLING) SDN BHD": "LS MART PASARAYA",
+    "TY PASAR RAYA JIMAT SDN BHD (KUALA KANGSAR 2)": "TY PASAR RAYA JIMAT SDN BHD",
+    "PANTAI TIMOR HYPERMARKET SDN BHD-PENGKALAN CHEPA": "PANTAI TIMOR HYPERMARKET SDN BHD-PENGKALAN CHEPA",
+    "TARGET SUPERMARKET SDN BHD - CAWANGAN MASAI (TMS)": "TARGET SUPERMARKET SDN BHD",
+    "SALAMKU XTRA (KJ)": "SALAMKU XTRA",
+    "BORONG DIN AS CASH & CARRY SB - PENDANG": "BORONG DIN AS CASH & CARRY SB",
+    "STAR GROCER SDN BHD -  BANDAR GAMUDA GARDENS": "STAR GROCER SDN BHD",
+    "TARGET SUPERMARKET (TAMAN KLUANG PERDANA) SDN BHD": "TARGET SUPERMARKET",
+    "STAR GROCER SDN BHD -BANDAR TASIK PUTERI": "STAR GROCER SDN BHD -BANDAR TASIK PUTERI",
+    "PASARAYA BORONG DIN AS CASH & CARRY SDN BHD (KUALA NERANG)": "PASARAYA BORONG DIN AS CASH & CARRY SDN BHD",
+    "TARGET SUPERMARKET SDN BHD - CAWANGAN YONG PENG": "TARGET SUPERMARKET SDN BHD",
+    "BORONG DIN AS CASH & CARRY SDN BHD (KANGAR KAPITOL)": "BORONG DIN AS CASH & CARRY SDN BHD",
+    "BORONG DIN AS CASH & CARRY SDN BHD (SIMPANG EMPAT)": "BORONG DIN AS CASH & CARRY SDN BHD",
+    "KENWINGSTON GROCER SDN. BHD. - KSG CYBER JAYA": "KENWINGSTON GROCER SDN. BHD.",
+    "HING KWANG KENG": "HING KWANG KENG",
+    "WEST MALAYAN DISTRIBUTION SDN. BHD.": "WEST MALAYAN DISTRIBUTION SDN. BHD.",
+    "ECO SHOP MARKETING SDN BHD": "ECO SHOP MARKETING SDN BHD",
+    "AL-BAIK MINI MARKET": "AL-BAIK MINI MARKET",
+    "EDIBLE SPECIALITIES SDN BHD": "EDIBLE SPECIALITIES SDN BHD",
+    "SHAIK DAWOOD FEROZ (SAP) SDN.BHD. (S.AMPAT)": "SHAIK DAWOOD FEROZ",
+    "THYE CHUAN CHAN SDN BHD": "THYE CHUAN CHAN SDN BHD",
+    "CHEF ONE ZERO ONE ENTERPRISE": "CHEF ONE ZERO ONE ENTERPRISE",
+    "TERANG TT DISTRIBUTOR": "TERANG TT DISTRIBUTOR",
+    "HENG LEE & SONS ENTERPRISE SDN. BHD.": "HENG LEE & SONS ENTERPRISE SDN. BHD.",
+    "KONSORTIUM YAKIN (YAKIN HALAL MART)": "KONSORTIUM YAKIN",
+    "PASAR RAYA SRI KASSIM SDN BHD": "PASAR RAYA SRI KASSIM SDN BHD",
+    "SELERA UMI SDN. BHD.": "SELERA UMI SDN. BHD.",
+    "NINSO GLOBAL SDN BHD": "NINSO GLOBAL SDN BHD",
+    "AS GLOBAL ENTERPRISES SDN BHD": "AS GLOBAL ENTERPRISES SDN BHD",
+    "PEMASARAN SURIA TIMUR (M) SDN. BHD": "PEMASARAN SURIA TIMUR",
+    "PASARAYA EKONOMI YUAN HUAT": "PASARAYA EKONOMI YUAN HUAT",
+    "PASARAYA BS TRIANG SDN. BHD.": "PASARAYA BS TRIANG SDN. BHD.",
+    "PASARAYA BS TEMERLOH SDN  BHD": "PASARAYA BS TEMERLOH SDN  BHD",
+    "PASARAYA BS TEMERLOH SDN BHD": "PASARAYA BS TEMERLOH SDN BHD",
+    "SW GROCERY SDN BHD @ MR.YEE SOOK HAN": "SW GROCERY SDN BHD @ MR.YEE SOOK HAN",
+    "CFS MARKETING SERVICES SDN. BHD.": "CFS MARKETING SERVICES SDN. BHD.",
+    "TT FRESH MART PREMIUM SDN BHD": "TT FRESH MART PREMIUM SDN BHD",
+    "CHIN WANG SUCCESS TRADING": "CHIN WANG SUCCESS TRADING",
+    "PASARAYA T.S. MEGA (CHERAS) SDN  BHD": "PASARAYA T.S. MEGA",
+    "SLL FRESH AND FROZEN MART": "SLL FRESH AND FROZEN MART",
+    "MTM MART TAMAN SAMUDERA": "MTM MART TAMAN SAMUDERA",
+    "PELITA HIJRAH SDN BHD": "PELITA HIJRAH SDN BHD",
+    "MANGALA THEEBAM WHOLESALE CASH & CARRY SDN.BHD": "MANGALA THEEBAM WHOLESALE CASH & CARRY SDN.BHD",
+    "NAZURAH RESOURCES (PASARAYA 7D)": "NAZURAH RESOURCES",
+    "BALAJI ENTERPRISE SDN BHD": "BALAJI ENTERPRISE SDN BHD"
+  },
+  "code_rules": [
+    {
+      "pattern": "BANGI",
+      "group": "BANGI",
+      "exact": false
+    },
+    {
+      "pattern": "KAJANG",
+      "group": "KAJANG",
+      "exact": false
+    },
+    {
+      "pattern": "D.PERD",
+      "group": "DAMAI",
+      "exact": false
+    },
+    {
+      "pattern": "T.PRK",
+      "group": "TUN PERAK",
+      "exact": false
+    },
+    {
+      "pattern": "H.LGT",
+      "group": "LANGAT",
+      "exact": false
+    },
+    {
+      "pattern": "C0084",
+      "group": "BDR TECH",
+      "exact": false
+    },
+    {
+      "pattern": "T0190",
+      "group": "PARIT RAJA",
+      "exact": false
+    },
+    {
+      "pattern": "T0125",
+      "group": "YONG PENG",
+      "exact": false
+    },
+    {
+      "pattern": "KULAI",
+      "group": "KULAI",
+      "exact": false
+    },
+    {
+      "pattern": "PONTIAN",
+      "group": "PONTIAN",
+      "exact": false
+    },
+    {
+      "pattern": "BAKRI",
+      "group": "BAKRI",
+      "exact": false
+    },
+    {
+      "pattern": "SRI KLUANG",
+      "group": "SRI KLUANG",
+      "exact": false
+    },
+    {
+      "pattern": "KLUANG PERDANA",
+      "group": "KLUANG PERDANA",
+      "exact": false
+    },
+    {
+      "pattern": "AIR HITAM",
+      "group": "AIR HITAM",
+      "exact": false
+    },
+    {
+      "pattern": "KLUANG PARADE",
+      "group": "KLUANG PARADE",
+      "exact": false
+    },
+    {
+      "pattern": "BATU PAHAT",
+      "group": "BATU PAHAT",
+      "exact": false
+    },
+    {
+      "pattern": "CASH & CARRY",
+      "group": "CASH & CARRY",
+      "exact": false
+    },
+    {
+      "pattern": "BENUT",
+      "group": "BENUT",
+      "exact": false
+    },
+    {
+      "pattern": "MASAI",
+      "group": "MASAI",
+      "exact": false
+    },
+    {
+      "pattern": "GRAND PARIT RAJA",
+      "group": "GRAND PARIT RAJA",
+      "exact": false
+    },
+    {
+      "pattern": "SIMAPANG RENGGAM",
+      "group": "SIMAPANG RENGGAM",
+      "exact": false
+    },
+    {
+      "pattern": "T0193",
+      "group": "TSC",
+      "exact": false
+    },
+    {
+      "pattern": "SEGAMAT",
+      "group": "SEGAMAT",
+      "exact": false
+    },
+    {
+      "pattern": "TTDI",
+      "group": "TTDI",
+      "exact": false
+    },
+    {
+      "pattern": "KUALA SELANGOR",
+      "group": "KUALA SELANGOR",
+      "exact": false
+    },
+    {
+      "pattern": "RAWANG",
+      "group": "RAWANG",
+      "exact": false
+    },
+    {
+      "pattern": "MENTAKAB",
+      "group": "MENTAKAB",
+      "exact": false
+    },
+    {
+      "pattern": "TRIANG",
+      "group": "TRIANG",
+      "exact": false
+    },
+    {
+      "pattern": "JERANTUT",
+      "group": "JERANTUT",
+      "exact": false
+    },
+    {
+      "pattern": "TEMERLOH",
+      "group": "TEMERLOH",
+      "exact": false
+    },
+    {
+      "pattern": "RAUB",
+      "group": "RAUB",
+      "exact": false
+    },
+    {
+      "pattern": "PP",
+      "group": "PASIR PEKAN",
+      "exact": false
+    },
+    {
+      "pattern": "SERING",
+      "group": "SERING",
+      "exact": false
+    },
+    {
+      "pattern": "KOTA JEMBAL",
+      "group": "KOTA JEMBAL",
+      "exact": false
+    },
+    {
+      "pattern": "PENGKALAN CHEPA",
+      "group": "PENGKALAN CHEPA",
+      "exact": false
+    },
+    {
+      "pattern": "BM",
+      "group": "BUKIT MARAK",
+      "exact": false
+    },
+    {
+      "pattern": "TENDONG",
+      "group": "TENDONG",
+      "exact": false
+    },
+    {
+      "pattern": "TANAH MERAH",
+      "group": "TANAH MERAH",
+      "exact": false
+    },
+    {
+      "pattern": "KOK LANAS",
+      "group": "KOK LANAS",
+      "exact": false
+    },
+    {
+      "pattern": "PALOH",
+      "group": "PALOH",
+      "exact": false
+    },
+    {
+      "pattern": "BACHOK",
+      "group": "BACHOK",
+      "exact": false
+    },
+    {
+      "pattern": "TAMAN RASAH",
+      "group": "TAMAN RASAH",
+      "exact": false
+    },
+    {
+      "pattern": "SIKAMAT",
+      "group": "SIKAMAT",
+      "exact": false
+    },
+    {
+      "pattern": "REMBAU",
+      "group": "REMBAU",
+      "exact": false
+    },
+    {
+      "pattern": "PB",
+      "group": "PARIT BUNTAR",
+      "exact": false
+    },
+    {
+      "pattern": "SUNGAI PINANG",
+      "group": "SUNGAI PINANG",
+      "exact": false
+    },
+    {
+      "pattern": "SG DUA",
+      "group": "SG DUA",
+      "exact": false
+    },
+    {
+      "pattern": "SIMPANG AMPAT",
+      "group": "SIMPANG AMPAT",
+      "exact": false
+    },
+    {
+      "pattern": "JURU",
+      "group": "JURU",
+      "exact": false
+    },
+    {
+      "pattern": "KAMPUNG BARU",
+      "group": "KAMPUNG BARU",
+      "exact": false
+    },
+    {
+      "pattern": "BTM",
+      "group": "BANDAR TASEK MUTIARA",
+      "exact": false
+    },
+    {
+      "pattern": "TDD",
+      "group": "TDD",
+      "exact": false
+    },
+    {
+      "pattern": "PADANG SERAI",
+      "group": "PADANG SERAI",
+      "exact": false
+    },
+    {
+      "pattern": "SG PETANI",
+      "group": "SG PETANI",
+      "exact": false
+    },
+    {
+      "pattern": "PASIR MAS",
+      "group": "PASIR MAS",
+      "exact": false
+    },
+    {
+      "pattern": "JELAWAT",
+      "group": "JELAWAT",
+      "exact": false
+    },
+    {
+      "pattern": "BUKIT BUNGA",
+      "group": "BUKIT BUNGA",
+      "exact": false
+    },
+    {
+      "pattern": "P0234",
+      "group": "PENGKALAN CHEPA",
+      "exact": false
+    },
+    {
+      "pattern": "RANTAU",
+      "group": "RANTAU",
+      "exact": false
+    },
+    {
+      "pattern": "KUALA KRAI",
+      "group": "KUALA KRAI",
+      "exact": false
+    },
+    {
+      "pattern": "BESUT",
+      "group": "BESUT",
+      "exact": false
+    },
+    {
+      "pattern": "BILLION TJ CHAT",
+      "group": "BILLION TJ CHAT",
+      "exact": false
+    },
+    {
+      "pattern": "AYER HITAM",
+      "group": "AYER HITAM",
+      "exact": false
+    },
+    {
+      "pattern": "990004",
+      "group": "KUALA NERANG",
+      "exact": false
+    },
+    {
+      "pattern": "ALOR JANGGUS",
+      "group": "ALOR JANGGUS",
+      "exact": false
+    },
+    {
+      "pattern": "JITRA",
+      "group": "JITRA",
+      "exact": false
+    },
+    {
+      "pattern": "AS PAUH",
+      "group": "AS PAUH",
+      "exact": false
+    },
+    {
+      "pattern": "B0063",
+      "group": "SIMPANG EMPAT",
+      "exact": false
+    },
+    {
+      "pattern": "MERGONG",
+      "group": "MERGONG",
+      "exact": false
+    },
+    {
+      "pattern": "KUALA PERLIS",
+      "group": "KUALA PERLIS",
+      "exact": false
+    },
+    {
+      "pattern": "B0099",
+      "group": "KANGAR KAPITOL",
+      "exact": false
+    },
+    {
+      "pattern": "SERIAB",
+      "group": "SERIAB",
+      "exact": false
+    },
+    {
+      "pattern": "SENA",
+      "group": "SENA",
+      "exact": false
+    },
+    {
+      "pattern": "JEJAWI",
+      "group": "JEJAWI",
+      "exact": false
+    },
+    {
+      "pattern": "PADANG BESAR",
+      "group": "PADANG BESAR",
+      "exact": false
+    },
+    {
+      "pattern": "TELUK INTAN",
+      "group": "TELUK INTAN",
+      "exact": false
+    },
+    {
+      "pattern": "STATION 18",
+      "group": "STATION 18",
+      "exact": false
+    },
+    {
+      "pattern": "BATU GAJAH",
+      "group": "BATU GAJAH",
+      "exact": false
+    },
+    {
+      "pattern": "AMPANG",
+      "group": "AMPANG",
+      "exact": false
+    },
+    {
+      "pattern": "PENGKALAN",
+      "group": "PENGKALAN",
+      "exact": false
+    },
+    {
+      "pattern": "SIMPANG TAIPING",
+      "group": "SIMPANG TAIPING",
+      "exact": false
+    },
+    {
+      "pattern": "TG RAMBUTAN",
+      "group": "TG RAMBUTAN",
+      "exact": false
+    },
+    {
+      "pattern": "KK1",
+      "group": "KK1",
+      "exact": false
+    },
+    {
+      "pattern": "KK TAMAN SURIA",
+      "group": "KK TAMAN SURIA",
+      "exact": false
+    },
+    {
+      "pattern": "KAMUNTING",
+      "group": "KAMUNTING",
+      "exact": false
+    },
+    {
+      "pattern": "TOKAI",
+      "group": "TOKAI",
+      "exact": false
+    },
+    {
+      "pattern": "TANGKAK",
+      "group": "TANGKAK",
+      "exact": false
+    },
+    {
+      "pattern": "BUKIT BARU",
+      "group": "BUKIT BARU",
+      "exact": false
+    },
+    {
+      "pattern": "BUKIT GAMBIR",
+      "group": "BUKIT GAMBIR",
+      "exact": false
+    },
+    {
+      "pattern": "PARIT BAKAR",
+      "group": "PARIT BAKAR",
+      "exact": false
+    },
+    {
+      "pattern": "PARIT YAANI",
+      "group": "PARIT YAANI",
+      "exact": false
+    },
+    {
+      "pattern": "GAMBANG",
+      "group": "GAMBANG",
+      "exact": false
+    },
+    {
+      "pattern": "GEMENCHEH",
+      "group": "GEMENCHEH",
+      "exact": false
+    },
+    {
+      "pattern": "KLUANG",
+      "group": "KLUANG",
+      "exact": false
+    },
+    {
+      "pattern": "RAHANG",
+      "group": "RAHANG",
+      "exact": false
+    },
+    {
+      "pattern": "EXPRESS MART ISAP",
+      "group": "EXPRESS MART ISAP",
+      "exact": false
+    },
+    {
+      "pattern": "SEREMBAN",
+      "group": "SEREMBAN",
+      "exact": false
+    },
+    {
+      "pattern": "MERU RAYA",
+      "group": "MERU RAYA",
+      "exact": false
+    },
+    {
+      "pattern": "SG SIPUT",
+      "group": "SG SIPUT",
+      "exact": false
+    },
+    {
+      "pattern": "LAPANG JAYA",
+      "group": "LAPANG JAYA",
+      "exact": false
+    },
+    {
+      "pattern": "SNWG",
+      "group": "SENAWANG",
+      "exact": false
+    },
+    {
+      "pattern": "SEMENYIH",
+      "group": "SEMENYIH",
+      "exact": false
+    },
+    {
+      "pattern": "SETIAWANGSA",
+      "group": "SETIAWANGSA",
+      "exact": false
+    },
+    {
+      "pattern": "SHAH ALAM",
+      "group": "SHAH ALAM",
+      "exact": false
+    },
+    {
+      "pattern": "USJ",
+      "group": "USJ",
+      "exact": false
+    },
+    {
+      "pattern": "SELAYANG",
+      "group": "SELAYANG",
+      "exact": false
+    },
+    {
+      "pattern": "SG BULOH",
+      "group": "SG BULOH",
+      "exact": false
+    },
+    {
+      "pattern": "TAMAN EHSAN",
+      "group": "TAMAN EHSAN",
+      "exact": false
+    },
+    {
+      "pattern": "KLANG",
+      "group": "KLANG",
+      "exact": false
+    },
+    {
+      "pattern": "JAKEL SQUARE",
+      "group": "JAKEL SQUARE",
+      "exact": false
+    },
+    {
+      "pattern": "KKS",
+      "group": "KKS",
+      "exact": false
+    },
+    {
+      "pattern": "FOREST HEIGHT",
+      "group": "FOREST HEIGHT",
+      "exact": false
+    },
+    {
+      "pattern": "MANJUNG",
+      "group": "MANJUNG",
+      "exact": false
+    },
+    {
+      "pattern": "DAMAI",
+      "group": "DAMAI",
+      "exact": false
+    },
+    {
+      "pattern": "TUN PERAK",
+      "group": "TUN PERAK",
+      "exact": false
+    },
+    {
+      "pattern": "LANGAT",
+      "group": "LANGAT",
+      "exact": false
+    },
+    {
+      "pattern": "BDR TECH",
+      "group": "BDR TECH",
+      "exact": false
+    },
+    {
+      "pattern": "PARIT RAJA",
+      "group": "PARIT RAJA",
+      "exact": false
+    },
+    {
+      "pattern": "YONG PENG",
+      "group": "YONG PENG",
+      "exact": false
+    },
+    {
+      "pattern": "PUNCAK ALAM",
+      "group": "PUNCAK ALAM",
+      "exact": false
+    },
+    {
+      "pattern": "PUCHONG",
+      "group": "PUCHONG",
+      "exact": false
+    },
+    {
+      "pattern": "KAJANG MEWAH",
+      "group": "KAJANG MEWAH",
+      "exact": false
+    },
+    {
+      "pattern": "METRO",
+      "group": "METRO",
+      "exact": false
+    },
+    {
+      "pattern": "NILAI",
+      "group": "NILAI",
+      "exact": false
+    },
+    {
+      "pattern": "REKO",
+      "group": "REKO",
+      "exact": false
+    },
+    {
+      "pattern": "SG PELEK SEPANG",
+      "group": "SG PELEK SEPANG",
+      "exact": false
+    },
+    {
+      "pattern": "BANTING",
+      "group": "BANTING",
+      "exact": false
+    },
+    {
+      "pattern": "SG CHUA",
+      "group": "SG CHUA",
+      "exact": false
+    },
+    {
+      "pattern": "TAMAN MEDAN",
+      "group": "TAMAN MEDAN",
+      "exact": false
+    },
+    {
+      "pattern": "BDR TASIK PUTRI RAWANG",
+      "group": "BDR TASIK PUTRI RAWANG",
+      "exact": false
+    },
+    {
+      "pattern": "PARAMOUNT GARDEN PJ",
+      "group": "PARAMOUNT GARDEN PJ",
+      "exact": false
+    },
+    {
+      "pattern": "DAMANSARA",
+      "group": "DAMANSARA",
+      "exact": false
+    },
+    {
+      "pattern": "TMN MULIA CHERAS",
+      "group": "TMN MULIA CHERAS",
+      "exact": false
+    },
+    {
+      "pattern": "CYBERJAYA",
+      "group": "CYBERJAYA",
+      "exact": false
+    },
+    {
+      "pattern": "KINRARA PUCHONG",
+      "group": "KINRARA PUCHONG",
+      "exact": false
+    },
+    {
+      "pattern": "GAMUDA",
+      "group": "GAMUDA",
+      "exact": false
+    },
+    {
+      "pattern": "BANGI AVENUE",
+      "group": "BANGI AVENUE",
+      "exact": false
+    },
+    {
+      "pattern": "SAUJANA PUTRA JENJAROM",
+      "group": "SAUJANA PUTRA JENJAROM",
+      "exact": false
+    },
+    {
+      "pattern": "SALAK PERDANA SEPANG",
+      "group": "SALAK PERDANA SEPANG",
+      "exact": false
+    },
+    {
+      "pattern": "PANDAN KL",
+      "group": "PANDAN KL",
+      "exact": false
+    },
+    {
+      "pattern": "SRI SINAR",
+      "group": "SRI SINAR",
+      "exact": false
+    },
+    {
+      "pattern": "GOMBAK",
+      "group": "GOMBAK",
+      "exact": false
+    },
+    {
+      "pattern": "LARKIN",
+      "group": "LARKIN",
+      "exact": false
+    },
+    {
+      "pattern": "KOTA TINGGI",
+      "group": "KOTA TINGGI",
+      "exact": false
+    },
+    {
+      "pattern": "SKS MART",
+      "group": "SKS MART",
+      "exact": false
+    },
+    {
+      "pattern": "BEST MART",
+      "group": "BEST MART",
+      "exact": false
+    },
+    {
+      "pattern": "SALENG",
+      "group": "SALENG",
+      "exact": false
+    },
+    {
+      "pattern": "TAMPOI",
+      "group": "TAMPOI",
+      "exact": false
+    },
+    {
+      "pattern": "PANDAN 2",
+      "group": "PANDAN 2",
+      "exact": false
+    },
+    {
+      "pattern": "THE COMMUNE",
+      "group": "THE COMMUNE",
+      "exact": false
+    },
+    {
+      "pattern": "GP MALL GELANG PATAH",
+      "group": "GP MALL GELANG PATAH",
+      "exact": false
+    },
+    {
+      "pattern": "BBU",
+      "group": "BBU",
+      "exact": false
+    },
+    {
+      "pattern": "PUTERI MART",
+      "group": "PUTERI MART",
+      "exact": false
+    },
+    {
+      "pattern": "TODAY'S MART",
+      "group": "TODAY'S MART",
+      "exact": false
+    },
+    {
+      "pattern": "TAMAN DAYA",
+      "group": "TAMAN DAYA",
+      "exact": false
+    },
+    {
+      "pattern": "DESARU UTAMA",
+      "group": "DESARU UTAMA",
+      "exact": false
+    },
+    {
+      "pattern": "KEMPAS",
+      "group": "KEMPAS",
+      "exact": false
+    },
+    {
+      "pattern": "PULAI PERDANA",
+      "group": "PULAI PERDANA",
+      "exact": false
+    },
+    {
+      "pattern": "PULAI UTAMA",
+      "group": "PULAI UTAMA",
+      "exact": false
+    },
+    {
+      "pattern": "KEN'S GROCER KSG CYBERJAYA",
+      "group": "KEN'S GROCER KSG CYBERJAYA",
+      "exact": false
+    },
+    {
+      "pattern": "MMZZ GROCER @ CHERAS LEN SENG",
+      "group": "MMZZ GROCER @ CHERAS LEN SENG",
+      "exact": false
+    },
+    {
+      "pattern": "MMZZ GROCER @ ARA DAMANSARA",
+      "group": "MMZZ GROCER @ ARA DAMANSARA",
+      "exact": false
+    },
+    {
+      "pattern": "MMZZ GROCER @ BLOOMSVALE",
+      "group": "MMZZ GROCER @ BLOOMSVALE",
+      "exact": false
+    },
+    {
+      "pattern": "MMZZ GROCER @ KENWINGSTON PLATZ",
+      "group": "MMZZ GROCER @ KENWINGSTON PLATZ",
+      "exact": false
+    },
+    {
+      "pattern": "MMZZ GROCER @ SAMA SQUARE",
+      "group": "MMZZ GROCER @ SAMA SQUARE",
+      "exact": false
+    },
+    {
+      "pattern": "JLN GOMBAK",
+      "group": "JLN GOMBAK",
+      "exact": false
+    },
+    {
+      "pattern": "SENAWANG",
+      "group": "SENAWANG",
+      "exact": false
+    },
+    {
+      "pattern": "BDR ENSTEK",
+      "group": "BDR ENSTEK",
+      "exact": false
+    },
+    {
+      "pattern": "MANTIN",
+      "group": "MANTIN",
+      "exact": false
+    },
+    {
+      "pattern": "BAHAU",
+      "group": "BAHAU",
+      "exact": false
+    },
+    {
+      "pattern": "MAHSA AVENUE PJ",
+      "group": "MAHSA AVENUE PJ",
+      "exact": false
+    },
+    {
+      "pattern": "SOUTHVILLE DENGKIL",
+      "group": "SOUTHVILLE DENGKIL",
+      "exact": false
+    },
+    {
+      "pattern": "JELAPANG",
+      "group": "JELAPANG",
+      "exact": false
+    },
+    {
+      "pattern": "MANJOI",
+      "group": "MANJOI",
+      "exact": false
+    },
+    {
+      "pattern": "KUALA KANGSAR 1",
+      "group": "KUALA KANGSAR 1",
+      "exact": false
+    },
+    {
+      "pattern": "KUALA KANGSAR 2",
+      "group": "KUALA KANGSAR 2",
+      "exact": false
+    },
+    {
+      "pattern": "KUALA NERANG",
+      "group": "KUALA NERANG",
+      "exact": false
+    },
+    {
+      "pattern": "SIMPANG EMPAT",
+      "group": "SIMPANG EMPAT",
+      "exact": false
+    },
+    {
+      "pattern": "KANGAR KAPITOL",
+      "group": "KANGAR KAPITOL",
+      "exact": false
+    },
+    {
+      "pattern": "KODIANG",
+      "group": "KODIANG",
+      "exact": false
+    },
+    {
+      "pattern": "SANGLANG",
+      "group": "SANGLANG",
+      "exact": false
+    },
+    {
+      "pattern": "TMN KASIH KUALA SG AS",
+      "group": "TMN KASIH KUALA SG AS",
+      "exact": false
+    },
+    {
+      "pattern": "PAK TORI KUALA KEDAH",
+      "group": "PAK TORI KUALA KEDAH",
+      "exact": false
+    },
+    {
+      "pattern": "PENDANG TOKAI",
+      "group": "PENDANG TOKAI",
+      "exact": false
+    },
+    {
+      "pattern": "PENDANG TAMAN DAHLIA",
+      "group": "PENDANG TAMAN DAHLIA",
+      "exact": false
+    },
+    {
+      "pattern": "DESA IMPIANA MERGONG",
+      "group": "DESA IMPIANA MERGONG",
+      "exact": false
+    },
+    {
+      "pattern": "MAHSURI YAN",
+      "group": "MAHSURI YAN",
+      "exact": false
+    },
+    {
+      "pattern": "SUKA MENANTI",
+      "group": "SUKA MENANTI",
+      "exact": false
+    },
+    {
+      "pattern": "PARIT BUNTAR",
+      "group": "PARIT BUNTAR",
+      "exact": false
+    },
+    {
+      "pattern": "LS MART PASARAYA SUNGAI PINANG",
+      "group": "LS MART PASARAYA SUNGAI PINANG",
+      "exact": false
+    },
+    {
+      "pattern": "LS MART PASARAYA SG DUA",
+      "group": "LS MART PASARAYA SG DUA",
+      "exact": false
+    },
+    {
+      "pattern": "LS MART PASARAYA SIMPANG AMPAT",
+      "group": "LS MART PASARAYA SIMPANG AMPAT",
+      "exact": false
+    },
+    {
+      "pattern": "LS MART PASARAYA S/B JURU HQ",
+      "group": "LS MART PASARAYA S/B JURU HQ",
+      "exact": false
+    },
+    {
+      "pattern": "LS MART PASARAYA KAMPUNG BARU BM",
+      "group": "LS MART PASARAYA KAMPUNG BARU BM",
+      "exact": false
+    },
+    {
+      "pattern": "LS MART PASARAYA BANDAR TASEK MUTIARA",
+      "group": "LS MART PASARAYA BANDAR TASEK MUTIARA",
+      "exact": false
+    },
+    {
+      "pattern": "LS MART PASARAYA JALAN JURU",
+      "group": "LS MART PASARAYA JALAN JURU",
+      "exact": false
+    },
+    {
+      "pattern": "LS MART PASARAYA TDD",
+      "group": "LS MART PASARAYA TDD",
+      "exact": false
+    },
+    {
+      "pattern": "SUGO VILLAGE KARPAL SINGH SG PINANG",
+      "group": "SUGO VILLAGE KARPAL SINGH SG PINANG",
+      "exact": false
+    },
+    {
+      "pattern": "SUGO VILLAGE TANJUNG BUNGAH",
+      "group": "SUGO VILLAGE TANJUNG BUNGAH",
+      "exact": false
+    },
+    {
+      "pattern": "SUGO VILLAGE BATU FERRINGHI",
+      "group": "SUGO VILLAGE BATU FERRINGHI",
+      "exact": false
+    },
+    {
+      "pattern": "SUGO VILLAGE GOLDEN TRIANGLE RELAU",
+      "group": "SUGO VILLAGE GOLDEN TRIANGLE RELAU",
+      "exact": false
+    },
+    {
+      "pattern": "SUGO VILLAGE SOLARIA SQUARE BAYAN LEPAS",
+      "group": "SUGO VILLAGE SOLARIA SQUARE BAYAN LEPAS",
+      "exact": false
+    },
+    {
+      "pattern": "SUGO VILLAGE SIMPANG AMPAT",
+      "group": "SUGO VILLAGE SIMPANG AMPAT",
+      "exact": false
+    },
+    {
+      "pattern": "SUGO VILLAGE TELUK BAHANG",
+      "group": "SUGO VILLAGE TELUK BAHANG",
+      "exact": false
+    },
+    {
+      "pattern": "SUGO VILLAG TAMBUN",
+      "group": "SUGO VILLAG TAMBUN",
+      "exact": false
+    },
+    {
+      "pattern": "SALAMKU PASIR PEKAN",
+      "group": "SALAMKU PASIR PEKAN",
+      "exact": false
+    },
+    {
+      "pattern": "SALAMKU SERING",
+      "group": "SALAMKU SERING",
+      "exact": false
+    },
+    {
+      "pattern": "SALAMKU KOTA JEMBAL",
+      "group": "SALAMKU KOTA JEMBAL",
+      "exact": false
+    },
+    {
+      "pattern": "SALAMKU PENGKALAN CHEPA",
+      "group": "SALAMKU PENGKALAN CHEPA",
+      "exact": false
+    },
+    {
+      "pattern": "SALAMKU BUKIT MARAK",
+      "group": "SALAMKU BUKIT MARAK",
+      "exact": false
+    },
+    {
+      "pattern": "SALAMKU TENDONG",
+      "group": "SALAMKU TENDONG",
+      "exact": false
+    },
+    {
+      "pattern": "SALAMKU TANAH MERAH",
+      "group": "SALAMKU TANAH MERAH",
+      "exact": false
+    },
+    {
+      "pattern": "SALAMKU KOK LANAS",
+      "group": "SALAMKU KOK LANAS",
+      "exact": false
+    },
+    {
+      "pattern": "SALAMKU PALOH",
+      "group": "SALAMKU PALOH",
+      "exact": false
+    },
+    {
+      "pattern": "SALAMKU BACHOK",
+      "group": "SALAMKU BACHOK",
+      "exact": false
+    },
+    {
+      "pattern": "S0203",
+      "group": "SUNGAI BULOH",
+      "exact": false
+    },
+    {
+      "pattern": "300-S0204",
+      "group": "TAMAN EHSAN",
+      "exact": true
+    },
+    {
+      "pattern": "300-L0041",
+      "group": "GSP",
+      "exact": true
+    },
+    {
+      "pattern": "300-S0216",
+      "group": "BSD",
+      "exact": true
+    },
+    {
+      "pattern": "300-L0055",
+      "group": "GTK",
+      "exact": true
+    },
+    {
+      "pattern": "300-T0097",
+      "group": "TAIPING",
+      "exact": true
+    },
+    {
+      "pattern": "300-L0059",
+      "group": "PS2",
+      "exact": true
+    },
+    {
+      "pattern": "300-L0008",
+      "group": "SUNGAI DUA",
+      "exact": true
+    },
+    {
+      "pattern": "300-T0142",
+      "group": "TMN PERPEDUAN",
+      "exact": true
+    },
+    {
+      "pattern": "300-L0051",
+      "group": "TANGLING",
+      "exact": true
+    },
+    {
+      "pattern": "300-V0022",
+      "group": "SUNGAI SIPUT",
+      "exact": true
+    },
+    {
+      "pattern": "300-L0058",
+      "group": "TASEK GELUGOR",
+      "exact": true
+    },
+    {
+      "pattern": "300-S0228",
+      "group": "PENGKALAN CHEPA",
+      "exact": true
+    },
+    {
+      "pattern": "300-S0221",
+      "group": "KOTA JEMBAL",
+      "exact": true
+    },
+    {
+      "pattern": "300-V0027",
+      "group": "LAPANGAN JAYA",
+      "exact": true
+    },
+    {
+      "pattern": "300-V0028",
+      "group": "TAPAH",
+      "exact": true
+    },
+    {
+      "pattern": "300-B0122",
+      "group": "TANJUNG CHAT",
+      "exact": true
+    },
+    {
+      "pattern": "300-L0054",
+      "group": "SPC",
+      "exact": true
+    }
+  ],
+  "branch_to_chain": {
+    "BANGI": "CS BROTHER",
+    "KAJANG": "CS BROTHER",
+    "DAMAI": "CS BROTHER",
+    "TUN PERAK": "CS BROTHER",
+    "LANGAT": "CS BROTHER",
+    "BDR TECH": "CS BROTHER",
+    "PARIT RAJA": "TARGET JOHOR",
+    "YONG PENG": "TARGET JOHOR",
+    "KULAI": "TARGET JOHOR",
+    "PONTIAN": "TARGET JOHOR",
+    "BAKRI": "TARGET JOHOR",
+    "SRI KLUANG": "TARGET JOHOR",
+    "KLUANG PERDANA": "TARGET JOHOR",
+    "AIR HITAM": "TARGET JOHOR",
+    "KLUANG PARADE": "TARGET JOHOR",
+    "BATU PAHAT": "TARGET JOHOR",
+    "CASH & CARRY": "TARGET JOHOR",
+    "BENUT": "TARGET JOHOR",
+    "MASAI": "HWA THAI",
+    "GRAND PARIT RAJA": "TARGET JOHOR",
+    "SIMAPANG RENGGAM": "TARGET JOHOR",
+    "SEGAMAT": "BIG 10 FRESHMART",
+    "TTDI": "BSK",
+    "KUALA SELANGOR": "BSK",
+    "RAWANG": "BSK",
+    "MENTAKAB": "BSK",
+    "TRIANG": "BSK",
+    "JERANTUT": "BSK",
+    "TEMERLOH": "BSK",
+    "RAUB": "BSK",
+    "PUNCAK ALAM": "CS GROCER",
+    "PUCHONG": "CS GROCER",
+    "KAJANG MEWAH": "CS GROCER",
+    "METRO": "CS GROCER",
+    "NILAI": "CS GROCER",
+    "REKO": "CS GROCER",
+    "SHAH ALAM": "CLC",
+    "SEMENYIH": "CLC",
+    "SG PELEK SEPANG": "CLC",
+    "BANTING": "CLC",
+    "SG CHUA": "HOCK MEI",
+    "TAMAN MEDAN": "HOCK MEI",
+    "BDR TASIK PUTRI RAWANG": "STAR GROCER",
+    "PARAMOUNT GARDEN PJ": "STAR GROCER",
+    "DAMANSARA": "SOON CHEONG",
+    "TMN MULIA CHERAS": "STAR GROCER",
+    "CYBERJAYA": "STAR GROCER",
+    "KINRARA PUCHONG": "STAR GROCER",
+    "GAMUDA": "STAR GROCER",
+    "BANGI AVENUE": "STAR GROCER",
+    "SAUJANA PUTRA JENJAROM": "STAR GROCER",
+    "SALAK PERDANA SEPANG": "STAR GROCER",
+    "PANDAN KL": "STAR GROCER",
+    "SG BULOH": "SOON CHEONG",
+    "SRI SINAR": "SOON CHEONG",
+    "GOMBAK": "SOON CHEONG",
+    "KLANG": "SOON CHEONG",
+    "TAMAN RASAH": "FAMILY STORE",
+    "SIKAMAT": "FAMILY STORE",
+    "REMBAU": "FAMILY STORE",
+    "TANGKAK": "BIG 10 FRESHMART",
+    "BUKIT BARU": "BIG 10 FRESHMART",
+    "BUKIT GAMBIR": "BIG 10 FRESHMART",
+    "PARIT BAKAR": "BIG 10 FRESHMART",
+    "PARIT YAANI": "BIG 10 FRESHMART",
+    "GAMBANG": "BIG 10 FRESHMART",
+    "GEMENCHEH": "BIG 10 FRESHMART",
+    "KLUANG": "BIG 10 FRESHMART",
+    "RAHANG": "BIG 10 FRESHMART",
+    "AYER HITAM": "BIG 10 FRESHMART",
+    "EXPRESS MART ISAP": "BIG 10 FRESHMART",
+    "LARKIN": "HWA THAI",
+    "KOTA TINGGI": "HWA THAI",
+    "SKS MART": "HWA THAI",
+    "BEST MART": "HWA THAI",
+    "SALENG": "HWA THAI",
+    "TAMPOI": "HWA THAI",
+    "PANDAN 2": "HWA THAI",
+    "THE COMMUNE": "HWA THAI",
+    "GP MALL GELANG PATAH": "HWA THAI",
+    "BBU": "HWA THAI",
+    "PUTERI MART": "HWA THAI",
+    "TODAY'S MART": "HWA THAI",
+    "TAMAN DAYA": "MASLEE",
+    "DESARU UTAMA": "MASLEE",
+    "KEMPAS": "MASLEE",
+    "PULAI PERDANA": "MASLEE",
+    "PULAI UTAMA": "MASLEE",
+    "KEN'S GROCER KSG CYBERJAYA": "MEMIZOOZOO",
+    "MMZZ GROCER @ CHERAS LEN SENG": "MEMIZOOZOO",
+    "MMZZ GROCER @ ARA DAMANSARA": "MEMIZOOZOO",
+    "MMZZ GROCER @ BLOOMSVALE": "MEMIZOOZOO",
+    "MMZZ GROCER @ KENWINGSTON PLATZ": "MEMIZOOZOO",
+    "MMZZ GROCER @ SAMA SQUARE": "MEMIZOOZOO",
+    "JLN GOMBAK": "MEMIZOOZOO",
+    "SENAWANG": "SRI TERNAK",
+    "BDR ENSTEK": "ZEMART",
+    "MANTIN": "ZEMART",
+    "BAHAU": "ZEMART",
+    "MAHSA AVENUE PJ": "MERCEARIA",
+    "SOUTHVILLE DENGKIL": "MERCEARIA",
+    "JELAPANG": "AOMORI",
+    "MANJOI": "AOMORI",
+    "TELUK INTAN": "TY PASARAYA",
+    "STATION 18": "TY PASARAYA",
+    "BATU GAJAH": "TY PASARAYA",
+    "AMPANG": "TY PASARAYA",
+    "PENGKALAN": "TY PASARAYA",
+    "SIMPANG TAIPING": "TY PASARAYA",
+    "TG RAMBUTAN": "TY PASARAYA",
+    "KUALA KANGSAR 1": "TY PASARAYA",
+    "KUALA KANGSAR 2": "TY PASARAYA",
+    "KAMUNTING": "TY PASARAYA",
+    "TOKAI": "TY PASARAYA",
+    "KUALA NERANG": "BORONG DIN",
+    "ALOR JANGGUS": "BORONG DIN",
+    "JITRA": "BORONG DIN",
+    "AS PAUH": "BORONG DIN",
+    "SIMPANG EMPAT": "BORONG DIN",
+    "MERGONG": "BORONG DIN",
+    "KUALA PERLIS": "BORONG DIN",
+    "KANGAR KAPITOL": "BORONG DIN",
+    "SERIAB": "BORONG DIN",
+    "SENA": "BORONG DIN",
+    "JEJAWI": "BORONG DIN",
+    "PADANG BESAR": "BORONG DIN",
+    "MERU RAYA": "V SEGAR",
+    "SG SIPUT": "V SEGAR",
+    "LAPANG JAYA": "V SEGAR",
+    "KODIANG": "PAK TORI",
+    "SANGLANG": "PAK TORI",
+    "TMN KASIH KUALA SG AS": "PAK TORI",
+    "PAK TORI KUALA KEDAH": "PAK TORI",
+    "PENDANG TOKAI": "PAK TORI",
+    "PENDANG TAMAN DAHLIA": "PAK TORI",
+    "DESA IMPIANA MERGONG": "PAK TORI",
+    "MAHSURI YAN": "PAK TORI",
+    "SUKA MENANTI": "PAK TORI",
+    "PARIT BUNTAR": "LS MART",
+    "LS MART PASARAYA SUNGAI PINANG": "LS MART",
+    "LS MART PASARAYA SG DUA": "LS MART",
+    "LS MART PASARAYA SIMPANG AMPAT": "LS MART",
+    "LS MART PASARAYA S/B JURU HQ": "LS MART",
+    "LS MART PASARAYA KAMPUNG BARU BM": "LS MART",
+    "LS MART PASARAYA BANDAR TASEK MUTIARA": "LS MART",
+    "LS MART PASARAYA JALAN JURU": "LS MART",
+    "LS MART PASARAYA TDD": "LS MART",
+    "PADANG SERAI": "LS MART",
+    "SG PETANI": "LS MART",
+    "SUGO VILLAGE KARPAL SINGH SG PINANG": "SUGO",
+    "SUGO VILLAGE TANJUNG BUNGAH": "SUGO",
+    "SUGO VILLAGE BATU FERRINGHI": "SUGO",
+    "SUGO VILLAGE GOLDEN TRIANGLE RELAU": "SUGO",
+    "SUGO VILLAGE SOLARIA SQUARE BAYAN LEPAS": "SUGO",
+    "SUGO VILLAGE SIMPANG AMPAT": "SUGO",
+    "SUGO VILLAGE TELUK BAHANG": "SUGO",
+    "SUGO VILLAG TAMBUN": "SUGO",
+    "BACHOK": "PANTAI TIMOR",
+    "PASIR MAS": "PANTAI TIMOR",
+    "JELAWAT": "PANTAI TIMOR",
+    "BUKIT BUNGA": "PANTAI TIMOR",
+    "PENGKALAN CHEPA": "PANTAI TIMOR",
+    "RANTAU": "PANTAI TIMOR",
+    "KUALA KRAI": "PANTAI TIMOR",
+    "BESUT": "PANTAI TIMOR",
+    "BILLION TJ CHAT": "PANTAI TIMOR",
+    "TANAH MERAH": "PANTAI TIMOR",
+    "SALAMKU PASIR PEKAN": "SALAMKU",
+    "SALAMKU SERING": "SALAMKU",
+    "SALAMKU KOTA JEMBAL": "SALAMKU",
+    "SALAMKU PENGKALAN CHEPA": "SALAMKU",
+    "SALAMKU BUKIT MARAK": "SALAMKU",
+    "SALAMKU TENDONG": "SALAMKU",
+    "SALAMKU TANAH MERAH": "SALAMKU",
+    "SALAMKU KOK LANAS": "SALAMKU",
+    "SALAMKU PALOH": "SALAMKU",
+    "SALAMKU BACHOK": "SALAMKU",
+    "SETIAWANGSA": "SRI TERNAK",
+    "USJ": "SRI TERNAK",
+    "SELAYANG": "SRI TERNAK",
+    "TAMAN EHSAN": "SRI TERNAK",
+    "JAKEL SQUARE": "SRI TERNAK"
+  },
+  "chain_keywords": {
+    "CS BROTHER": "CS BROTHER",
+    "SRI TERNAK": "SRI TERNAK",
+    "ST ROSYAM": "SRI TERNAK",
+    "ST": "SRI TERNAK",
+    "ZEMART": "ZEMART",
+    "SUGO": "SUGO",
+    "PAK TORI": "PAK TORI",
+    "TARGET": "TARGET",
+    "SOON CHEONG": "SOON CHEONG",
+    "STAR GROCER": "STAR GROCER",
+    "CS GROCER": "CS GROCER",
+    "FAMILY MART": "KK FAMILY MART",
+    "FAMILY STORE": "FAMILY STORE",
+    "KENWINGSTON": "MEMIZOOZOO",
+    "LS MART": "LS MART",
+    "BIG 10": "BIG 10",
+    "CLC": "CLC",
+    "MASLEE": "MASLEE",
+    "HWA THAI": "HWA THAI",
+    "BSK": "BSK",
+    "BORONG DIN": "BORONG DIN",
+    "BILLION": "BORONG DIN",
+    "V SEGAR": "V SEGAR",
+    "PANTAI TIMOR": "PANTAI TIMOR",
+    "PANTAI TIMUR": "PANTAI TIMOR",
+    "SALAMKU": "SALAMKU",
+    "MERCEARIA": "MERCEARIA",
+    "AOMORI": "AOMORI",
+    "TY PASARAYA": "TY PASARAYA",
+    "TY PASAR RAYA": "TY PASARAYA",
+    "HOCK MEI": "HOCK MEI",
+    "PASARAYA ECON JAYA ( KELANTAN) SDN BHD": "ECON JAYA"
+  }
+}

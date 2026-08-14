@@ -23,7 +23,19 @@ ROOT = BASE.parent  # repo root — the UI kit and design system assets live her
 DATA = BASE / "data"
 MAPPING_PATH = DATA / "mappings.json"
 CLEAN_PATH = DATA / "clean.parquet"
+SEED_PATH = BASE / "mappings.seed.json"  # committed defaults for a fresh deploy
 UI = "/ui_kits/invoice-cleaner/index.html"
+
+
+def _ensure_mappings() -> None:
+    """On a fresh host (Render, etc.) app/data is empty, so seed the keyword
+    library from the committed defaults the first time the server starts."""
+    if not MAPPING_PATH.exists() and SEED_PATH.exists():
+        DATA.mkdir(parents=True, exist_ok=True)
+        MAPPING_PATH.write_text(SEED_PATH.read_text(encoding="utf-8"), encoding="utf-8")
+
+
+_ensure_mappings()
 
 # The UI kit loads ../../styles.css and ../../_ds_bundle.js, so the repo root is
 # the static root and the UI is served from its own path rather than at "/".

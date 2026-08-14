@@ -3,3 +3,4 @@ pandas>=2.2
 openpyxl>=3.1
 python-calamine>=0.2   # reads exports whose workbook metadata openpyxl rejects
 pyarrow>=15.0
+gunicorn>=21.0         # production WSGI server for Render / Railway

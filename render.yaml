@@ -1,0 +1,14 @@
+# Render Blueprint — deploys Clean Sight as an always-on Flask web service.
+# In Render: New + → Blueprint → pick this repo. Everything below is applied.
+services:
+  - type: web
+    name: clean-sight
+    runtime: python
+    plan: free
+    buildCommand: pip install -r app/requirements.txt
+    # One worker: the cleaned table is kept in a file on the instance, so a
+    # single process keeps it simple and consistent. Long timeout for big files.
+    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
