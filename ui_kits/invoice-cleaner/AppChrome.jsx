@@ -9,12 +9,31 @@ const NAV = [
   { id: "tree", label: "Decomposition", icon: "git-fork" },
 ];
 
+// A little sweeping broom beside the wordmark: white handle, teal bristle fan.
+function BroomMark() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 48 48" fill="none" style={{ flex: "0 0 auto" }} aria-hidden="true">
+      <path d="M40 7 L25 24" stroke="var(--canvas)" strokeWidth="3.4" strokeLinecap="round" />
+      <path d="M19 24.5 L28.5 26.5" stroke="#0a7281" strokeWidth="5.5" strokeLinecap="round" />
+      <path d="M19 25 L28.5 27 L20 44 L9 34 Z" fill="#0a7281" />
+      <g stroke="var(--ink)" strokeWidth="1.3" strokeLinecap="round" opacity="0.5">
+        <path d="M22 27 L13.5 36" />
+        <path d="M24.3 28 L16 39.5" />
+        <path d="M26 28.5 L18.5 43" />
+      </g>
+    </svg>
+  );
+}
+
 function Sidebar({ view, onNavigate, unmapped }) {
   return (
     <aside style={{ width: 264, flex: "0 0 auto", background: "var(--ink)", color: "var(--canvas)", display: "flex", flexDirection: "column", padding: "24px 0", minHeight: "100vh" }}>
       <div style={{ padding: "0 24px 24px", borderBottom: "1px solid var(--ash)" }}>
-        <div style={{ fontFamily: "'Archivo Narrow', Archivo, sans-serif", fontWeight: 700, fontSize: 22, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.1 }}>Invoice Cleaning<br />&amp; Reporting</div>
-        <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--stone)", marginTop: 8 }}>Internal tool</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <BroomMark />
+          <div style={{ fontFamily: "'Archivo Narrow', Archivo, sans-serif", fontWeight: 700, fontSize: 26, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.02 }}>Clean<br />Sight</div>
+        </div>
+        <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--stone)", marginTop: 10 }}>Internal tool</div>
       </div>
       <nav style={{ display: "flex", flexDirection: "column", padding: "16px 12px", gap: 2 }}>
         {NAV.map((n) => {
