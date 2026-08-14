@@ -108,24 +108,28 @@ function GhostButton({ children, icon, onClick, href, disabled }) {
 }
 
 /**
- * Says where the numbers on screen came from. Silent when the API is live —
- * the interesting cases are "this is demo data" and "the backend has nothing yet".
+ * Says where the numbers on screen came from. Silent when the API is live; the
+ * loud case is "the server isn't running" — the usual cause of an error after
+ * the app has sat idle and the python process was stopped.
  */
 function SourceBanner({ onNavigate }) {
   if (window.API && window.API.live) return null;
-  const empty = window.API && window.API.empty;
-  return (
-    <div style={{ display: "flex", gap: 14, alignItems: "flex-start", background: "var(--soft-cloud)", border: "1px solid var(--hairline)", borderLeft: "3px solid var(--ink)", padding: "14px 20px", marginBottom: 24 }}>
-      <Icon name="info" size={18} color="var(--mute)" />
-      <div style={{ flex: 1, fontSize: 13, lineHeight: 1.6, color: "var(--charcoal)" }}>
-        <strong>Sample data.</strong>{" "}
-        {empty
-          ? "The backend is running but no file has been cleaned yet — upload an Invoice Listing export to replace these figures."
-          : "The API isn't reachable, so these figures come from the bundled demo dataset. Start the server with python app/server.py and open localhost:5000."}
+  if (window.API && window.API.serverDown) {
+    return (
+      <div style={{ display: "flex", gap: 14, alignItems: "flex-start", background: "#fff4f4", border: "1px solid var(--sale)", borderLeft: "3px solid var(--sale)", padding: "14px 20px", marginBottom: 24 }}>
+        <Icon name="alert-triangle" size={18} color="var(--sale)" />
+        <div style={{ flex: 1, fontSize: 13, lineHeight: 1.6, color: "var(--charcoal)" }}>
+          <strong style={{ color: "var(--sale)" }}>Can’t reach the server.</strong>{" "}
+          It usually stops when the computer sleeps or the terminal closes. Start it again, then reload this page:
+          <div style={{ marginTop: 8, fontFamily: "ui-monospace, monospace", fontSize: 12, background: "var(--soft-cloud)", padding: "8px 10px", border: "1px solid var(--hairline)" }}>
+            cd Data-Cleaning-System-WMG-<br />.venv\Scripts\python.exe app\server.py
+          </div>
+        </div>
+        <Button size="sm" onClick={() => window.location.reload()}>Reload</Button>
       </div>
-      {empty && onNavigate && <Button size="sm" variant="secondary" onClick={() => onNavigate("upload")}>Upload</Button>}
-    </div>
-  );
+    );
+  }
+  return null;
 }
 
 function Select({ value, onChange, options, label }) {

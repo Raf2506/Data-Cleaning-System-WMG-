@@ -307,9 +307,14 @@
       };
     },
 
-    /** Forget the cleaned table so the app is empty until the next upload. */
+    /** Forget the cleaned table. Returns false when the server is unreachable. */
     async reset() {
-      try { await fetch("/api/reset", { method: "POST" }); } catch (_) { /* ignore */ }
+      try {
+        const res = await fetch("/api/reset", { method: "POST" });
+        return res.ok;
+      } catch (_) {
+        return false; // server not running
+      }
     },
 
     /**
@@ -320,9 +325,13 @@
     async boot({ fresh = false } = {}) {
       API.sample = JSON.parse(JSON.stringify(window.INVOICE));
       if (fresh) {
-        await API.reset();
+        const reachable = await API.reset();
         emptyDataset();
-        API.live = true;
+        // If the reset call couldn't reach the backend, the server is down —
+        // flag it so the UI can tell the user to restart it, rather than
+        // pretending everything is fine and failing on the next action.
+        API.serverDown = !reachable;
+        API.live = reachable;
         API.empty = true;
         return false;
       }
