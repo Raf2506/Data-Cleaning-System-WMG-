@@ -114,6 +114,11 @@
         outlet: s(r.Outlet),
         amount: n(r.Amount),
       })),
+      bestStoreByMonth: (st.best_store_by_month || []).map((r) => ({
+        month: s(r.Month),
+        store: s(r.OutletGroup),
+        amount: n(r.Amount),
+      })),
     };
   }
 
@@ -292,17 +297,16 @@
       };
     },
 
-    /** Drill: no args -> outlets, {outlet} -> its brands, {outlet,brand} -> products. */
-    async breakdown({ outlet, brand } = {}) {
+    /** Drill: {} -> stores, {group} -> branches, {group,outlet} -> brands, +brand -> products. */
+    async breakdown({ group, outlet, brand } = {}) {
       const q = new URLSearchParams();
+      if (group) q.set("group", group);
       if (outlet) q.set("outlet", outlet);
       if (brand) q.set("brand", brand);
       const qs = q.toString();
       const d = await get("/api/breakdown" + (qs ? "?" + qs : ""));
       return {
         level: s(d.level),
-        outlet: s(d.outlet),
-        brand: s(d.brand),
         items: (d.items || []).map((i) => ({ name: s(i.name), amount: n(i.amount) })),
       };
     },
@@ -421,5 +425,17 @@
       outlet: r.outlet,
       amount: r.amount,
     }));
+  };
+
+  /** Best store per month, for the Reports panel. */
+  window.bestStoreByMonth = function (d) {
+    const live = d.stats && d.stats.bestStoreByMonth;
+    if (live && live.length) {
+      return live
+        .slice()
+        .sort((a, b) => a.month.localeCompare(b.month))
+        .map((r) => ({ label: monthLabel(r.month), store: r.store, amount: r.amount }));
+    }
+    return [];
   };
 })();

@@ -104,6 +104,9 @@ def summary_stats(frame: pd.DataFrame) -> dict:
     best_per_month = (
         frame.groupby(["Month", "Outlet"])["Amount"].sum().reset_index().sort_values("Amount", ascending=False)
     )
+    best_store_per_month = (
+        frame.groupby(["Month", "OutletGroup"])["Amount"].sum().reset_index().sort_values("Amount", ascending=False)
+    )
     unmapped = frame[frame["Mapping Status"] == "unmapped"]
     return {
         "total_sales": _total(frame),
@@ -120,6 +123,7 @@ def summary_stats(frame: pd.DataFrame) -> dict:
         if len(months)
         else None,
         "best_outlet_by_month": best_per_month.drop_duplicates("Month").to_dict("records"),
+        "best_store_by_month": best_store_per_month.drop_duplicates("Month").to_dict("records"),
         "unmapped_rows": int(len(unmapped)),
         "unmapped_names": sorted(unmapped["Raw Name"].dropna().unique().tolist()),
     }

@@ -320,24 +320,30 @@ def brands():
 
 @app.get("/api/breakdown")
 def breakdown():
-    """Drill a bar chart: an outlet's brands, or one brand's products within it.
+    """Drill a bar chart down the store hierarchy, best first at every level.
 
-    No params -> outlets. outlet -> that outlet's brands. outlet+brand -> the
-    products of that brand at that outlet, best first.
+    No params -> stores. group -> its branches. group+outlet -> that branch's
+    brands. group+outlet+brand -> that brand's products.
     """
     frame = _scoped_frame()
-    outlet, brand = request.args.get("outlet"), request.args.get("brand")
+    group = request.args.get("group")
+    outlet = request.args.get("outlet")
+    brand = request.args.get("brand")
     if frame.empty:
-        return jsonify({"level": "outlet", "items": []})
+        return jsonify({"level": "store", "items": []})
+    if group:
+        frame = frame[frame["OutletGroup"] == group]
     if outlet:
         frame = frame[frame["Outlet"] == outlet]
     if brand:
         frame = frame[frame["Brand"] == brand]
+    if not group:
+        return jsonify({"level": "store", "items": _rank(frame, "OutletGroup")})
     if not outlet:
-        return jsonify({"level": "outlet", "items": _rank(frame, "Outlet")})
+        return jsonify({"level": "branch", "group": group, "items": _rank(frame, "Outlet")})
     if not brand:
-        return jsonify({"level": "brand", "outlet": outlet, "items": _rank(frame, "Brand")})
-    return jsonify({"level": "product", "outlet": outlet, "brand": brand, "items": _rank(frame, "Product")})
+        return jsonify({"level": "brand", "group": group, "outlet": outlet, "items": _rank(frame, "Brand")})
+    return jsonify({"level": "product", "group": group, "outlet": outlet, "brand": brand, "items": _rank(frame, "Product")})
 
 
 @app.get("/api/reports")
