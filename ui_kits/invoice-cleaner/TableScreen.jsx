@@ -62,7 +62,6 @@ function TableScreen() {
   const d = window.INVOICE;
   const live = window.API.live;
 
-  const stores = live && d.groups ? d.groups : Array.from(new Set(d.rows.map((r) => r.group).filter(Boolean))).sort();
   const months = live && d.months ? d.months : Array.from(new Set(d.rows.map((r) => r.month))).sort();
 
   const [store, setStore] = React.useState("");
@@ -70,6 +69,11 @@ function TableScreen() {
   const [rows, setRows] = React.useState(d.rows);
   const [total, setTotal] = React.useState(d.total || d.rows.length);
   const [loading, setLoading] = React.useState(false);
+  // The store list is refreshed from every response, so it can never offer a
+  // store the current data no longer has (e.g. after a mapping change).
+  const [stores, setStores] = React.useState(
+    live && d.groups ? d.groups : Array.from(new Set(d.rows.map((r) => r.group).filter(Boolean))).sort()
+  );
 
   // Refetch whenever the filter changes. No filter = the whole in-scope table.
   React.useEffect(() => {
@@ -84,7 +88,12 @@ function TableScreen() {
     // thousands of rows at once in the dev React build can freeze the tab; the
     // full data is available through CSV/XLSX export.
     window.API.table({ group: store || undefined, month: month || undefined, limit: RENDER_LIMIT })
-      .then((res) => { if (!cancelled) { setRows(res.rows); setTotal(res.total); } })
+      .then((res) => {
+        if (cancelled) return;
+        setRows(res.rows);
+        setTotal(res.total);
+        if (res.groups && res.groups.length) setStores(res.groups);
+      })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [store, month, live]);
@@ -146,8 +155,16 @@ function TableScreen() {
             </tbody>
           </table>
           {!rows.length && !loading && (
-            <div style={{ padding: "48px 24px", textAlign: "center", color: "var(--mute)", fontSize: 14 }}>
-              {filtered ? `No rows for ${store || month}.` : "No cleaned rows yet."}
+            <div style={{ padding: "48px 24px", textAlign: "center", color: "var(--mute)", fontSize: 14, lineHeight: 1.6 }}>
+              {!filtered ? "No cleaned rows yet — upload a file on Upload & Clean." : (
+                <>
+                  No rows for <strong>{store || month}</strong>
+                  {store && !stores.includes(store) && " — it no longer exists after a mapping change"}.
+                  <div style={{ marginTop: 12 }}>
+                    <Button size="sm" variant="secondary" onClick={() => { setStore(""); setMonth(""); }}>Clear filter</Button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

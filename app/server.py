@@ -40,6 +40,10 @@ _ensure_mappings()
 # The UI kit loads ../../styles.css and ../../_ds_bundle.js, so the repo root is
 # the static root and the UI is served from its own path rather than at "/".
 app = Flask(__name__, static_folder=str(ROOT), static_url_path="")
+# The UI is transpiled in the browser from separate .jsx files. If one is served
+# from cache while another is fresh, the halves disagree (a picker offering a
+# value the fetch no longer understands). Always revalidate.
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 
 
 def _clean_frame() -> pd.DataFrame:

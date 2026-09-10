@@ -49,6 +49,29 @@ function TreeScreen() {
 
   const levels = data ? data.levels : [];
 
+  // Nothing to decompose: either no file has been cleaned yet, or every row is
+  // out of scope. Say which, instead of showing a bare RM 0.00.
+  if (!loading && (!data || !levels.length)) {
+    const noData = !window.INVOICE.total;
+    return (
+      <div>
+        <PageHead kicker="Explore" title="Decomposition" />
+        <Panel>
+          <div style={{ padding: "48px 24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+            <Icon name={noData ? "upload-cloud" : "filter"} size={38} color="var(--mute)" />
+            <div style={{ fontSize: 19, fontWeight: 600 }}>{noData ? "No data yet" : "Nothing in scope"}</div>
+            <div style={{ fontSize: 14, color: "var(--mute)", maxWidth: "48ch", lineHeight: 1.6 }}>
+              {noData
+                ? "Upload an Invoice Listing export on Upload & Clean, then come back to explore it by store, branch, brand and product."
+                : "Every cleaned row matched no Store Name, so there is nothing to break down. Assign stores in Mapping Manager, or switch to All customers."}
+            </div>
+            {!noData && <Button size="sm" variant="secondary" onClick={() => setScope(false)}>Show all customers</Button>}
+          </div>
+        </Panel>
+      </div>
+    );
+  }
+
   return (
     <div>
       <PageHead kicker="Explore" title="Decomposition"
