@@ -58,6 +58,40 @@ table.grid tbody td{border-bottom:1px solid var(--hairline-soft)}
 .statcard{transition:box-shadow .16s ease,transform .12s ease}
 .statcard:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(17,17,17,.12)}
 .golink:hover{background:var(--soft-cloud)!important;padding-left:28px!important}
+
+/* --- Print / PDF ------------------------------------------------------- */
+.print-only{display:none}
+@media print{
+  /* Browsers drop background colours when printing, which erased every bar and
+     donut slice. Force them, or the report prints as blank rectangles. */
+  *,*::before,*::after{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  @page{size:A4 portrait;margin:12mm}
+  html,body{background:#fff!important}
+  aside,.no-print{display:none!important}
+  main{padding:0!important}
+  .print-only{display:block}
+
+  /* Keep a chart and its notes together on one sheet */
+  section,.panel,.printblock{break-inside:avoid;page-break-inside:avoid}
+  .printbreak{break-before:page;page-break-before:always}
+
+  /* Flatten interactive styling that reads as noise on paper */
+  button,a{box-shadow:none!important;transform:none!important}
+  .lift:hover,.statcard:hover{transform:none!important;box-shadow:none!important}
+  table.grid tbody tr:hover{background:transparent!important}
+
+  /* Report header on every sheet */
+  .print-header{border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:14px;
+    display:flex;justify-content:space-between;align-items:flex-end}
+  .print-header h1{font-size:20px;margin:0;text-transform:uppercase}
+  .print-header .meta{font-size:11px;color:#555;text-align:right}
+
+  /* Power BI style note boxes */
+  .notes{border:1px solid #e3c565;background:#fdf7e3;padding:10px 14px;margin-top:10px;
+    font-size:11px;line-height:1.55;color:#3f3a2a}
+  .notes h4{margin:0 0 6px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7a6a2f}
+  .notes li{margin:2px 0}
+}
 </style>
 </head><body><div id="root"></div>
 <script type="text/babel" data-presets="react">

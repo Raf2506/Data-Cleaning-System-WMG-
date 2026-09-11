@@ -104,7 +104,7 @@ function Donut({ rows, labelKey = "product", valueKey = "amount", size = 240, th
           </div>
         ))}
         {collapsible && (
-          <button className="hoverable" onClick={() => setExpanded((v) => !v)}
+          <button className="hoverable no-print" onClick={() => setExpanded((v) => !v)}
             style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 10, padding: "8px 14px", border: "1px solid var(--hairline)", background: "var(--canvas)", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 13, fontWeight: 600, color: "var(--ink)", borderRadius: "var(--radius-pill)" }}>
             <Icon name={expanded ? "chevron-up" : "chevron-down"} size={15} />
             {expanded ? "Show less" : `Show ${hiddenCount} more product${hiddenCount === 1 ? "" : "s"}`}
