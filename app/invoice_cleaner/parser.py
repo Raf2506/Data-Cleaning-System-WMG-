@@ -265,18 +265,26 @@ def _read_line_item(cells: list[Any]) -> tuple[dict, int | None]:
 # than the paginated accounting report. Header labels vary, so they are matched
 # after stripping spaces, dots and underscores.
 TIDY_FIELDS = {
-    "Invoice No": ("docno", "docno", "invoiceno", "documentno"),
-    "Date": ("docdate", "date", "documentdate"),
-    "Code": ("code", "accountcode", "customercode"),
-    "Raw Name": ("name", "customername", "accountname"),
-    "Invoice Total": ("invoiceamount", "documentamount", "invoicetotal"),
-    "Seq": ("seq", "seqno", "line", "lineno"),
+    # Order matters: the first field whose alias set contains a header token
+    # claims it, so "invoiceamount" resolves to the document total rather than
+    # the line amount.
+    "Invoice No": ("docno", "invoiceno", "documentno", "billno", "invno"),
+    "Date": ("docdate", "date", "documentdate", "invoicedate", "billdate",
+             "trxdate", "transactiondate", "postingdate"),
+    "Code": ("code", "accountcode", "customercode", "custcode", "debtorcode"),
+    "Raw Name": ("name", "customername", "accountname", "custname",
+                 "debtorname", "customer"),
+    "Invoice Total": ("invoiceamount", "documentamount", "invoicetotal",
+                      "invoiceamountrm", "doctotal"),
+    "Seq": ("seq", "seqno", "line", "lineno", "lineseq"),
     "GL Code": ("glcode", "gl"),
-    "Product": ("description", "desc", "productdescription", "itemdescription"),
+    "Product": ("description", "desc", "productdescription", "itemdescription",
+                "itemdesc", "productname", "itemname", "item"),
     "Quantity": ("quantity", "qty"),
     "UOM": ("uom", "unit"),
-    "Unit Price": ("unitprice", "price"),
-    "Amount": ("lineamount", "amount", "amountrm", "linetotal"),
+    "Unit Price": ("unitprice", "price", "unitpricerm"),
+    "Amount": ("lineamount", "amount", "amountrm", "linetotal", "lineamountrm",
+               "lineamt", "linetotalrm", "netamount"),
 }
 
 

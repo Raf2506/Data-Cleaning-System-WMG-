@@ -314,11 +314,37 @@ def test_pascalcase_workbook_attributes_are_repaired():
     assert parsed.reported_range == ("1/1/2026", "31/7/2026")
 
 
+def _renamed_tidy_fixture() -> io.BytesIO:
+    """A re-exported (already cleaned) listing: InvoiceDate, not DocDate."""
+    rows = [
+        ["Item Description", "Seq", "GLCode", "Quantity", "UOM", "UnitPrice",
+         "Amount", "InvoiceNo", "InvoiceDate", "CustomerCode", "CustomerName"],
+        ["RASTO ROASTED SESAME SAUCE 250G X 24", 1000, "500-000", 10, "CTN",
+         157.2, 1497.14, "IV12946", datetime(2026, 1, 1), "300-BANGI", "CS BROTHERS SDN BHD"],
+        ["RASTO NACHO CHEESE SAUCE 250G X 24", 2000, "500-000", 2, "CTN",
+         100.0, 200.0, "IV12947", datetime(2026, 6, 30), "300-BANGI", "CS BROTHERS SDN BHD"],
+    ]
+    buffer = io.BytesIO()
+    pd.DataFrame(rows).to_excel(buffer, index=False, header=False)
+    buffer.seek(0)
+    return buffer
+
+
+def test_renamed_date_column_still_yields_months():
+    """InvoiceDate/Invoice_Date must map, or every row loses its month."""
+    parsed = parse_invoice_listing(_renamed_tidy_fixture())
+    assert parsed.line_item_count == 2
+    assert {r["Month"] for r in parsed.rows} == {"2026-01", "2026-06"}
+    assert parsed.rows[0]["Code"] == "300-BANGI"
+    assert parsed.rows[0]["Amount"] == 1497.14
+
+
 if __name__ == "__main__":
     test_pipeline()
     test_papadam_reports_under_cik_suri()
     test_rows_without_a_store_are_out_of_scope()
     test_tidy_table_is_parsed_by_column_name()
+    test_renamed_date_column_still_yields_months()
     test_month_is_read_from_the_dates_not_a_metadata_block()
     test_wide_layout_is_parsed_by_content_not_position()
     test_header_without_iv_prefix_is_not_read_as_a_line_item()
