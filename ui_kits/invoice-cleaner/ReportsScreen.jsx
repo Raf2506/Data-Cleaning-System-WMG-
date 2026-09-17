@@ -40,7 +40,6 @@ function ReportsScreen() {
     : (d.contribution[0] ? { name: d.contribution[0].product, amount: d.contribution[0].amount } : { name: "—", amount: 0 });
   const bestMonth = window.bestMonth(d);
   const share = d.stats.totalSales ? (bestProduct.amount / d.stats.totalSales) * 100 : 0;
-  const perMonth = window.bestStoreByMonth(d);
 
   const stores = d.byStore || [];
   const storeShare = d.stats.totalSales ? (topStore.amount / d.stats.totalSales) * 100 : 0;
@@ -48,6 +47,9 @@ function ReportsScreen() {
     ? (stores.slice(0, 3).reduce((a, r) => a + r.amount, 0) / d.stats.totalSales) * 100
     : 0;
 
+  const uomMix = d.uomMix || [];
+  const brandRanking = d.brandRanking || [];
+  const topPerMonth = d.topStoresPerMonth || [];
   const monthly = d.monthly || [];
   const worstMonth = monthly.length
     ? monthly.reduce((a, m) => (a && a.amount <= m.amount ? a : m), null)
@@ -71,6 +73,8 @@ function ReportsScreen() {
           actions={<>
             <GhostButton icon="download" href={live ? window.API.exportUrl("csv") : null} disabled={!live}>CSV</GhostButton>
             <GhostButton icon="download" href={live ? window.API.exportUrl("xlsx") : null} disabled={!live}>XLSX</GhostButton>
+            <GhostButton icon="table-2" href={live ? window.API.exportUrl("report") : null} disabled={!live}
+              title="Summary, index and one sheet per store">Cleaned XLSX</GhostButton>
             <Button size="sm" iconLeft={<Icon name="file-down" size={16} />} onClick={() => window.print()}>Download PDF</Button>
           </>} />
       </div>
@@ -130,8 +134,35 @@ function ReportsScreen() {
           </div>
         )}
 
+        {uomMix.length > 0 && (
+          <Panel title="3 — How it was sold — unit of measure"
+            note="Quantities in different units are never added together">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(" + Math.min(uomMix.length, 4) + ", 1fr)", gap: 8 }}>
+              {uomMix.map((u) => (
+                <div key={u.bucket} style={{ background: "var(--soft-cloud)", padding: "16px 18px", borderLeft: "4px solid " + window.colorFor(u.bucket) }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--mute)" }}>
+                    {UOM_TITLES[u.bucket] || u.bucket}
+                  </div>
+                  <div style={{ fontFamily: "'Archivo Narrow', Archivo, sans-serif", fontWeight: 700, fontSize: 30, lineHeight: 1.05, marginTop: 8, fontVariantNumeric: "tabular-nums" }}>
+                    {u.quantity.toLocaleString()}
+                  </div>
+                  <div style={{ fontSize: 13, color: "var(--mute)", marginTop: 4 }}>{window.RM(u.amount)}</div>
+                  <div style={{ fontSize: 12, color: "var(--mute)", marginTop: 2 }}>
+                    {u.lines.toLocaleString()} lines · {u.codes.join(", ")}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Notes title="Graph notes — unit of measure" items={uomMix.map((u) =>
+              u.quantity.toLocaleString() + " " + (UOM_TITLES[u.bucket] || u.bucket).toLowerCase()
+                + " over " + u.lines.toLocaleString() + " lines, " + window.RM(u.amount)
+                + " (" + u.codes.join(", ") + ")."
+            )} />
+          </Panel>
+        )}
+
         <div className="printbreak">
-        <Panel title="3 — Product contribution to total sales" note={`Every product by share — ${d.contribution.length} in total`}>
+        <Panel title="4 — Product contribution to total sales" note={`Every product by share — ${d.contribution.length} in total`}>
           <Donut rows={d.contribution} />
           <Notes title="Graph notes — product mix" items={[
             bestProduct.name !== "—" && `${bestProduct.name} leads at ${window.RM(bestProduct.amount)}, ${share.toFixed(1)}% of total sales.`,
@@ -141,23 +172,89 @@ function ReportsScreen() {
         </Panel>
         </div>
 
-        {perMonth.length > 0 && (
-          <Panel title="Best-selling store per month">
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-              {perMonth.map((r) => (
-                <div key={r.label} style={{ background: "var(--soft-cloud)", padding: "14px 16px" }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--mute)" }}>{r.label}</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, marginTop: 6 }}>{r.store}</div>
-                  <div style={{ fontSize: 13, color: "var(--mute)", marginTop: 2, fontVariantNumeric: "tabular-nums" }}>{window.RM(r.amount)}</div>
+        {topPerMonth.length > 0 && (
+          <Panel title="Top 5 best-selling stores per month"
+            note="Ranked within each month, with each store's share of that month">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(" + Math.min(topPerMonth.length, 3) + ", 1fr)", gap: 8 }}>
+              {topPerMonth.map((m) => (
+                <div key={m.month} style={{ border: "1px solid var(--hairline)" }}>
+                  <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--hairline)", display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--mute)" }}>{window.monthLabel(m.month)}</span>
+                    <span style={{ fontSize: 12, color: "var(--mute)", fontVariantNumeric: "tabular-nums" }}>{window.RMk(m.total)}</span>
+                  </div>
+                  {m.stores.map((r, i) => (
+                    <div key={r.store} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", borderBottom: "1px solid var(--hairline-soft)" }}>
+                      <span style={{ flex: "0 0 18px", fontSize: 12, fontWeight: 700, color: "var(--mute)", fontVariantNumeric: "tabular-nums" }}>{i + 1}</span>
+                      <span style={{ width: 10, height: 10, flex: "0 0 auto", background: window.colorFor(r.store) }} />
+                      <span style={{ fontSize: 13, fontWeight: i === 0 ? 700 : 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={r.store}>{r.store}</span>
+                      <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--mute)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{window.RM(r.amount)}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, width: 46, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{(r.share * 100).toFixed(1)}%</span>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
           </Panel>
         )}
+
+        {brandRanking.length > 0 && (
+          <Panel title="Brands, best to worst"
+            note={"All " + brandRanking.length + " brands by sales value, with how each was sold"}>
+            <div style={{ overflowX: "auto" }}>
+              <table className="grid" style={{ width: "100%", borderCollapse: "collapse", minWidth: 680 }}>
+                <thead><tr>
+                  <th style={brandTh}>#</th>
+                  <th style={brandTh}>Brand</th>
+                  <th style={{ ...brandTh, textAlign: "right" }}>Sales</th>
+                  <th style={{ ...brandTh, textAlign: "right" }}>Share</th>
+                  <th style={{ ...brandTh, textAlign: "right" }}>Cartons</th>
+                  <th style={{ ...brandTh, textAlign: "right" }}>Units</th>
+                  <th style={{ ...brandTh, textAlign: "right" }}>Pieces</th>
+                  <th style={{ ...brandTh, textAlign: "right" }}>Other</th>
+                </tr></thead>
+                <tbody>
+                  {brandRanking.map((b, i) => (
+                    <tr key={b.brand}>
+                      <td style={{ ...brandTd, color: "var(--mute)", fontWeight: 700, width: 34 }}>{i + 1}</td>
+                      <td style={brandTd}>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+                          <span style={{ width: 10, height: 10, background: window.colorFor(b.brand) }} />
+                          <span style={{ fontWeight: i === 0 ? 700 : 600 }}>{b.brand}</span>
+                        </span>
+                      </td>
+                      <td style={brandNum}>{window.RM(b.amount)}</td>
+                      <td style={{ ...brandNum, fontWeight: 600 }}>{(b.share * 100).toFixed(1)}%</td>
+                      <td style={brandNum}>{b.carton ? b.carton.toLocaleString() : "—"}</td>
+                      <td style={brandNum}>{b.unit ? b.unit.toLocaleString() : "—"}</td>
+                      <td style={brandNum}>{b.pcs ? b.pcs.toLocaleString() : "—"}</td>
+                      <td style={brandNum}>{b.other ? b.other.toLocaleString() : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Notes title="Graph notes — brands" items={[
+              brandRanking.length > 0 && brandRanking[0].brand + " leads with " + window.RM(brandRanking[0].amount)
+                + ", " + (brandRanking[0].share * 100).toFixed(1) + "% of sales.",
+              brandRanking.length > 1 && "Weakest is " + brandRanking[brandRanking.length - 1].brand
+                + " at " + window.RM(brandRanking[brandRanking.length - 1].amount) + ".",
+              brandRanking.length > 2 && "The top three take "
+                + (brandRanking.slice(0, 3).reduce((a, b) => a + b.share, 0) * 100).toFixed(1) + "% of total sales.",
+            ]} />
+          </Panel>
+        )}
+
       </div>
     </div>
   );
 }
+
+// The four quantity buckets, in the words a reader expects.
+const UOM_TITLES = { CARTON: "Cartons", UNIT: "Units", PCS: "Pieces", OTHER: "Other units" };
+
+const brandTh = { textAlign: "left", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--mute)", padding: "10px 14px", borderBottom: "1px solid var(--ink)", whiteSpace: "nowrap" };
+const brandTd = { padding: "10px 14px", fontSize: 13, verticalAlign: "middle" };
+const brandNum = { ...brandTd, textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" };
 
 /** Power BI style "graph notes" — rendered only into the PDF. */
 function Notes({ title, items }) {

@@ -22,6 +22,7 @@
       file: null,
       stats: { totalSales: 0, period: "", invoices: 0, lineItems: 0, outlets: 0, stores: 0, products: 0, unmappedRows: 0, unmappedNames: [], bestOutlet: null, bestStore: null, bestProduct: null, bestMonth: null, bestOutletByMonth: [] },
       byOutlet: [], byStore: [], contribution: [], monthly: [], brandPie: [], bestProductByOutlet: [],
+      uomMix: [], brandRanking: [], topStoresPerMonth: [],
       rows: [], groups: [], outlets: [], months: [], total: 0,
       stores: [], codes: [],
       parse: { invoices: 0, lineItems: 0, dateFrom: "", dateTo: "", rawNames: 0, continuationRows: 0, discardedRows: 0 },
@@ -178,6 +179,19 @@
           outlet: s(r.Outlet),
           product: s(r.Product),
           amount: n(r.Amount),
+        })),
+        // Quantities in different units can't be summed, so they stay separate.
+        uomMix: (d.uom_mix || []).map((r) => ({
+          bucket: s(r.bucket), quantity: n(r.quantity), amount: n(r.amount),
+          lines: n(r.lines), codes: r.codes || [],
+        })),
+        brandRanking: (d.brand_ranking || []).map((r) => ({
+          brand: s(r.brand), amount: n(r.amount), share: n(r.share), quantity: n(r.quantity),
+          carton: n(r.carton), unit: n(r.unit), pcs: n(r.pcs), other: n(r.other),
+        })),
+        topStoresPerMonth: (d.top_stores_per_month || []).map((m) => ({
+          month: s(m.month), total: n(m.total),
+          stores: (m.stores || []).map((x) => ({ store: s(x.store), amount: n(x.amount), share: n(x.share) })),
         })),
       };
     },
@@ -371,6 +385,9 @@
           byStore: reports.byStore,
           contribution: reports.contribution,
           monthly: reports.monthly,
+          uomMix: reports.uomMix,
+          brandRanking: reports.brandRanking,
+          topStoresPerMonth: reports.topStoresPerMonth,
           brandPie: brands.brands,
           bestProductByOutlet: reports.bestProductByOutlet,
           rows: table.rows,

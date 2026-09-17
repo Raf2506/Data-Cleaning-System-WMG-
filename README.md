@@ -68,6 +68,21 @@ To keep an account out of the figures, point a Store name keyword at
 `(exclude)`; those rows are flagged `excluded` and left out of every total. Every
 clean row carries `Raw Name` and `Mapping Status` for audit.
 
+**The cleaned workbook** (`Cleaned XLSX` on Reports and Upload) is the download
+meant for circulating, not just for re-importing:
+
+- `SUMMARY` — by month, by item brand and the top 15 customers, each with the
+  quantity split across CARTON / UNIT / PCS / OTHER and the amount
+- `INDEX` — every customer with its row count, value, and whether it has a sheet
+- one **sheet per customer**, with each month in its own block of columns side by
+  side, dated, and totalled
+- `CLEAN DATA` — the flat table, month and date first
+- `NOTES` — what the cleaning did
+
+Quantities are never added across units of measure: a carton count and a piece
+count sit in separate columns, and the Reports page shows them as separate
+figures for the same reason.
+
 **Products** are normalised so one SKU stays one SKU: upper-cased, `**FOC**` and
 `**EXCHANGE` markers removed, `250GX 24` → `250G X 24`, `NACHOS` → `NACHO`. The
 unit of measure is carried through raw (`UOM`) and as a word (`Pack Type`:
@@ -86,7 +101,8 @@ one month's upload carry forward to the next.
 | `GET /api/table` | Clean rows, filterable by outlet and month |
 | `GET /api/reports` | Sales by outlet, product contribution, "Others" breakdown, monthly totals |
 | `GET /api/reports/outlet/<outlet>` | Per-outlet product sales, paginated at 24 bars |
-| `GET /api/export/<csv\|xlsx>` | Download the clean table |
+| `GET /api/export/<csv\|xlsx>` | Download the clean table, one flat sheet |
+| `GET /api/export/report` | The multi-sheet cleaned workbook (below) |
 
 Module-level detail is in [`app/README.md`](app/README.md); the screen-to-endpoint
 map is in [`ui_kits/invoice-cleaner/README.md`](ui_kits/invoice-cleaner/README.md).

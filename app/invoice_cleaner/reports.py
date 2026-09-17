@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import pandas as pd
 
+from .workbook import UOM_BUCKETS, breakdown_by_uom, with_uom_columns
+
 BARS_PER_PAGE = 24  # Spec section 3: paginate rather than shrink bars to illegibility.
 
 
@@ -91,6 +93,80 @@ def monthly_sales(frame: pd.DataFrame) -> pd.DataFrame:
     if frame.empty:
         return pd.DataFrame(columns=["Month", "Amount"])
     return frame.groupby("Month", dropna=False)["Amount"].sum().sort_index().reset_index()
+
+
+def uom_mix(frame: pd.DataFrame) -> list[dict]:
+    """How much was sold in each unit of measure — cartons, units, pieces.
+
+    Quantities in different units cannot be added together, so they are reported
+    as separate lines rather than one meaningless grand total.
+    """
+    if frame.empty:
+        return []
+    data = with_uom_columns(frame)
+    amount = pd.to_numeric(data["Amount"], errors="coerce").fillna(0.0)
+    out = []
+    for bucket in UOM_BUCKETS:
+        rows = data[data[bucket] > 0]
+        if rows.empty:
+            continue
+        out.append(
+            {
+                "bucket": bucket,
+                "quantity": float(data[bucket].sum()),
+                "amount": float(amount[data[bucket] > 0].sum()),
+                "lines": int(len(rows)),
+                # The raw codes folded into this bucket, e.g. OTHER = BTL, ROLL.
+                "codes": sorted({str(u).strip().upper() for u in rows["UOM"] if str(u).strip()}),
+            }
+        )
+    return sorted(out, key=lambda r: -r["quantity"])
+
+
+def brand_ranking(frame: pd.DataFrame) -> list[dict]:
+    """Every brand, best to worst, with its unit-of-measure split."""
+    if frame.empty:
+        return []
+    table = breakdown_by_uom(with_uom_columns(frame), "Brand").sort_values("AMOUNT", ascending=False)
+    total = float(table["AMOUNT"].sum()) or 1.0
+    return [
+        {
+            "brand": str(name),
+            "amount": float(values["AMOUNT"]),
+            "share": float(values["AMOUNT"]) / total,
+            "quantity": float(values["QUANTITY"]),
+            **{b.lower(): float(values[b]) for b in UOM_BUCKETS},
+        }
+        for name, values in table.iterrows()
+    ]
+
+
+def top_stores_per_month(frame: pd.DataFrame, top_n: int = 5) -> list[dict]:
+    """The best-selling stores in each month, ranked."""
+    if frame.empty:
+        return []
+    grouped = (
+        frame.groupby(["Month", "OutletGroup"], dropna=False)["Amount"].sum().reset_index()
+    )
+    out = []
+    for month in sorted({m for m in grouped["Month"] if m}):
+        rows = grouped[grouped["Month"] == month].sort_values("Amount", ascending=False)
+        month_total = float(rows["Amount"].sum()) or 1.0
+        out.append(
+            {
+                "month": str(month),
+                "total": float(rows["Amount"].sum()),
+                "stores": [
+                    {
+                        "store": str(r["OutletGroup"]),
+                        "amount": float(r["Amount"]),
+                        "share": float(r["Amount"]) / month_total,
+                    }
+                    for _, r in rows.head(top_n).iterrows()
+                ],
+            }
+        )
+    return out
 
 
 def summary_stats(frame: pd.DataFrame) -> dict:

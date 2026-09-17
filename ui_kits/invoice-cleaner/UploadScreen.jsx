@@ -177,6 +177,8 @@ function UploadScreen({ onNavigate, onCleaned }) {
                     <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
                       <GhostButton icon="download" href={live ? window.API.exportUrl("csv") : null} disabled={!live}>CSV</GhostButton>
                       <GhostButton icon="download" href={live ? window.API.exportUrl("xlsx") : null} disabled={!live}>XLSX</GhostButton>
+                      <GhostButton icon="table-2" href={live ? window.API.exportUrl("report") : null} disabled={!live}
+                        title="Summary, index and one sheet per store">Cleaned XLSX</GhostButton>
                     </div>
                   </>
                 )}

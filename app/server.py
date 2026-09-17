@@ -10,6 +10,7 @@ from werkzeug.exceptions import HTTPException
 
 from invoice_cleaner import (
     MappingLibrary,
+    build_report_workbook,
     clean_dataframe,
     parse_invoice_listing,
     reports,
@@ -374,6 +375,9 @@ def api_reports():
             "contribution": reports.product_contribution(frame).to_dict("records"),
             "monthly": reports.monthly_sales(frame).to_dict("records"),
             "best_product_per_outlet": reports.best_product_per_outlet(frame).to_dict("records"),
+            "uom_mix": reports.uom_mix(frame),
+            "brand_ranking": reports.brand_ranking(frame),
+            "top_stores_per_month": reports.top_stores_per_month(frame),
         }
     )
 
@@ -405,6 +409,14 @@ def export(fmt: str):
     if fmt == "csv":
         return send_file(BytesIO(to_csv_bytes(frame)), mimetype="text/csv",
                          as_attachment=True, download_name="clean_data.csv")
+    if fmt == "report":
+        # The multi-sheet workbook: summary, index, one sheet per store.
+        return send_file(
+            BytesIO(build_report_workbook(frame)),
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            as_attachment=True,
+            download_name="cleaned_report.xlsx",
+        )
     return send_file(
         BytesIO(to_xlsx_bytes(frame)),
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

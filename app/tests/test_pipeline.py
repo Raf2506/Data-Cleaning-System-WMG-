@@ -3,10 +3,12 @@ import zipfile
 from datetime import datetime
 
 import pandas as pd
+from openpyxl import load_workbook
 
-from invoice_cleaner import MappingLibrary, clean_dataframe, parse_invoice_listing
+from invoice_cleaner import MappingLibrary, clean_dataframe, parse_invoice_listing, reports
 from invoice_cleaner.cleaner import detect_brand, normalise_product, pack_type
 from invoice_cleaner.names import split_customer
+from invoice_cleaner.workbook import build_report_workbook, uom_bucket, with_uom_columns
 from invoice_cleaner.parser import suggest_name_groups
 
 
@@ -177,6 +179,74 @@ def test_cleaned_export_can_be_uploaded_again():
     assert parsed.line_item_count == 2
     assert sum(r["Amount"] for r in parsed.rows) == 8400
     assert parsed.rows[0]["Raw Name"] == "99 SPEED MART"
+
+
+def _three_row_frame():
+    """A cleaned table with two stores, two months and three units of measure."""
+    return pd.DataFrame(
+        {
+            "OutletGroup": ["ALPHA", "ALPHA", "BETA"],
+            "Outlet": ["A1", "A1", "B1"],
+            "Invoice No": ["IV-1", "IV-2", "IV-3"],
+            "Date": pd.to_datetime(["2026-06-01", "2026-07-01", "2026-06-02"]),
+            "Month": ["2026-06", "2026-07", "2026-06"],
+            "Brand": ["RASTO", "RASTO", "MONT"],
+            "Product": ["RASTO CHILI SAUCE 1KG X 20"] * 2 + ["MONT SYRUP 750ML X 12"],
+            "Quantity": [10.0, 4.0, 6.0],
+            "UOM": ["CTN", "PCS", "UNIT"],
+            "Pack Type": ["Carton", "Pieces", "Unit"],
+            "Unit Price": [80.0, 5.0, 20.0],
+            "Amount": [800.0, 20.0, 120.0],
+            "Code": ["300-A", "300-A", "300-B"],
+            "Raw Name": ["ALPHA SDN BHD", "ALPHA SDN BHD", "BETA SDN BHD"],
+            "Mapping Status": ["auto", "auto", "auto"],
+        }
+    )
+
+
+def test_quantity_is_split_by_unit_of_measure():
+    """Cartons, pieces and units must never be added into one number."""
+    assert [uom_bucket(u) for u in ("CTN", "CTNe", "PCS", "UNIT", "BTL")] == [
+        "CARTON", "CARTON", "PCS", "UNIT", "OTHER"]
+    split = with_uom_columns(_three_row_frame())
+    assert list(split["CARTON"]) == [10.0, 0.0, 0.0]
+    assert list(split["PCS"]) == [0.0, 4.0, 0.0]
+    assert list(split["UNIT"]) == [0.0, 0.0, 6.0]
+
+
+def test_uom_mix_and_brand_ranking():
+    frame = _three_row_frame()
+    mix = {r["bucket"]: r for r in reports.uom_mix(frame)}
+    assert mix["CARTON"]["quantity"] == 10.0
+    assert mix["PCS"]["codes"] == ["PCS"]
+
+    ranking = reports.brand_ranking(frame)
+    assert [r["brand"] for r in ranking] == ["RASTO", "MONT"]        # best to worst
+    assert round(ranking[0]["share"], 3) == round(820 / 940, 3)
+    assert ranking[1]["unit"] == 6.0
+
+
+def test_top_stores_per_month_ranks_within_each_month():
+    months = reports.top_stores_per_month(_three_row_frame(), top_n=5)
+    assert [m["month"] for m in months] == ["2026-06", "2026-07"]
+    assert [s["store"] for s in months[0]["stores"]] == ["ALPHA", "BETA"]
+    assert round(months[0]["stores"][0]["share"], 4) == round(800 / 920, 4)
+
+
+def test_report_workbook_has_summary_index_and_a_sheet_per_store():
+    book = load_workbook(io.BytesIO(build_report_workbook(_three_row_frame())))
+    assert book.sheetnames[:2] == ["SUMMARY", "INDEX"]
+    assert {"ALPHA", "BETA", "CLEAN DATA", "NOTES"} <= set(book.sheetnames)
+
+    # CLEAN DATA carries the date, which the hand-built template lacked.
+    headers = [c.value for c in book["CLEAN DATA"][1]]
+    assert headers[:3] == ["MONTH", "DATE", "INVOICE NO"]
+    assert book["CLEAN DATA"]["B2"].value is not None
+
+    # ALPHA's two months sit side by side in their own column blocks.
+    alpha = book["ALPHA"]
+    assert alpha["A4"].value == "JUN 2026"
+    assert alpha["M4"].value == "JUL 2026"  # 11 columns + a spacer
 
 
 def test_customer_names_split_into_store_and_branch():
@@ -471,6 +541,10 @@ if __name__ == "__main__":
     test_export_without_line_detail_still_yields_invoice_totals()
     test_unnamed_account_falls_back_to_its_invoice_code()
     test_cleaned_export_can_be_uploaded_again()
+    test_quantity_is_split_by_unit_of_measure()
+    test_uom_mix_and_brand_ranking()
+    test_top_stores_per_month_ranks_within_each_month()
+    test_report_workbook_has_summary_index_and_a_sheet_per_store()
     test_customer_names_split_into_store_and_branch()
     test_tidy_table_is_parsed_by_column_name()
     test_renamed_date_column_still_yields_months()

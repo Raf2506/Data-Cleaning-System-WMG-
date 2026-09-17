@@ -1,6 +1,7 @@
 from .cleaner import clean_dataframe, clean_file, to_csv_bytes, to_xlsx_bytes
 from .mappings import CodeRule, MappingLibrary
 from .parser import ParseResult, parse_invoice_listing, suggest_name_groups
+from .workbook import build_report_workbook
 from . import reports
 
 __all__ = [
@@ -8,6 +9,7 @@ __all__ = [
     "clean_file",
     "to_csv_bytes",
     "to_xlsx_bytes",
+    "build_report_workbook",
     "CodeRule",
     "MappingLibrary",
     "ParseResult",
