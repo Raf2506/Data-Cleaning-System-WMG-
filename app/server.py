@@ -54,15 +54,16 @@ def _clean_frame() -> pd.DataFrame:
 
 
 def _scoped_frame() -> pd.DataFrame:
-    """Only rows that belong to a Store Name — what every report is built on.
+    """Every row that counts — what the reports are built on.
 
-    Out-of-scope rows stay in the stored table for the Dropped tab and audit,
-    but are excluded from all totals so "not in a store = dropped" holds.
+    A customer no Store Name keyword recognises is cleaned into its own store
+    (status "auto") and counts like any other. Only rows the user has explicitly
+    sent to "(exclude)" are held back; they stay in the stored table for audit.
     """
     frame = _clean_frame()
     if frame.empty or "Mapping Status" not in frame.columns:
         return frame
-    return frame[frame["Mapping Status"] != "out-of-scope"]
+    return frame[frame["Mapping Status"] != "excluded"]
 
 
 def _store(frame: pd.DataFrame) -> None:
@@ -148,8 +149,9 @@ def get_mappings():
                     "code": code,
                     "raw": r["Raw Name"] or "",
                     "branch": r["Outlet"] or "",
-                    "store": "" if r["Mapping Status"] == "out-of-scope" else (r["OutletGroup"] or ""),
-                    "dropped": r["Mapping Status"] == "out-of-scope",
+                    "store": "" if r["Mapping Status"] == "excluded" else (r["OutletGroup"] or ""),
+                    "dropped": r["Mapping Status"] == "excluded",
+                    "auto": r["Mapping Status"] == "auto",
                     "amount": float(value.get(code, 0.0)),
                 }
             )
@@ -295,7 +297,16 @@ def tree():
         if scope.empty:
             break
 
-    return jsonify({"total": float(frame["Amount"].fillna(0).sum()), "levels": levels})
+    # The side panel's headline figure and brand pie follow the selection, the
+    # way a cross-filtered Power BI page does: pick a store and both narrow to it.
+    return jsonify(
+        {
+            "total": float(frame["Amount"].fillna(0).sum()),
+            "scope_total": float(scope["Amount"].fillna(0).sum()),
+            "brands": _rank(scope, "Brand"),
+            "levels": levels,
+        }
+    )
 
 
 @app.post("/api/reset")

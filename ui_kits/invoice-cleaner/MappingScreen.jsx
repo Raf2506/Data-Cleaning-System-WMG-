@@ -75,7 +75,10 @@ function MappingScreen({ onSaved }) {
   const has = (v) => !query || String(v).toLowerCase().includes(query.toLowerCase());
   const shownCodes = codes.filter((c) => has(c.code) || has(c.raw) || has(c.branch) || has(c.store));
   const shownStores = stores.filter((s) => has(s.keyword) || has(s.store));
-  const droppedCount = codes.filter((c) => !c.store.trim()).length;
+  // "auto" = the store name was derived from the customer name because no
+  // keyword matched. Those rows count; they are only offered here for review.
+  const droppedCount = codes.filter((c) => c.dropped).length;
+  const autoCount = codes.filter((c) => c.auto).length;
 
   const th = { textAlign: "left", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--mute)", padding: "10px 14px", borderBottom: "1px solid var(--ink)", whiteSpace: "nowrap" };
   const td = { padding: "9px 14px", fontSize: 13, borderBottom: "1px solid var(--hairline-soft)", verticalAlign: "middle" };
@@ -98,13 +101,14 @@ function MappingScreen({ onSaved }) {
         <Panel pad={0} title={null} actions={null}>
           <div style={{ display: "flex", borderBottom: "1px solid var(--hairline)" }}>
             {[
-              ["branch", "Branch names", codes.length, droppedCount],
-              ["store", "Store names", stores.length, 0],
-            ].map(([id, label, n, alert]) => (
+              ["branch", "Branch names", codes.length, droppedCount, autoCount],
+              ["store", "Store names", stores.length, 0, 0],
+            ].map(([id, label, n, alert, auto]) => (
               <button key={id} onClick={() => { setTab(id); setQuery(""); }} style={{ flex: 1, padding: "14px 20px", background: tab === id ? "var(--canvas)" : "var(--soft-cloud)", border: "none", borderBottom: tab === id ? "2px solid var(--ink)" : "2px solid transparent", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 15, fontWeight: 600, color: tab === id ? "var(--ink)" : "var(--mute)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 {label}
                 <span style={{ fontSize: 12, fontWeight: 600, color: "var(--mute)" }}>({n})</span>
-                {alert > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: "var(--canvas)", background: "var(--sale)", padding: "1px 8px", borderRadius: "var(--radius-pill)" }}>{alert} dropped</span>}
+                {alert > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: "var(--canvas)", background: "var(--sale)", padding: "1px 8px", borderRadius: "var(--radius-pill)" }}>{alert} excluded</span>}
+                {auto > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: "#7a5b00", background: "#fdf0cd", padding: "1px 8px", borderRadius: "var(--radius-pill)" }}>{auto} auto-named</span>}
               </button>
             ))}
           </div>
@@ -130,13 +134,13 @@ function MappingScreen({ onSaved }) {
                 </tr></thead>
                 <tbody>
                   {shownCodes.slice(0, 200).map((c) => {
-                    const dropped = !c.store.trim();
+                    const dropped = c.dropped || !c.store.trim();
                     return (
-                      <tr key={c.code} style={{ background: dropped ? "#fff4f4" : undefined }}>
+                      <tr key={c.code} style={{ background: dropped ? "#fff4f4" : c.auto ? "#fffbef" : undefined }}>
                         <td style={{ ...td, fontFamily: "ui-monospace, monospace", color: "var(--charcoal)" }}>{c.code || "—"}</td>
                         <td style={{ ...td, color: "var(--mute)", maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={c.raw}>{c.raw || "—"}</td>
                         <td style={td}><input style={mono} value={c.branch} placeholder={c.code} disabled={!live} onChange={(e) => editCode(c.code, "branch", e.target.value)} /></td>
-                        <td style={td}><input style={{ ...input, color: dropped ? "var(--sale)" : "var(--ink)" }} value={c.store} placeholder="— dropped —" disabled={!live} onChange={(e) => editCode(c.code, "store", e.target.value)} /></td>
+                        <td style={td}><input style={{ ...input, color: dropped ? "var(--sale)" : "var(--ink)" }} value={c.store} placeholder="— excluded —" disabled={!live} title={c.auto ? "Auto-named from the customer name — edit to group it differently" : undefined} onChange={(e) => editCode(c.code, "store", e.target.value)} /></td>
                         <td style={{ ...td, textAlign: "right", fontVariantNumeric: "tabular-nums", color: "var(--mute)" }}>{window.RM(c.amount)}</td>
                       </tr>
                     );
@@ -179,8 +183,11 @@ function MappingScreen({ onSaved }) {
           <Guide icon="git-fork" head="Store names — the groups">
             A keyword matching the name or code sets the store. <code style={mc}>ST</code> → SRI TERNAK groups every ST ROSYAM branch. To include an IKA chain (AEON, LOTUS), add it here.
           </Guide>
-          <Guide icon="alert-triangle" head="No store = dropped" last>
-            A code that matches no store shows red and is left out of every total — a store from your list only appears when the data actually contains it.
+          <Guide icon="wand-2" head="No keyword? It still gets cleaned">
+            A customer matching no keyword is <strong>auto-named</strong> from its own invoice name — legal suffixes dropped, branch lifted out of the brackets. Those rows are shaded amber and count in every total, so a brand-new export is usable straight away. Add a keyword when you want several of them grouped as one store.
+          </Guide>
+          <Guide icon="alert-triangle" head="Leaving an account out" last>
+            To keep staff or internal accounts out of the figures, add a Store name keyword pointing at <code style={mc}>(exclude)</code>. Those rows show red and are left out of every total.
             {!live && <><br /><strong>Read-only</strong> — editing needs the API running.</>}
           </Guide>
         </Panel>

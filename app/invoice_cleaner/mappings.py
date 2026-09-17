@@ -13,6 +13,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .names import split_customer
 from .parser import looks_like_code_name
 
 
@@ -210,21 +211,38 @@ class MappingLibrary:
         return (code or "").strip() or name or "UNKNOWN", False
 
     OUT_OF_SCOPE = "(not a store)"
+    # A Store Names keyword pointing at this value drops its rows instead of
+    # grouping them — the way to keep staff or internal accounts out of the
+    # figures now that an unrecognised name is cleaned rather than discarded.
+    EXCLUDE = "(exclude)"
 
     def group_and_branch(self, raw_name: str, code: str) -> tuple[str, str, str]:
         """Resolve to (OutletGroup, Branch, status).
 
-        The store comes from the raw name or code via the Store Names keywords —
-        "ST ROSYAM..." is SRI TERNAK for every one of its branches, so a store
-        like CLC that no raw name matches simply never appears. A row matching no
-        store is out of scope and dropped. The branch is a Branch Names keyword
-        when one matches, otherwise the invoice code.
+        The Store Names keywords come first: "ST ROSYAM..." is SRI TERNAK for
+        every one of its branches. A name no keyword recognises is *not* dropped
+        — it is cleaned into its own store, so a first upload from a company with
+        an empty keyword list still produces a full clean table. Those rows are
+        flagged "auto" so the Mapping Manager can offer them for review.
+
+        The branch is a Branch Names keyword when one matches, then whatever the
+        name itself carries (a bracketed branch, "c/o ...", "CAWANGAN ..."), and
+        finally the invoice code.
         """
+        derived_store, derived_branch = split_customer(raw_name)
+
+        branch, by_keyword = self.branch_of(raw_name, code)
+        if not by_keyword and derived_branch:
+            branch = derived_branch
+
         store = self.store_of(raw_name, code)
-        branch, _ = self.branch_of(raw_name, code)
-        if not store:
-            return self.OUT_OF_SCOPE, branch, "out-of-scope"
-        return store, branch, "mapped"
+        if store.strip().upper() == self.EXCLUDE.upper():
+            return self.OUT_OF_SCOPE, branch, "excluded"
+        if store:
+            return store, branch, "mapped"
+        if derived_store:
+            return derived_store, branch, "auto"
+        return self.OUT_OF_SCOPE, branch, "excluded"
 
     def unmapped_names(self, raw_names: list[str], codes: dict[str, str] | None = None) -> list[str]:
         """Raw names with no resolution through either layer."""

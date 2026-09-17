@@ -5,6 +5,15 @@ const { Icon, Button } = window.SubtleGradientDesignSystem_21f929;
  * the column to its left, so a path reads left to right: outlet, then brand
  * within that outlet, then product within that brand.
  */
+// The report these columns mirror labels them this way; the API keeps its own
+// field names.
+const LEVEL_LABELS = {
+  OutletGroup: "OutletGroup",
+  Outlet: "Branch",
+  Brand: "Item Brand",
+  Product: "Item Description",
+};
+
 function TreeScreen() {
   const live = window.API.live;
   const [path, setPath] = React.useState([]);
@@ -48,6 +57,9 @@ function TreeScreen() {
   }
 
   const levels = data ? data.levels : [];
+  const brands = (data && data.brands) || [];
+  // The selection's total; at the root it equals the grand total.
+  const scopeTotal = data ? (data.scopeTotal != null ? data.scopeTotal : data.total) : 0;
 
   // Nothing to decompose: either no file has been cleaned yet, or every row is
   // out of scope. Say which, instead of showing a bare RM 0.00.
@@ -63,9 +75,9 @@ function TreeScreen() {
             <div style={{ fontSize: 14, color: "var(--mute)", maxWidth: "48ch", lineHeight: 1.6 }}>
               {noData
                 ? "Upload an Invoice Listing export on Upload & Clean, then come back to explore it by store, branch, brand and product."
-                : "Every cleaned row matched no Store Name, so there is nothing to break down. Assign stores in Mapping Manager, or switch to All customers."}
+                : "Every cleaned row is currently excluded in the Mapping Manager, so there is nothing to break down."}
             </div>
-            {!noData && <Button size="sm" variant="secondary" onClick={() => setScope(false)}>Show all customers</Button>}
+            {!noData && <Button size="sm" variant="secondary" onClick={() => setScope(false)}>Include excluded rows</Button>}
           </div>
         </Panel>
       </div>
@@ -77,7 +89,7 @@ function TreeScreen() {
       <PageHead kicker="Explore" title="Decomposition"
         actions={<div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <div style={{ display: "flex", border: "1px solid var(--hairline)" }}>
-            {[[true, "LKA outlets"], [false, "All customers"]].map(([v, label]) => (
+            {[[true, "Cleaned data"], [false, "Include excluded"]].map(([v, label]) => (
               <button key={label} onClick={() => setScope(v)}
                 style={{ padding: "8px 14px", border: "none", cursor: "pointer", fontFamily: "Archivo, sans-serif", fontSize: 13, fontWeight: 600, background: lkaOnly === v ? "var(--ink)" : "var(--canvas)", color: lkaOnly === v ? "var(--canvas)" : "var(--ink)" }}>
                 {label}
@@ -87,27 +99,31 @@ function TreeScreen() {
           {path.length > 0 && <Button size="sm" variant="secondary" onClick={() => setPath([])}>Reset</Button>}
         </div>} />
 
-      {lkaOnly && (
-        <div style={{ fontSize: 13, color: "var(--mute)", marginBottom: 16, lineHeight: 1.6 }}>
-          Showing only outlets listed in the outlet file, grouped by chain. Rows where the chain is
-          known but the branch isn’t keep the invoice code as their branch.
-        </div>
-      )}
+      <div style={{ fontSize: 13, color: "var(--mute)", marginBottom: 16, lineHeight: 1.6 }}>
+        {lkaOnly
+          ? "Stores come from the Store Names keywords; a customer matching none is cleaned into its own store. Where the name carries no branch, the invoice code stands in."
+          : "Including accounts you sent to “(exclude)” in the Mapping Manager."}
+      </div>
 
       <div style={{ display: "flex", gap: 8, alignItems: "stretch", overflowX: "auto", paddingBottom: 8 }}>
         {/* The root total, mirroring the single node a decomposition tree starts from. */}
-        <div style={{ flex: "0 0 190px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        <div style={{ flex: "0 0 320px", display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ background: "var(--ink)", color: "var(--canvas)", padding: "20px 22px" }}>
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--stone)" }}>
-              Total sales
+              {path.length ? "Sales in selection" : "Total sales"}
             </div>
-            <div style={{ fontFamily: "'Archivo Narrow', Archivo, sans-serif", fontWeight: 700, fontSize: 30, lineHeight: 1.05, marginTop: 8 }}>
-              {window.RM(data ? data.total : 0)}
+            <div style={{ fontFamily: "'Archivo Narrow', Archivo, sans-serif", fontWeight: 700, fontSize: 36, lineHeight: 1.05, marginTop: 8 }}>
+              {window.RMk(scopeTotal)}
+            </div>
+            <div style={{ fontSize: 12, color: "var(--stone)", marginTop: 6, lineHeight: 1.5 }}>
+              {path.length ? path.join(" › ") : "Sum of line amounts, all cleaned rows"}
             </div>
           </div>
-          {path.length > 0 && (
-            <div style={{ fontSize: 12, color: "var(--mute)", marginTop: 12, lineHeight: 1.6 }}>
-              {path.join(" › ")}
+
+          {brands.length > 0 && (
+            <div style={{ border: "1px solid var(--hairline)", background: "var(--canvas)", padding: "16px 18px" }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14 }}>Sales by item brand</div>
+              <Donut rows={brands} labelKey="name" size={168} thickness={34} legendLimit={8} />
             </div>
           )}
         </div>
@@ -118,7 +134,7 @@ function TreeScreen() {
             <div key={level.dimension + depth} style={{ flex: "0 0 300px", border: "1px solid var(--hairline)", background: "var(--canvas)", display: "flex", flexDirection: "column" }}>
               <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--ink)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                 <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--mute)" }}>
-                  {level.dimension}
+                  {LEVEL_LABELS[level.dimension] || level.dimension}
                 </span>
                 {level.selected && (
                   <button onClick={() => choose(depth, level.selected)} title="Clear this level"

@@ -26,7 +26,8 @@ PYTHONPATH=. python tests/test_pipeline.py
 
 - Invoice header: column A matches `^IV-\d+`. Line item: column A is a positive integer `Seq`. Everything else is discarded as report noise.
 - A row where **only** the Description cell is populated, directly after a line item, is a wrapped description — concatenated onto the previous product name.
-- Outlet resolution order: `Name → Group`, then `Code → Group` when the Name is missing or numeric (`10068 AMPANG BARU`). Still unresolved rows are kept and flagged `unmapped` — never dropped, never silently renamed.
+- Outlet resolution order: Store name keyword (name or code) → derived from the invoice name when no keyword matches (status `auto`). Nothing is dropped unless a keyword points at `(exclude)` (status `excluded`).
+- `Pack Type` is the readable unit of measure (CTN → Carton); `UOM` keeps the source code.
 - Every clean row carries `Raw Name` and `Mapping Status` for audit.
 
 Date ranges are read from the file, never hardcoded.

@@ -47,11 +47,25 @@ Invoice context (date, outlet, invoice number) is carried down onto each line
 item, and the reported date range is auto-detected from the file — never
 hardcoded.
 
-**Outlet resolution** runs through a persistent two-layer mapping library:
-`Name → Group` first, then `Code → Group` (exact or fragment match) when the name
-is missing or numeric, e.g. `10068 AMPANG BARU`. Rows that resolve to neither are
-kept and flagged `unmapped` — never dropped, never silently renamed. Every clean
-row carries `Raw Name` and `Mapping Status` for audit.
+**Outlet resolution** runs through a persistent keyword library. A **Store name**
+keyword matching the invoice name or code sets the `OutletGroup` (`ST` → SRI
+TERNAK), and a **Branch name** keyword sets the `Outlet`.
+
+A customer that matches no keyword is **not dropped**. Its store name is derived
+from the invoice name itself — legal suffixes (`SDN BHD`, `BERHAD`, `S/B`) and
+bracketed registration numbers removed, any branch lifted out of the brackets,
+`c/o ...` or `CAWANGAN ...` — and the row is flagged `auto`. That is what lets a
+first upload from a company with an empty keyword list produce a full clean
+table; add a keyword afterwards when several of those should group as one store.
+
+To keep an account out of the figures, point a Store name keyword at
+`(exclude)`; those rows are flagged `excluded` and left out of every total. Every
+clean row carries `Raw Name` and `Mapping Status` for audit.
+
+**Products** are normalised so one SKU stays one SKU: upper-cased, `**FOC**` and
+`**EXCHANGE` markers removed, `250GX 24` → `250G X 24`, `NACHOS` → `NACHO`. The
+unit of measure is carried through raw (`UOM`) and as a word (`Pack Type`:
+Carton, Unit, Pieces, Outer, …).
 
 The mapping library is saved as JSON under `app/data/`, so corrections made in
 one month's upload carry forward to the next.

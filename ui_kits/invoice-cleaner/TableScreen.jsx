@@ -128,7 +128,7 @@ function TableScreen() {
           <table className="grid" style={{ width: "100%", borderCollapse: "collapse", minWidth: 1160 }}>
             <thead><tr>
               <th style={th}>Store</th><th style={th}>Outlet</th><th style={th}>Invoice No</th><th style={th}>Date</th><th style={th}>Product</th>
-              <th style={{ ...th, textAlign: "right" }}>Qty</th><th style={th}>UOM</th>
+              <th style={{ ...th, textAlign: "right" }}>Qty</th><th style={th}>Pack</th>
               <th style={{ ...th, textAlign: "right" }}>Unit price</th><th style={{ ...th, textAlign: "right" }}>Amount</th>
               <th style={th}>Raw name</th>
             </tr></thead>
@@ -146,7 +146,7 @@ function TableScreen() {
                   <td style={td}>{r.date}</td>
                   <td style={{ ...td, whiteSpace: "normal", minWidth: 280, color: "var(--charcoal)" }}>{r.product}</td>
                   <td style={num}>{r.qty}</td>
-                  <td style={{ ...td, color: "var(--mute)" }}>{r.uom}</td>
+                  <td style={{ ...td, color: "var(--mute)" }} title={r.uom}>{r.pack}</td>
                   <td style={num}>{money(r.unit)}</td>
                   <td style={{ ...num, fontWeight: 600 }}>{money(r.amount)}</td>
                   <td style={{ ...td, color: "var(--mute)", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis" }}>{r.raw || "—"}</td>

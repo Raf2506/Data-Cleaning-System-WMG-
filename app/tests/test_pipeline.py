@@ -5,7 +5,8 @@ from datetime import datetime
 import pandas as pd
 
 from invoice_cleaner import MappingLibrary, clean_dataframe, parse_invoice_listing
-from invoice_cleaner.cleaner import detect_brand
+from invoice_cleaner.cleaner import detect_brand, normalise_product, pack_type
+from invoice_cleaner.names import split_customer
 from invoice_cleaner.parser import suggest_name_groups
 
 
@@ -67,13 +68,56 @@ def test_pipeline():
     assert frame["Amount"].sum() == 1900.0
 
 
-def test_rows_without_a_store_are_out_of_scope():
-    """No Store Name matches — the rows are dropped from scope, not renamed."""
+def test_rows_without_a_store_are_cleaned_not_dropped():
+    """An empty keyword list must still produce a usable clean table.
+
+    This is what a first upload from a new company looks like. Before, every row
+    was out of scope and the whole upload came back empty.
+    """
     parsed = parse_invoice_listing(_fixture())
     frame = clean_dataframe(parsed, MappingLibrary())
-    assert len(frame) == 3  # still present in the audit table
-    assert set(frame["Mapping Status"]) == {"out-of-scope"}
-    assert set(frame["OutletGroup"]) == {MappingLibrary.OUT_OF_SCOPE}
+    assert len(frame) == 3
+    assert set(frame["Mapping Status"]) == {"auto"}
+    # "ECONSAVE - AMPANG BARU" splits into its chain and its branch; the numeric
+    # name carries no chain, so the account code stands in.
+    assert set(frame["OutletGroup"]) == {"ECONSAVE", "10068 AMPANG BARU"}
+    assert "AMPANG BARU" in set(frame["Outlet"])
+    assert frame["Amount"].sum() == 1900.0
+
+
+def test_exclude_keyword_drops_rows():
+    """The escape hatch for staff and internal accounts."""
+    m = MappingLibrary()
+    m.set_store("ECONSAVE", MappingLibrary.EXCLUDE)
+    frame = clean_dataframe(parse_invoice_listing(_fixture()), m)
+    excluded = frame[frame["Mapping Status"] == "excluded"]
+    assert len(excluded) == 2
+    assert set(excluded["OutletGroup"]) == {MappingLibrary.OUT_OF_SCOPE}
+
+
+def test_pack_type_and_product_normalisation():
+    """Unit codes become words, and one SKU stays one SKU."""
+    assert pack_type("CTN") == "Carton"
+    assert pack_type("PCS") == "Pieces"
+    assert pack_type("unit") == "Unit"
+    assert pack_type("WIDGET") == "WIDGET"  # unknown codes pass through
+
+    assert normalise_product("RASTO KOREAN SAUCE 250GX 24") == "RASTO KOREAN SAUCE 250G X 24"
+    assert normalise_product("RASTO NACHOS CHEESE SAUCES 250G X 24") == "RASTO NACHO CHEESE SAUCE 250G X 24"
+    assert normalise_product("CIK SURI FISH SAUCE 750ml X 12**FOC**") == "CIK SURI FISH SAUCE 750ML X 12"
+    # "MAX 1KG" must not be split the way "250GX 24" is.
+    assert normalise_product("RASTO MAYO MAX 1KG X 20") == "RASTO MAYO MAX 1KG X 20"
+
+
+def test_customer_names_split_into_store_and_branch():
+    """The conventions the user applies by hand in their own cleaned workbooks."""
+    assert split_customer("99 SPEED MART SDN BHD") == ("99 SPEED MART", "")
+    assert split_customer("AOMORI MART SDN BHD (JELAPANG)") == ("AOMORI MART", "JELAPANG")
+    assert split_customer("SST APPAREL SDN BHD c/o Coffeehub") == ("SST APPAREL", "COFFEEHUB")
+    assert split_customer("MUTAIYAS CASH & CARRY SDN.BHD.") == ("MUTAIYAS CASH & CARRY", "")
+    # A bracketed registration number is not a branch; "(M)" is part of the name.
+    assert split_customer("MOHAMED MEERA SAHIB (M) SDN.BHD. (405938-H)") == (
+        "MOHAMED MEERA SAHIB (M)", "")
 
 
 def _wide_fixture() -> io.BytesIO:
@@ -210,14 +254,21 @@ def test_store_in_name_wins_the_group_branch_only_labels():
     assert branch == "SEMENYIH"
 
 
-def test_no_store_means_out_of_scope():
+def test_unknown_customer_is_auto_named_then_overridden_by_a_keyword():
     m = MappingLibrary(chain_keywords={"ST": "SRI TERNAK"})
-    group, _, status = m.group_and_branch("AEON (KL RDC)", "300-A0118")
-    assert group == MappingLibrary.OUT_OF_SCOPE
-    assert status == "out-of-scope"
-    # Adding AEON as a store brings it into scope.
+    group, branch, status = m.group_and_branch("AEON CO. (M) BHD (KL RDC)", "300-A0118")
+    assert (group, branch, status) == ("AEON CO. (M)", "KL RDC", "auto")
+    # A keyword takes over the grouping and marks the row properly mapped.
     m.set_store("AEON", "AEON")
-    assert m.group_and_branch("AEON (KL RDC)", "300-A0118")[0] == "AEON"
+    assert m.group_and_branch("AEON CO. (M) BHD (KL RDC)", "300-A0118") == (
+        "AEON", "KL RDC", "mapped")
+
+
+def test_exclude_keeps_an_account_out_of_the_figures():
+    m = MappingLibrary(chain_keywords={"STAFF": MappingLibrary.EXCLUDE})
+    group, _, status = m.group_and_branch("STAFF SALES", "300-X0001")
+    assert group == MappingLibrary.OUT_OF_SCOPE
+    assert status == "excluded"
 
 
 def test_chain_keyword_tolerates_plural_but_not_a_longer_word():
@@ -342,7 +393,10 @@ def test_renamed_date_column_still_yields_months():
 if __name__ == "__main__":
     test_pipeline()
     test_papadam_reports_under_cik_suri()
-    test_rows_without_a_store_are_out_of_scope()
+    test_rows_without_a_store_are_cleaned_not_dropped()
+    test_exclude_keyword_drops_rows()
+    test_pack_type_and_product_normalisation()
+    test_customer_names_split_into_store_and_branch()
     test_tidy_table_is_parsed_by_column_name()
     test_renamed_date_column_still_yields_months()
     test_month_is_read_from_the_dates_not_a_metadata_block()
@@ -355,7 +409,8 @@ if __name__ == "__main__":
     test_clean_frame_carries_outlet_group()
     test_chain_name_in_raw_gives_group_with_code_as_branch()
     test_store_in_name_wins_the_group_branch_only_labels()
-    test_no_store_means_out_of_scope()
+    test_unknown_customer_is_auto_named_then_overridden_by_a_keyword()
+    test_exclude_keeps_an_account_out_of_the_figures()
     test_chain_keyword_tolerates_plural_but_not_a_longer_word()
     test_store_with_a_named_branch()
     test_plain_names_map_to_themselves()

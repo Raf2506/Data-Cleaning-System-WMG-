@@ -84,6 +84,7 @@
     product: s(r.Product),
     qty: n(r.Quantity),
     uom: s(r.UOM),
+    pack: s(r["Pack Type"]) || s(r.UOM),
     unit: n(r["Unit Price"]),
     amount: n(r.Amount),
     code: s(r.Code),
@@ -141,6 +142,8 @@
         branch: s(c.branch),
         store: s(c.store),
         dropped: !!c.dropped,
+        // The store name was derived from the customer name, not a keyword.
+        auto: !!c.auto,
         amount: n(c.amount),
         // True when a keyword set the branch, false when it fell back to the code.
         assigned: branchKeywords.has(s(c.code).toUpperCase()),
@@ -199,13 +202,16 @@
     async tree(path = [], { lkaOnly = true } = {}) {
       const params = new URLSearchParams();
       if (path.length) params.set("path", path.join("|"));
-      // In-scope (store-matched) rows are the default; "All customers" adds the
-      // dropped rows back in.
+      // Cleaned rows are the default; the other setting adds back the accounts
+      // the user sent to "(exclude)".
       if (!lkaOnly) params.set("include_unmatched", "1");
       const qs = params.toString();
       const d = await get("/api/tree" + (qs ? "?" + qs : ""));
       return {
         total: n(d.total),
+        // Both follow the selection, so the side panel cross-filters with the tree.
+        scopeTotal: d.scope_total == null ? n(d.total) : n(d.scope_total),
+        brands: (d.brands || []).map((b) => ({ name: s(b.name), amount: n(b.amount) })),
         levels: (d.levels || []).map((lv) => ({
           dimension: s(lv.dimension),
           selected: lv.selected == null ? null : s(lv.selected),
