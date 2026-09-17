@@ -21,6 +21,10 @@ INVOICE_NO_RE = re.compile(r"^IV-\d+", re.IGNORECASE)
 # Some headers lose the prefix and arrive as a bare number, so the document
 # number alone cannot separate an invoice header from a line item's Seq.
 DOC_NO_RE = re.compile(r"^(?:[A-Z]{2}-)?\d+$", re.IGNORECASE)
+
+# Stands in for the product on an export that carried no line-item detail, so the
+# table never implies a SKU the source did not name.
+NO_LINE_DETAIL = "(no line detail in export)"
 DATE_RANGE_RE = re.compile(
     r"from\s+(\d{1,2}/\d{1,2}/\d{4})\s+to\s+(\d{1,2}/\d{1,2}/\d{4})", re.IGNORECASE
 )
@@ -91,6 +95,9 @@ class ParseResult:
     raw_names: list[str] = field(default_factory=list)
     discarded_rows: int = 0
     continuation_rows: int = 0
+    # True when the export carried invoice headers but no Seq/Description detail
+    # rows, so each row here is a whole invoice rather than a line item.
+    header_only: bool = False
 
     def to_frame(self) -> pd.DataFrame:
         return pd.DataFrame(self.rows)
@@ -273,13 +280,14 @@ TIDY_FIELDS = {
              "trxdate", "transactiondate", "postingdate"),
     "Code": ("code", "accountcode", "customercode", "custcode", "debtorcode"),
     "Raw Name": ("name", "customername", "accountname", "custname",
-                 "debtorname", "customer"),
+                 "debtorname", "customer", "customernames"),
     "Invoice Total": ("invoiceamount", "documentamount", "invoicetotal",
                       "invoiceamountrm", "doctotal"),
     "Seq": ("seq", "seqno", "line", "lineno", "lineseq"),
     "GL Code": ("glcode", "gl"),
     "Product": ("description", "desc", "productdescription", "itemdescription",
-                "itemdesc", "productname", "itemname", "item"),
+                "itemdescriptions", "descriptions", "itemdesc", "productname",
+                "itemname", "item"),
     "Quantity": ("quantity", "qty"),
     "UOM": ("uom", "unit"),
     "Unit Price": ("unitprice", "price", "unitpricerm"),
@@ -297,8 +305,10 @@ def _norm_header(value: Any) -> str:
 def _tidy_header(cells: list[Any]) -> dict[str, int] | None:
     """Map a header row to {field: column}, or None if it isn't a tidy header.
 
-    A tidy table is recognised only when the columns that make a line item —
-    a document number, a description and a line amount — are all named.
+    A tidy table needs the two columns that make a line item — a description and
+    an amount — plus something that identifies whose line it is. Requiring an
+    invoice number as well would reject the tool's own cleaned export, which
+    carries a customer and a product but no document number.
     """
     lookup: dict[str, int] = {}
     for i, cell in enumerate(cells):
@@ -308,7 +318,8 @@ def _tidy_header(cells: list[Any]) -> dict[str, int] | None:
         for field, aliases in TIDY_FIELDS.items():
             if token in aliases and field not in lookup:
                 lookup[field] = i
-    if {"Invoice No", "Product", "Amount"} <= lookup.keys():
+    identifies = {"Invoice No", "Date", "Code", "Raw Name"} & lookup.keys()
+    if {"Product", "Amount"} <= lookup.keys() and identifies:
         return lookup
     return None
 
@@ -328,14 +339,15 @@ def _parse_tidy(frame: pd.DataFrame, header_row: int, cols: dict[str, int]) -> P
         invoice_no = _s(cell(row, "Invoice No"))
         product = _s(cell(row, "Product"))
         amount = _num(cell(row, "Amount"))
-        # A row needs an invoice number and either a product or an amount; blank
-        # trailing rows and stray totals are skipped.
-        if not invoice_no or (not product and amount is None):
-            result.discarded_rows += 1
-            continue
-
         doc_date = _parse_date(cell(row, "Date"))
         raw_name = _s(cell(row, "Raw Name"))
+        # A row needs a product or an amount, and something saying whose it is.
+        # The invoice number cannot be required: this tool's own cleaned export
+        # has no document number, and re-uploading one must still work.
+        identified = invoice_no or raw_name or _s(cell(row, "Code")) or doc_date
+        if not identified or (not product and amount is None):
+            result.discarded_rows += 1
+            continue
         result.rows.append(
             {
                 "Invoice No": invoice_no,
@@ -353,7 +365,8 @@ def _parse_tidy(frame: pd.DataFrame, header_row: int, cols: dict[str, int]) -> P
                 "Invoice Total": _num(cell(row, "Invoice Total")),
             }
         )
-        seen_invoices.add(invoice_no)
+        if invoice_no:
+            seen_invoices.add(invoice_no)
         if raw_name:
             seen_names.setdefault(raw_name, None)
         if doc_date:
@@ -385,6 +398,8 @@ def parse_invoice_listing(source: str | bytes, sheet_name: int | str = 0) -> Par
     seen_names: dict[str, None] = {}
     previous_line: dict | None = None
     description_col: int | None = None
+    # Kept so a listing exported without its detail rows is still usable.
+    headers: list[dict] = []
     # Continuations only ever follow their own line item. Tracking this stops the
     # item-summary block at the end of the report — which also has lone
     # description cells — from being stitched onto the last real invoice line.
@@ -408,6 +423,16 @@ def parse_invoice_listing(source: str | bytes, sheet_name: int | str = 0) -> Par
             invoice_no = _s(first)
             doc_date, code, raw_name, invoice_total = _read_invoice_header(cells)
             seen_invoices.add(invoice_no)
+            headers.append(
+                {
+                    "Invoice No": invoice_no,
+                    "Date": doc_date,
+                    "Month": doc_date.strftime("%Y-%m") if doc_date else "",
+                    "Code": code,
+                    "Raw Name": raw_name,
+                    "Invoice Total": invoice_total,
+                }
+            )
             if raw_name:
                 seen_names.setdefault(raw_name, None)
             if doc_date:
@@ -445,6 +470,27 @@ def parse_invoice_listing(source: str | bytes, sheet_name: int | str = 0) -> Par
 
         result.discarded_rows += 1
         previous_line, after_item = None, False
+
+    # An Invoice Listing exported with "show detail" off has every header and no
+    # Seq rows. Dropping it entirely would lose a real month of sales, so each
+    # invoice becomes one row carrying its own total; the product is unknown and
+    # says so rather than being invented.
+    if not result.rows and headers:
+        result.header_only = True
+        for header in headers:
+            line = dict(header)
+            line.update(
+                {
+                    "Seq": None,
+                    "GL Code": "",
+                    "Product": NO_LINE_DETAIL,
+                    "Quantity": None,
+                    "UOM": "",
+                    "Unit Price": None,
+                    "Amount": header.get("Invoice Total"),
+                }
+            )
+            result.rows.append(line)
 
     result.invoice_count = len(seen_invoices)
     result.line_item_count = len(result.rows)

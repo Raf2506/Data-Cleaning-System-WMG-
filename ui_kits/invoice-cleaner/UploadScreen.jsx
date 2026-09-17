@@ -117,6 +117,14 @@ function UploadScreen({ onNavigate, onCleaned }) {
                 <StatCard label="Line items" value={preview.lineItems.toLocaleString()} />
                 <StatCard label="Distinct raw names" value={preview.rawNames} />
               </div>
+              {preview.headerOnly && (
+                <div style={{ marginBottom: 16, padding: "12px 16px", background: "#fdf7e3", border: "1px solid #e3c565", fontSize: 13, color: "#3f3a2a", lineHeight: 1.6 }}>
+                  This export has invoice totals but no line-item detail, so each invoice becomes
+                  one row and the product column reads “(no line detail in export)”. Stores,
+                  branches, dates and amounts are all correct. To get products and brands too,
+                  re-export the Invoice Listing with the detail rows switched on.
+                </div>
+              )}
               <div style={{ display: "flex", flexDirection: "column" }}>
                 {[
                   ["Date range detected in file", rangeLabel()],

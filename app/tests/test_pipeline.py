@@ -109,6 +109,56 @@ def test_pack_type_and_product_normalisation():
     assert normalise_product("RASTO MAYO MAX 1KG X 20") == "RASTO MAYO MAX 1KG X 20"
 
 
+def _header_only_fixture() -> io.BytesIO:
+    """An Invoice Listing exported with the line-item detail switched off."""
+    rows = [
+        ["Invoice Listing", None, None, None, None],
+        ["Doc. No", "Doc. Date", "Code", "Name", "Amount (RM)"],
+        ["IV-17050", "01/08/2026", "300-A0118", "AEON (KL RDC)", 164.46],
+        ["IV-17053", "01/08/2026", "300-SNWG", "ST ROSYAM MART SDN BHD - SNWG", 5683.50],
+    ]
+    buffer = io.BytesIO()
+    pd.DataFrame(rows).to_excel(buffer, index=False, header=False)
+    buffer.seek(0)
+    return buffer
+
+
+def test_export_without_line_detail_still_yields_invoice_totals():
+    """Dropping it would lose a whole month of real sales."""
+    parsed = parse_invoice_listing(_header_only_fixture())
+    assert parsed.header_only is True
+    assert parsed.invoice_count == 2
+    assert sum(r["Amount"] for r in parsed.rows) == 5847.96
+    # The product is unknown and says so, rather than being invented.
+    assert {r["Product"] for r in parsed.rows} == {"(no line detail in export)"}
+
+
+def test_unnamed_account_falls_back_to_its_invoice_code():
+    """Some headers carry only a code; the code is the store, not a dropped row."""
+    group, _, status = MappingLibrary().group_and_branch("", "300-BANGI")
+    assert (group, status) == ("300-BANGI", "auto")
+
+
+def _cleaned_export_fixture() -> io.BytesIO:
+    """This tool's own XLSX export, re-uploaded. No document number anywhere."""
+    rows = [
+        ["CUSTOMER NAME", "OUTLET", "ITEM DESCRIPTIONS", "ITEM BRAND", "QUANTITY", "UNIT PRICE", "AMOUNT"],
+        ["99 SPEED MART", "300-990006", "RASTO GARLIC SPREAD CHEESE 200G X 12", "RASTO", 95, 84, 7980],
+        ["AOMORI MART", "JELAPANG", "SONGKHLA TOMYAM PASTE 227G X 12", "SONGKHLA", 10, 42, 420],
+    ]
+    buffer = io.BytesIO()
+    pd.DataFrame(rows).to_excel(buffer, index=False, header=False)
+    buffer.seek(0)
+    return buffer
+
+
+def test_cleaned_export_can_be_uploaded_again():
+    parsed = parse_invoice_listing(_cleaned_export_fixture())
+    assert parsed.line_item_count == 2
+    assert sum(r["Amount"] for r in parsed.rows) == 8400
+    assert parsed.rows[0]["Raw Name"] == "99 SPEED MART"
+
+
 def test_customer_names_split_into_store_and_branch():
     """The conventions the user applies by hand in their own cleaned workbooks."""
     assert split_customer("99 SPEED MART SDN BHD") == ("99 SPEED MART", "")
@@ -396,6 +446,9 @@ if __name__ == "__main__":
     test_rows_without_a_store_are_cleaned_not_dropped()
     test_exclude_keyword_drops_rows()
     test_pack_type_and_product_normalisation()
+    test_export_without_line_detail_still_yields_invoice_totals()
+    test_unnamed_account_falls_back_to_its_invoice_code()
+    test_cleaned_export_can_be_uploaded_again()
     test_customer_names_split_into_store_and_branch()
     test_tidy_table_is_parsed_by_column_name()
     test_renamed_date_column_still_yields_months()

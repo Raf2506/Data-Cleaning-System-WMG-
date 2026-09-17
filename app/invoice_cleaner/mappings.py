@@ -240,8 +240,12 @@ class MappingLibrary:
             return self.OUT_OF_SCOPE, branch, "excluded"
         if store:
             return store, branch, "mapped"
-        if derived_store:
-            return derived_store, branch, "auto"
+        # Some invoice headers carry only a code ("300-BANGI") with no name at
+        # all. The code is a stable per-account key, so it stands in as the store
+        # — the user's own rule for an outlet the export never names.
+        fallback = derived_store or (code or "").strip().upper()
+        if fallback:
+            return fallback, branch, "auto"
         return self.OUT_OF_SCOPE, branch, "excluded"
 
     def unmapped_names(self, raw_names: list[str], codes: dict[str, str] | None = None) -> list[str]:

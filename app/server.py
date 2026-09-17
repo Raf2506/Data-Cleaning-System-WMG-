@@ -109,6 +109,7 @@ def upload():
             "unmapped_names": unmapped,
             "continuation_rows": parsed.continuation_rows,
             "discarded_rows": parsed.discarded_rows,
+            "header_only": parsed.header_only,
             "suggestions": suggest_name_groups(parsed.raw_names),
         }
     )

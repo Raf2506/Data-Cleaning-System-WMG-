@@ -271,6 +271,8 @@
         unmappedNames: d.unmapped_names || [],
         continuationRows: n(d.continuation_rows),
         discardedRows: n(d.discarded_rows),
+        // The export had invoice headers but no Seq/Description detail rows.
+        headerOnly: !!d.header_only,
         suggestions: d.suggestions || {},
       };
     },
