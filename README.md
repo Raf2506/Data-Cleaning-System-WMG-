@@ -58,6 +58,12 @@ bracketed registration numbers removed, any branch lifted out of the brackets,
 first upload from a company with an empty keyword list produce a full clean
 table; add a keyword afterwards when several of those should group as one store.
 
+Two rules sit alongside that. A customer named only by an internal number and a
+place — `10058 KLEBANG`, `10106 BATU GAJAH` — is an **ECONSAVE** outlet, and the
+place becomes the branch. And Branch name keywords apply only to customers the
+Store name keywords recognise, so a rule written for one chain's branch (`CASH &
+CARRY` for Borong Din) cannot rename an unrelated customer's outlet.
+
 To keep an account out of the figures, point a Store name keyword at
 `(exclude)`; those rows are flagged `excluded` and left out of every total. Every
 clean row carries `Raw Name` and `Mapping Status` for audit.

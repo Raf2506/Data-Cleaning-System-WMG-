@@ -13,7 +13,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .names import split_customer
+from .names import NUMBERED_OUTLET_CHAIN, numbered_outlet, split_customer
 from .parser import looks_like_code_name
 
 
@@ -230,19 +230,31 @@ class MappingLibrary:
         finally the invoice code.
         """
         derived_store, derived_branch = split_customer(raw_name)
-
-        branch, by_keyword = self.branch_of(raw_name, code)
-        if not by_keyword and derived_branch:
-            branch = derived_branch
-
         store = self.store_of(raw_name, code)
+
         if store.strip().upper() == self.EXCLUDE.upper():
-            return self.OUT_OF_SCOPE, branch, "excluded"
+            return self.OUT_OF_SCOPE, self.branch_of(raw_name, code)[0], "excluded"
+
         if store:
+            # Inside the keyword list, the Branch Names keywords apply.
+            branch, by_keyword = self.branch_of(raw_name, code)
+            if not by_keyword and derived_branch:
+                branch = derived_branch
             return store, branch, "mapped"
+
+        # Outside the keyword list, Branch Names keywords are deliberately NOT
+        # applied. They were written for these chains' own branches, and a
+        # fragment like "CASH & CARRY" would otherwise rename the outlet of an
+        # unrelated customer — MUTAIYAS CASH & CARRY is its own store, and its
+        # outlet is the account code, not a Borong Din branch.
+        place = numbered_outlet(raw_name)
+        if place:
+            return NUMBERED_OUTLET_CHAIN, place, "auto"
+
         # Some invoice headers carry only a code ("300-BANGI") with no name at
         # all. The code is a stable per-account key, so it stands in as the store
         # — the user's own rule for an outlet the export never names.
+        branch = derived_branch or (code or "").strip() or (raw_name or "").strip().upper() or "UNKNOWN"
         fallback = derived_store or (code or "").strip().upper()
         if fallback:
             return fallback, branch, "auto"

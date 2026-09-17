@@ -49,6 +49,19 @@ _BRANCH_WORD = re.compile(r"\b(?:CAWANGAN|BRANCH|CAW\.?)\s+(.+)$", re.I)
 # A trailing bracket that is not a registration number, e.g. "(JELAPANG)".
 _TRAILING_BRACKET = re.compile(r"\(([^()]{2,})\)\s*$")
 
+# Some invoices name the customer only by an internal outlet number and a place:
+# "10058 KLEBANG", "10106 BATU GAJAH". The chain is never written on these rows —
+# they are ECONSAVE outlets, confirmed by the user — and the place after the
+# number is the outlet name to use.
+NUMBERED_OUTLET_CHAIN = "ECONSAVE"
+_NUMBERED_OUTLET = re.compile(r"^\d{3,}\s+(.+)$")
+
+
+def numbered_outlet(raw_name: str) -> str:
+    """The place in a "10058 KLEBANG" style name, or "" when it is not one."""
+    found = _NUMBERED_OUTLET.match(_squash(raw_name))
+    return _squash(found.group(1)) if found else ""
+
 
 def _squash(text: str) -> str:
     return re.sub(r"\s+", " ", (text or "").strip()).upper()

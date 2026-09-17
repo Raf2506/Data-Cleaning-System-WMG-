@@ -78,11 +78,31 @@ def test_rows_without_a_store_are_cleaned_not_dropped():
     frame = clean_dataframe(parsed, MappingLibrary())
     assert len(frame) == 3
     assert set(frame["Mapping Status"]) == {"auto"}
-    # "ECONSAVE - AMPANG BARU" splits into its chain and its branch; the numeric
-    # name carries no chain, so the account code stands in.
-    assert set(frame["OutletGroup"]) == {"ECONSAVE", "10068 AMPANG BARU"}
-    assert "AMPANG BARU" in set(frame["Outlet"])
+    # "ECONSAVE - AMPANG BARU" splits into its chain and its branch, and the
+    # numbered name "10068 AMPANG BARU" is an ECONSAVE outlet too.
+    assert set(frame["OutletGroup"]) == {"ECONSAVE"}
+    assert set(frame["Outlet"]) == {"AMPANG BARU"}
     assert frame["Amount"].sum() == 1900.0
+
+
+def test_numbered_outlet_names_are_econsave():
+    """"10058 KLEBANG" names an ECONSAVE outlet; the place is the branch."""
+    m = MappingLibrary()
+    assert m.group_and_branch("10058 KLEBANG", "300-10046") == ("ECONSAVE", "KLEBANG", "auto")
+    assert m.group_and_branch("10106 BATU GAJAH", "300-10106") == ("ECONSAVE", "BATU GAJAH", "auto")
+
+
+def test_branch_keywords_do_not_reach_outside_their_chains():
+    """A "CASH & CARRY" branch rule must not rename MUTAIYAS CASH & CARRY."""
+    m = MappingLibrary()
+    m.set_code("CASH & CARRY", "CASH & CARRY")     # a Borong Din branch rule
+    m.set_store("BORONG DIN", "BORONG DIN")
+    # Borong Din is in the keyword list, so its own branch rule applies.
+    assert m.group_and_branch("BORONG DIN AS CASH & CARRY", "300-B0011")[:2] == (
+        "BORONG DIN", "CASH & CARRY")
+    # Mutaiyas is not, so it keeps its own name and its account code.
+    assert m.group_and_branch("MUTAIYAS CASH & CARRY SDN.BHD.", "300-M0126") == (
+        "MUTAIYAS CASH & CARRY", "300-M0126", "auto")
 
 
 def test_exclude_keyword_drops_rows():
@@ -444,6 +464,8 @@ if __name__ == "__main__":
     test_pipeline()
     test_papadam_reports_under_cik_suri()
     test_rows_without_a_store_are_cleaned_not_dropped()
+    test_numbered_outlet_names_are_econsave()
+    test_branch_keywords_do_not_reach_outside_their_chains()
     test_exclude_keyword_drops_rows()
     test_pack_type_and_product_normalisation()
     test_export_without_line_detail_still_yields_invoice_totals()
