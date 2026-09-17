@@ -254,14 +254,19 @@ def _store_sheet(book: Workbook, name: str, rows: pd.DataFrame, used: set[str], 
     sheet.freeze_panes = "A6"
 
 
-def _notes_sheet(book: Workbook, frame: pd.DataFrame, store_count: int, sheeted: int) -> None:
+def _notes_sheet(book: Workbook, frame: pd.DataFrame, store_count: int, sheeted: int,
+                 scope: str = "") -> None:
     sheet = book.create_sheet("NOTES")
     rows = list(cleaning_notes(frame))
     rows[3:3] = [
         ("Customer sheets", f"{sheeted:,} of {store_count:,} customers have their own sheet."),
         ("Quantity columns", "CARTON / UNIT / PCS / OTHER split QUANTITY by its unit of measure,"),
         ("", "so a carton count is never added to a piece count."),
+        ("Grouping", "Resolved from the Store Names and Branch Names keywords as they stood"),
+        ("", "when this file was downloaded — edit a mapping and download again to see it."),
     ]
+    if scope:
+        rows[3:3] = [("Filtered to", scope)]
     for label, value in rows:
         sheet.append([label, value])
     for row in sheet.iter_rows(min_col=1, max_col=1):
@@ -270,8 +275,12 @@ def _notes_sheet(book: Workbook, frame: pd.DataFrame, store_count: int, sheeted:
     _widths(sheet, {1: 22, 2: 96})
 
 
-def build_report_workbook(frame: pd.DataFrame) -> bytes:
-    """The full cleaned workbook: SUMMARY, INDEX, per-store sheets, CLEAN DATA, NOTES."""
+def build_report_workbook(frame: pd.DataFrame, scope: str = "") -> bytes:
+    """The full cleaned workbook: SUMMARY, INDEX, per-store sheets, CLEAN DATA, NOTES.
+
+    `scope` names any filter the download was taken under, so a one-store file is
+    never mistaken for the whole month.
+    """
     book = Workbook()
     book.remove(book.active)
 
@@ -287,6 +296,8 @@ def build_report_workbook(frame: pd.DataFrame) -> bytes:
     months = sorted({m for m in data["Month"] if m})
     period = (f"{month_label(months[0])} – {month_label(months[-1])}" if len(months) > 1
               else month_label(months[0]) if months else "—")
+    if scope:
+        period = f"{period} · {scope}"
 
     by_store = breakdown_by_uom(data, "OutletGroup")
     by_store["ROWS"] = data.groupby("OutletGroup", dropna=False).size()
@@ -300,7 +311,7 @@ def build_report_workbook(frame: pd.DataFrame) -> bytes:
         sheeted.add(str(name))
     _index_sheet(book, by_store, period, sheeted)
     _clean_data_sheet(book, data)
-    _notes_sheet(book, frame, len(by_store), len(sheeted))
+    _notes_sheet(book, frame, len(by_store), len(sheeted), scope)
 
     # SUMMARY first, then INDEX, then the store sheets, CLEAN DATA and NOTES.
     order = {"SUMMARY": 0, "INDEX": 1}

@@ -202,25 +202,33 @@ def put_mappings():
     return jsonify({"ok": True, "branches": len(m.code_rules), "stores": len(m.chain_keywords)})
 
 
-@app.post("/api/remap")
-def remap():
-    """Re-resolve outlets on the stored clean table after a mapping edit.
+def _apply_mappings(frame: pd.DataFrame) -> pd.DataFrame:
+    """Re-resolve OutletGroup / Outlet / status from the current keyword lists.
 
-    The clean table keeps Code and Raw Name, so corrected mappings can be applied
+    The clean table keeps Code and Raw Name, so a corrected mapping can be applied
     without re-uploading the source file.
     """
-    frame = _clean_frame()
     if frame.empty:
-        return jsonify({"rows": 0, "stats": {}})
+        return frame
     mappings = MappingLibrary.load(MAPPING_PATH)
     resolved = [
         mappings.group_and_branch(row.get("Raw Name", ""), row.get("Code", ""))
         for row in frame.to_dict("records")
     ]
+    frame = frame.copy()
     frame["OutletGroup"] = [group for group, _, _ in resolved]
     frame["Outlet"] = [branch for _, branch, _ in resolved]
     frame["Mapping Status"] = [status for _, _, status in resolved]
-    _store(frame)
+    return frame
+
+
+@app.post("/api/remap")
+def remap():
+    """Apply the current mappings to the stored clean table after an edit."""
+    frame = _clean_frame()
+    if frame.empty:
+        return jsonify({"rows": 0, "stats": {}})
+    _store(_apply_mappings(frame))
     return jsonify({"rows": len(frame), "stats": reports.summary_stats(_scoped_frame())})
 
 
@@ -398,7 +406,11 @@ def api_outlet(outlet: str):
 
 @app.get("/api/export/<fmt>")
 def export(fmt: str):
-    frame = _scoped_frame()
+    # Resolved fresh rather than read straight from the store: a download must
+    # never lag a mapping edit, whichever screen or session made it.
+    frame = _apply_mappings(_clean_frame())
+    if not frame.empty and "Mapping Status" in frame.columns:
+        frame = frame[frame["Mapping Status"] != "excluded"]
     group, outlet, month = request.args.get("group"), request.args.get("outlet"), request.args.get("month")
     if group:
         frame = frame[frame["OutletGroup"] == group]
@@ -411,8 +423,9 @@ def export(fmt: str):
                          as_attachment=True, download_name="clean_data.csv")
     if fmt == "report":
         # The multi-sheet workbook: summary, index, one sheet per store.
+        scope = " · ".join(filter(None, [group, outlet, month]))
         return send_file(
-            BytesIO(build_report_workbook(frame)),
+            BytesIO(build_report_workbook(frame, scope)),
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             as_attachment=True,
             download_name="cleaned_report.xlsx",

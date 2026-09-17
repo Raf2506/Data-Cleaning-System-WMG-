@@ -113,6 +113,8 @@ function TableScreen() {
         actions={<>
           <GhostButton icon="download" href={live ? window.API.exportUrl("csv", filter) : null} disabled={!live}>CSV</GhostButton>
           <GhostButton icon="download" href={live ? window.API.exportUrl("xlsx", filter) : null} disabled={!live}>XLSX</GhostButton>
+          <GhostButton icon="table-2" href={live ? window.API.exportUrl("report", filter) : null} disabled={!live}
+            title="Summary, index and one sheet per store — follows the filters above">Cleaned XLSX</GhostButton>
         </>} />
 
       <div style={{ background: "var(--soft-cloud)", border: "1px solid var(--hairline)", padding: 16, marginBottom: 8, display: "flex", gap: 16, alignItems: "flex-end", flexWrap: "wrap" }}>

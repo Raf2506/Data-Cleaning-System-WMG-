@@ -118,12 +118,12 @@ function StatusTag({ status }) {
   );
 }
 
-function GhostButton({ children, icon, onClick, href, disabled }) {
-  const style = { display: "inline-flex", alignItems: "center", gap: 8, height: 36, padding: "0 16px", background: "var(--canvas)", color: disabled ? "var(--stone)" : "var(--ink)", border: "1px solid var(--hairline)", borderRadius: "var(--radius-pill)", cursor: disabled ? "not-allowed" : "pointer", fontFamily: "Archivo, sans-serif", fontSize: 14, fontWeight: 500, textDecoration: "none" };
+function GhostButton({ children, icon, onClick, href, disabled, title }) {
+  const style = { display: "inline-flex", alignItems: "center", gap: 8, height: 36, padding: "0 16px", background: "var(--canvas)", color: disabled ? "var(--stone)" : "var(--ink)", border: "1px solid var(--hairline)", borderRadius: "var(--radius-pill)", cursor: disabled ? "not-allowed" : "pointer", fontFamily: "Archivo, sans-serif", fontSize: 14, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap" };
   const inner = <>{icon && <Icon name={icon} size={15} />}{children}</>;
   // Downloads have to be real navigations, so exports render as anchors.
-  if (href && !disabled) return <a className="hoverable" href={href} style={style}>{inner}</a>;
-  return <button className="hoverable" onClick={onClick} disabled={disabled} style={style}>{inner}</button>;
+  if (href && !disabled) return <a className="hoverable" href={href} title={title} style={style}>{inner}</a>;
+  return <button className="hoverable" onClick={onClick} disabled={disabled} title={title} style={style}>{inner}</button>;
 }
 
 /**
